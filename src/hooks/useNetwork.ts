@@ -48,7 +48,7 @@ export const useNetwork = ({
       }
       onNetworkConnection?.(ev);
     },
-    [onNetworkConnection]
+    [onNetworkConnection, setTopology]
   );
 
   const handleNetworkQualityChange = useCallback(
@@ -57,7 +57,7 @@ export const useNetwork = ({
       setThreshold((t) => (t !== ev.threshold ? ev.threshold : t));
       onNetworkQualityChange?.(ev);
     },
-    [onNetworkQualityChange]
+    [onNetworkQualityChange, setQuality, setThreshold]
   );
 
   useDailyEvent('network-connection', handleNetworkConnection);
