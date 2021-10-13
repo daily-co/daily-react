@@ -2,11 +2,12 @@ module.exports = {
   root: true,
   env: {
     browser: true,
+    jest: true,
   },
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaFeatures: {
-      modules: true
+      modules: true,
     },
     ecmaVersion: 6,
     sourceType: 'module',
@@ -16,10 +17,15 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'prettier'
+    'prettier',
   ],
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'simple-import-sort', 'prettier'],
+  plugins: ['@typescript-eslint', 'simple-import-sort', 'prettier', 'jest'],
   rules: {
     // Unused vars are checked by @typescript-eslint/no-unused-vars
     'no-unused-vars': 0,
@@ -31,4 +37,12 @@ module.exports = {
     // Imports are sorted via simple-import-sort
     'sort-imports': 0,
   },
+  overrides: [
+    {
+      files: ['test/**/*.test.ts', 'test/**/*.test.tsx'],
+      rules: {
+        'react/display-name': 0,
+      },
+    },
+  ],
 };
