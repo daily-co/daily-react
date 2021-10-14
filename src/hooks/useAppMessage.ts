@@ -9,7 +9,7 @@ interface UseAppMessageArgs<Data> {
 
 export const useAppMessage = <Data = any>({
   onAppMessage,
-}: UseAppMessageArgs<Data>) => {
+}: UseAppMessageArgs<Data> = {}) => {
   const daily = useDaily();
 
   const sendAppMessage = useCallback(
