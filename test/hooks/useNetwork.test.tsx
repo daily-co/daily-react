@@ -9,19 +9,14 @@ import DailyIframe, {
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
-import { RecoilRoot } from 'recoil';
 
-import { DailyContext } from '../../src/DailyProvider';
+import { DailyProvider } from '../../src/DailyProvider';
 import { useNetwork } from '../../src/hooks/useNetwork';
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
-    (
-      <DailyContext.Provider value={callObject}>
-        <RecoilRoot>{children}</RecoilRoot>
-      </DailyContext.Provider>
-    );
+    <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useNetwork', () => {
   it('returns getStats method, quality, threshold & topology with perfect defaults', () => {

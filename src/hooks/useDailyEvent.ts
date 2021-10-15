@@ -1,18 +1,18 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
-import { useDaily } from './useDaily';
+import { DailyEventContext } from '../DailyProvider';
 
 type EventCallback = (event?: DailyEventObject) => void;
 
-export const useDailyEvent = (ev: DailyEvent, callback?: EventCallback) => {
-  const daily = useDaily();
+export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
+  const { on, off } = useContext(DailyEventContext);
 
   useEffect(() => {
-    if (!daily || !callback || !ev) return;
-    daily.on(ev, callback);
+    if (!ev || !callback) return;
+    on(ev, callback);
     return () => {
-      daily.off(ev, callback);
+      off(ev, callback);
     };
-  }, [callback, daily, ev]);
+  }, [callback, ev, off, on]);
 };
