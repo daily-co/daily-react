@@ -4,6 +4,7 @@ const createCallObject = (properties) => {
   const emitter = new EventEmitter;
 
   return {
+    ...emitter,
     accessState: jest.fn(),
     activeSpeakerMode: jest.fn(),
     addFakeParticipant: jest.fn(),

@@ -55,12 +55,27 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     });
   }, []);
 
+  /**
+   * In case events are setup via useDailyEvent before a DailyCall instance is available,
+   * we'll register the events whenever daily is set.
+   */
   const initEventHandlers = useCallback(
     (daily: DailyCall) => {
       if (!daily) return;
-      Object.keys(eventsMap.current).forEach((event) => {
-        daily.off(event as DailyEvent, handleEvent);
-        daily.on(event as DailyEvent, handleEvent);
+      (Object.keys(eventsMap.current) as DailyEvent[]).forEach((event) => {
+        // @ts-ignore
+        const events = daily._events as Record<
+          DailyEvent,
+          Function | Function[]
+        >;
+        if (
+          (typeof events[event] === 'function' &&
+            events[event] !== handleEvent) ||
+          (Array.isArray(events[event]) &&
+            !(events[event] as Function[]).includes(handleEvent))
+        ) {
+          daily.on(event as DailyEvent, handleEvent);
+        }
       });
     },
     [handleEvent]
@@ -100,7 +115,9 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     (ev: DailyEvent, cb: Function) => {
       eventsMap.current[ev]?.delete(cb);
       if (eventsMap.current[ev]?.size === 0) {
-        callObject.current?.off(ev, handleEvent);
+        if (callObject.current) {
+          callObject.current?.off(ev, handleEvent);
+        }
         delete eventsMap.current[ev];
       }
     },
