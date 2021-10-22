@@ -63,25 +63,16 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     (daily: DailyCall) => {
       if (!daily) return;
       (Object.keys(eventsMap.current) as DailyEvent[]).forEach((event) => {
-        // @ts-ignore
-        const events = daily._events as Record<
-          DailyEvent,
-          Function | Function[]
-        >;
-        if (
-          (typeof events[event] === 'function' &&
-            events[event] !== handleEvent) ||
-          (Array.isArray(events[event]) &&
-            !(events[event] as Function[]).includes(handleEvent))
-        ) {
-          daily.on(event as DailyEvent, handleEvent);
-        }
+        daily
+          .off(event as DailyEvent, handleEvent)
+          .on(event as DailyEvent, handleEvent);
       });
     },
     [handleEvent]
   );
 
   useEffect(() => {
+    if (callObject.current) return;
     if ('callObject' in props) {
       callObject.current = props.callObject;
       initEventHandlers(props.callObject);
