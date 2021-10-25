@@ -9,16 +9,16 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 import { RecoilRoot } from 'recoil';
 
-import { DailyContext } from '../../src/DailyProvider';
+import { DailyProvider } from '../../src/DailyProvider';
 import { useAppMessage } from '../../src/hooks/useAppMessage';
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
     (
-      <DailyContext.Provider value={callObject}>
+      <DailyProvider callObject={callObject}>
         <RecoilRoot>{children}</RecoilRoot>
-      </DailyContext.Provider>
+      </DailyProvider>
     );
 
 describe('useAppMessage', () => {
