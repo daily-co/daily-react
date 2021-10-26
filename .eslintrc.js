@@ -31,6 +31,13 @@ module.exports = {
     // Unused vars are checked by @typescript-eslint/no-unused-vars
     'no-unused-vars': 0,
     'prettier/prettier': ['error'],
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      {
+        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+      },
+    ],
     // PropTypes are defined and checked via TypeScript
     'react/prop-types': 0,
     'simple-import-sort/imports': 'error',

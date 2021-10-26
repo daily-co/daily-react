@@ -94,7 +94,9 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
           callObject.current?.on(ev, handleEvent);
         }
       }
-      eventsMap.current[ev]?.add(cb);
+      if (!eventsMap.current[ev]?.has(cb)) {
+        eventsMap.current[ev]?.add(cb);
+      }
     },
     [handleEvent]
   );
