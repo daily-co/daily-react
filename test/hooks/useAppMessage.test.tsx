@@ -46,7 +46,7 @@ describe('useAppMessage', () => {
       daily.emit(event, payload);
     });
     await waitFor(() => {
-      expect(onAppMessage).toHaveBeenCalledWith(payload);
+      expect(onAppMessage).toHaveBeenCalledWith(payload, expect.any(Function));
     });
   });
   it('calling sendMessage calls sendAppMessage', async () => {
