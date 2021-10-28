@@ -3,8 +3,13 @@ import { useCallback } from 'react';
 
 import { useDaily, useDailyEvent } from '..';
 
+type SendAppMessage<Data = any> = (data: Data, to?: string) => void;
+
 interface UseAppMessageArgs<Data> {
-  onAppMessage?(ev: DailyEventObjectAppMessage<Data>): void;
+  onAppMessage?(
+    ev: DailyEventObjectAppMessage<Data>,
+    sendAppMessage?: SendAppMessage<Data>
+  ): void;
 }
 
 export const useAppMessage = <Data = any>({
@@ -12,15 +17,22 @@ export const useAppMessage = <Data = any>({
 }: UseAppMessageArgs<Data> = {}) => {
   const daily = useDaily();
 
-  const sendAppMessage = useCallback(
-    (data: Data, to: string = '*') => {
+  const sendAppMessage: SendAppMessage<Data> = useCallback(
+    (data, to = '*') => {
       if (!daily) return;
       daily.sendAppMessage(data, to);
     },
     [daily]
   );
 
-  useDailyEvent('app-message', onAppMessage);
+  const handleAppMessage = useCallback(
+    (ev: DailyEventObjectAppMessage<Data>) => {
+      onAppMessage?.(ev, sendAppMessage);
+    },
+    [onAppMessage, sendAppMessage]
+  );
+
+  useDailyEvent('app-message', handleAppMessage);
 
   return sendAppMessage;
 };
