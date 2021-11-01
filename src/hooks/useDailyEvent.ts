@@ -5,7 +5,7 @@ import { DailyEventContext } from '../DailyProvider';
 
 type EventCallback = (event?: DailyEventObject) => void;
 
-export const useDailyEvent = (ev: DailyEvent, callback?: EventCallback) => {
+export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
   const { on, off } = useContext(DailyEventContext);
 
   useEffect(() => {
