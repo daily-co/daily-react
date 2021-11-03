@@ -5,7 +5,7 @@ import {
   DailyNetworkTopology,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
-import { atom, useRecoilState } from 'recoil';
+import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
@@ -34,30 +34,34 @@ export const useNetwork = ({
 }: UseNetworkArgs = {}) => {
   const daily = useDaily();
 
-  const [topology, setTopology] = useRecoilState(topologyState);
-  const [quality, setQuality] = useRecoilState(networkQualityState);
-  const [threshold, setThreshold] = useRecoilState(networkThresholdState);
+  const topology = useRecoilValue(topologyState);
+  const quality = useRecoilValue(networkQualityState);
+  const threshold = useRecoilValue(networkThresholdState);
 
-  const handleNetworkConnection = useCallback(
-    (ev: DailyEventObjectNetworkConnectionEvent) => {
-      switch (ev.event) {
-        case 'connected':
-          if (ev.type === 'peer-to-peer') setTopology('peer');
-          if (ev.type === 'sfu') setTopology('sfu');
-          break;
-      }
-      onNetworkConnection?.(ev);
-    },
-    [onNetworkConnection, setTopology]
+  const handleNetworkConnection = useRecoilCallback(
+    ({ set }) =>
+      (ev: DailyEventObjectNetworkConnectionEvent) => {
+        switch (ev.event) {
+          case 'connected':
+            if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
+            if (ev.type === 'sfu') set(topologyState, 'sfu');
+            break;
+        }
+        onNetworkConnection?.(ev);
+      },
+    [onNetworkConnection]
   );
 
-  const handleNetworkQualityChange = useCallback(
-    (ev: DailyEventObjectNetworkQualityEvent) => {
-      setQuality((q) => (q !== ev.quality ? ev.quality : q));
-      setThreshold((t) => (t !== ev.threshold ? ev.threshold : t));
-      onNetworkQualityChange?.(ev);
-    },
-    [onNetworkQualityChange, setQuality, setThreshold]
+  const handleNetworkQualityChange = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (ev: DailyEventObjectNetworkQualityEvent) => {
+        const q = await snapshot.getPromise(networkQualityState);
+        const t = await snapshot.getPromise(networkThresholdState);
+        set(networkQualityState, q !== ev.quality ? ev.quality : q);
+        set(networkThresholdState, t !== ev.threshold ? ev.threshold : t);
+        onNetworkQualityChange?.(ev);
+      },
+    [onNetworkQualityChange]
   );
 
   useDailyEvent('network-connection', handleNetworkConnection);
