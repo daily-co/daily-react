@@ -1,7 +1,8 @@
 import { DailyEventObjectAppMessage } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 
-import { useDaily, useDailyEvent } from '..';
+import { useDaily } from './useDaily';
+import { useDailyEvent } from './useDailyEvent';
 
 type SendAppMessage<Data = any> = (data: Data, to?: string) => void;
 
