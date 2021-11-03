@@ -9,7 +9,6 @@ import {
   selector,
   useRecoilCallback,
   useRecoilValue,
-  useSetRecoilState,
 } from 'recoil';
 
 import { useDaily } from './useDaily';
@@ -58,43 +57,43 @@ export const useWaitingParticipants = ({
 }: UseWaitingParticipantsArgs = {}) => {
   const daily = useDaily();
 
-  const setWaitingParticipants = useSetRecoilState(waitingParticipantsState);
   const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
 
-  const updateWaitingParticipant = useRecoilCallback(
+  const handleAdded = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (ev: DailyEventObjectWaitingParticipant) => {
+        const wps = await snapshot.getPromise(waitingParticipantsState);
+        if (!wps.includes(ev.participant.id)) {
+          set(waitingParticipantsState, [...wps, ev.participant.id]);
+        }
+        set(waitingParticipantState(ev.participant.id), ev.participant);
+        onWaitingParticipantAdded?.(ev);
+      },
+    [onWaitingParticipantAdded]
+  );
+
+  const handleRemoved = useRecoilCallback(
+    ({ reset, set, snapshot }) =>
+      async (ev: DailyEventObjectWaitingParticipant) => {
+        const wps = await snapshot.getPromise(waitingParticipantsState);
+        set(
+          waitingParticipantsState,
+          wps.filter((wp) => wp !== ev.participant.id)
+        );
+        reset(waitingParticipantState(ev.participant.id));
+        onWaitingParticipantRemoved?.(ev);
+      },
+    [onWaitingParticipantRemoved]
+  );
+
+  const handleUpdated = useRecoilCallback(
     ({ set }) =>
-      (participant: DailyWaitingParticipant) => {
-        set(waitingParticipantState(participant.id), participant);
-      }
+      (ev: DailyEventObjectWaitingParticipant) => {
+        set(waitingParticipantState(ev.participant.id), ev.participant);
+        onWaitingParticipantUpdated?.(ev);
+      },
+    [onWaitingParticipantUpdated]
   );
-  const resetWaitingParticipant = useRecoilCallback(
-    ({ reset }) =>
-      (participant: DailyWaitingParticipant) => {
-        reset(waitingParticipantState(participant.id));
-      }
-  );
-
-  const handleAdded = (ev: DailyEventObjectWaitingParticipant) => {
-    setWaitingParticipants((wps) => {
-      if (wps.includes(ev.participant.id)) return wps;
-      return [...wps, ev.participant.id];
-    });
-    updateWaitingParticipant(ev.participant);
-    onWaitingParticipantAdded?.(ev);
-  };
-
-  const handleRemoved = (ev: DailyEventObjectWaitingParticipant) => {
-    setWaitingParticipants((wps) =>
-      wps.filter((wp) => wp !== ev.participant.id)
-    );
-    resetWaitingParticipant(ev.participant);
-    onWaitingParticipantRemoved?.(ev);
-  };
-
-  const handleUpdated = (ev: DailyEventObjectWaitingParticipant) => {
-    updateWaitingParticipant(ev.participant);
-    onWaitingParticipantUpdated?.(ev);
-  };
 
   useDailyEvent('waiting-participant-added', handleAdded);
   useDailyEvent('waiting-participant-removed', handleRemoved);
