@@ -45,4 +45,28 @@ describe('useDailyEvent', () => {
     );
     expect(daily.on).toHaveBeenCalledTimes(1);
   });
+  it('logs an error if callback is an unstable reference', async () => {
+    const daily = DailyIframe.createCallObject();
+    const consoleError = console.error;
+    console.error = jest.fn();
+    const { rerender } = renderHook(
+      () => {
+        useDailyEvent('app-message', () => {});
+      },
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    // Loop simulates re-render loop
+    for (let i = 0; i < 200; i++) {
+      rerender();
+    }
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'useDailyEvent called with potentially non-memoized event callback'
+      ),
+      expect.any(Function)
+    );
+    console.error = consoleError;
+  });
 });
