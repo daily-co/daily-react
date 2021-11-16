@@ -1,6 +1,7 @@
 import {
   DailyEventObjectParticipant,
   DailyEventObjectParticipants,
+  DailyParticipant,
   DailyTrackState,
 } from '@daily-co/daily-js';
 import { useEffect, useMemo } from 'react';
@@ -9,27 +10,23 @@ import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
-type VideoType = 'video' | 'screenVideo';
+type MediaType = keyof DailyParticipant['tracks'];
 
-const videoTrackState = atomFamily<DailyTrackState, string>({
-  key: 'video-track',
+const mediaTrackState = atomFamily<DailyTrackState, string>({
+  key: 'media-track',
   default: {
     state: 'loading',
     subscribed: false,
   },
 });
 
-export const useVideoTrack = (
+export const useMediaTrack = (
   participantId: string,
-  videoType: VideoType = 'video'
+  type: MediaType = 'video'
 ) => {
   const daily = useDaily();
-  const key = useMemo(
-    () =>
-      videoType === 'screenVideo' ? `${participantId}-screen` : participantId,
-    [participantId, videoType]
-  );
-  const trackState = useRecoilValue(videoTrackState(key));
+  const key = useMemo(() => `${participantId}-${type}`, [participantId, type]);
+  const trackState = useRecoilValue(mediaTrackState(key));
 
   const handleNewParticipantState = useRecoilCallback(
     ({ set, reset }) =>
@@ -38,14 +35,14 @@ export const useVideoTrack = (
         switch (ev.action) {
           case 'participant-joined':
           case 'participant-updated':
-            set(videoTrackState(key), ev.participant.tracks[videoType]);
+            set(mediaTrackState(key), ev.participant.tracks[type]);
             break;
           case 'participant-left':
-            reset(videoTrackState(key));
+            reset(mediaTrackState(key));
             break;
         }
       },
-    [key, participantId, videoType]
+    [key, participantId, type]
   );
 
   useDailyEvent('participant-joined', handleNewParticipantState);
@@ -57,9 +54,9 @@ export const useVideoTrack = (
     useRecoilCallback(
       ({ set }) =>
         (ev: DailyEventObjectParticipants) => {
-          set(videoTrackState(key), ev.participants.local.tracks[videoType]);
+          set(mediaTrackState(key), ev.participants.local.tracks[type]);
         },
-      [key, videoType]
+      [key, type]
     )
   );
 
@@ -68,9 +65,9 @@ export const useVideoTrack = (
       () => {
         const participants = daily?.participants();
         if (!participants?.local) return;
-        set(videoTrackState(key), participants.local.tracks[videoType]);
+        set(mediaTrackState(key), participants.local.tracks[type]);
       },
-    [daily, key, videoType]
+    [daily, key, type]
   );
   useEffect(() => {
     if (!daily) return;
