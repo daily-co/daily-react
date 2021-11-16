@@ -1,7 +1,11 @@
 export { DailyProvider } from './DailyProvider';
 export { useAppMessage } from './hooks/useAppMessage';
+export { useAudioTrack } from './hooks/useAudioTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
+export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
+export { useScreenVideoTrack } from './hooks/useScreenVideoTrack';
+export { useVideoTrack } from './hooks/useVideoTrack';
 export { useWaitingParticipants } from './hooks/useWaitingParticipants';
