@@ -71,8 +71,8 @@ export const useMediaTrack = (
   );
   useEffect(() => {
     if (!daily) return;
-    const localParticipant = daily.participants().local;
-    if (localParticipant.session_id !== participantId) return;
+    const localParticipant = daily.participants()?.local;
+    if (localParticipant?.session_id !== participantId) return;
     setLocalState();
   }, [daily, participantId, setLocalState]);
 
