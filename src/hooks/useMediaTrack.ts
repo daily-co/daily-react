@@ -60,21 +60,24 @@ export const useMediaTrack = (
     )
   );
 
-  const setLocalState = useRecoilCallback(
+  const setInitialState = useRecoilCallback(
     ({ set }) =>
-      () => {
-        const participants = daily?.participants();
-        if (!participants?.local) return;
-        set(mediaTrackState(key), participants.local.tracks[type]);
+      (initialState: DailyTrackState) => {
+        if (!initialState) return;
+        set(mediaTrackState(key), initialState);
       },
-    [daily, key, type]
+    [key]
   );
   useEffect(() => {
     if (!daily) return;
-    const localParticipant = daily.participants()?.local;
-    if (localParticipant?.session_id !== participantId) return;
-    setLocalState();
-  }, [daily, participantId, setLocalState]);
+    const participants = daily?.participants();
+    if (!participants) return;
+    const participant = Object.values(participants).find(
+      (p) => p.session_id === participantId
+    );
+    if (!participant) return;
+    setInitialState(participant.tracks[type]);
+  }, [daily, participantId, setInitialState, type]);
 
   return {
     ...trackState,
