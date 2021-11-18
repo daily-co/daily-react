@@ -3,6 +3,7 @@ export { useAppMessage } from './hooks/useAppMessage';
 export { useAudioTrack } from './hooks/useAudioTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';
+export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
