@@ -44,15 +44,6 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   );
   const eventsMap = useRef<EventsMap>({});
 
-  useEffect(() => {
-    if ('callObject' in props) {
-      callObject.current = props.callObject;
-      return;
-    }
-    const co = DailyIframe.createCallObject(props);
-    callObject.current = co;
-  }, [props]);
-
   /**
    * Generic event handler to loop through registered event callbacks.
    */
@@ -65,14 +56,43 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   }, []);
 
   /**
+   * In case events are setup via useDailyEvent before a DailyCall instance is available,
+   * we'll register the events whenever daily is set.
+   */
+  const initEventHandlers = useCallback(
+    (daily: DailyCall) => {
+      if (!daily) return;
+      (Object.keys(eventsMap.current) as DailyEvent[]).forEach((event) => {
+        daily
+          .off(event as DailyEvent, handleEvent)
+          .on(event as DailyEvent, handleEvent);
+      });
+    },
+    [handleEvent]
+  );
+
+  useEffect(() => {
+    if (callObject.current) return;
+    if ('callObject' in props) {
+      callObject.current = props.callObject;
+      initEventHandlers(props.callObject);
+      return;
+    }
+    const co = DailyIframe.createCallObject(props);
+    callObject.current = co;
+    initEventHandlers(co);
+  }, [initEventHandlers, props]);
+
+  /**
    * Registers event callback.
    */
   const on = useCallback(
     (ev: DailyEvent, cb: Function) => {
-      if (!callObject.current) return;
       if (!eventsMap.current[ev]) {
         eventsMap.current[ev] = new Set();
-        callObject.current.on(ev, handleEvent);
+        if (callObject.current) {
+          callObject.current?.on(ev, handleEvent);
+        }
       }
       eventsMap.current[ev]?.add(cb);
     },
@@ -84,10 +104,11 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
    */
   const off = useCallback(
     (ev: DailyEvent, cb: Function) => {
-      if (!callObject.current) return;
       eventsMap.current[ev]?.delete(cb);
       if (eventsMap.current[ev]?.size === 0) {
-        callObject.current.off(ev, handleEvent);
+        if (callObject.current) {
+          callObject.current?.off(ev, handleEvent);
+        }
         delete eventsMap.current[ev];
       }
     },
