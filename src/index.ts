@@ -6,6 +6,7 @@ export { useDailyEvent } from './hooks/useDailyEvent';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
+export { useScreenShare } from './hooks/useScreenShare';
 export { useScreenVideoTrack } from './hooks/useScreenVideoTrack';
 export { useVideoTrack } from './hooks/useVideoTrack';
 export { useWaitingParticipants } from './hooks/useWaitingParticipants';
