@@ -49,7 +49,7 @@ export const useParticipant = (
   );
   useEffect(() => {
     if (!daily) return;
-    const participant = Object.values(daily.participants()).find(
+    const participant = Object.values(daily.participants() ?? {}).find(
       (p) => p.session_id === sessionId
     );
     if (!participant) return;
