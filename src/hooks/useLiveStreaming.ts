@@ -58,14 +58,13 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-stopped',
     useRecoilCallback(
-      ({ set, snapshot }) =>
-        async (ev: DailyEventObject) => {
-          const prevState = await snapshot.getPromise(liveStreamingState);
-          set(liveStreamingState, {
+      ({ set }) =>
+        (ev: DailyEventObject) => {
+          set(liveStreamingState, (prevState) => ({
             ...prevState,
             isLiveStreaming: false,
             layout: undefined,
-          });
+          }));
           onLiveStreamingStopped?.(ev);
         },
       [onLiveStreamingStopped]
@@ -75,13 +74,12 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-error',
     useRecoilCallback(
-      ({ set, snapshot }) =>
-        async (ev: DailyEventObjectGenericError) => {
-          const prevState = await snapshot.getPromise(liveStreamingState);
-          set(liveStreamingState, {
+      ({ set }) =>
+        (ev: DailyEventObjectGenericError) => {
+          set(liveStreamingState, (prevState) => ({
             ...prevState,
             errorMsg: ev.errorMsg,
-          });
+          }));
           onLiveStreamingError?.(ev);
         },
       [onLiveStreamingError]

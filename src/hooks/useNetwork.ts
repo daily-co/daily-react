@@ -53,12 +53,14 @@ export const useNetwork = ({
   );
 
   const handleNetworkQualityChange = useRecoilCallback(
-    ({ set, snapshot }) =>
-      async (ev: DailyEventObjectNetworkQualityEvent) => {
-        const q = await snapshot.getPromise(networkQualityState);
-        const t = await snapshot.getPromise(networkThresholdState);
-        set(networkQualityState, q !== ev.quality ? ev.quality : q);
-        set(networkThresholdState, t !== ev.threshold ? ev.threshold : t);
+    ({ set }) =>
+      (ev: DailyEventObjectNetworkQualityEvent) => {
+        set(networkQualityState, (prevQuality) =>
+          prevQuality !== ev.quality ? ev.quality : prevQuality
+        );
+        set(networkThresholdState, (prevThreshold) =>
+          prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
+        );
         onNetworkQualityChange?.(ev);
       },
     [onNetworkQualityChange]

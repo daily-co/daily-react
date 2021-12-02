@@ -60,12 +60,14 @@ export const useWaitingParticipants = ({
   const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
 
   const handleAdded = useRecoilCallback(
-    ({ set, snapshot }) =>
-      async (ev: DailyEventObjectWaitingParticipant) => {
-        const wps = await snapshot.getPromise(waitingParticipantsState);
-        if (!wps.includes(ev.participant.id)) {
-          set(waitingParticipantsState, [...wps, ev.participant.id]);
-        }
+    ({ set }) =>
+      (ev: DailyEventObjectWaitingParticipant) => {
+        set(waitingParticipantsState, (wps) => {
+          if (!wps.includes(ev.participant.id)) {
+            return [...wps, ev.participant.id];
+          }
+          return wps;
+        });
         set(waitingParticipantState(ev.participant.id), ev.participant);
         onWaitingParticipantAdded?.(ev);
       },
@@ -73,11 +75,9 @@ export const useWaitingParticipants = ({
   );
 
   const handleRemoved = useRecoilCallback(
-    ({ reset, set, snapshot }) =>
-      async (ev: DailyEventObjectWaitingParticipant) => {
-        const wps = await snapshot.getPromise(waitingParticipantsState);
-        set(
-          waitingParticipantsState,
+    ({ reset, set }) =>
+      (ev: DailyEventObjectWaitingParticipant) => {
+        set(waitingParticipantsState, (wps) =>
           wps.filter((wp) => wp !== ev.participant.id)
         );
         reset(waitingParticipantState(ev.participant.id));
