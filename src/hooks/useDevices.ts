@@ -54,6 +54,10 @@ export const useDevices = () => {
   const micDevices = useRecoilValue(microphoneDevicesState);
   const speakerDevices = useRecoilValue(speakerDevicesState);
 
+  /**
+   * Refreshes list of available devices using enumerateDevices.
+   * Previous device states are kept in place, otherwise states are initialized as 'granted'.
+   */
   const refreshDevices = useRecoilCallback(
     ({ set }) =>
       async () => {
@@ -80,67 +84,46 @@ export const useDevices = () => {
             (d) => d.kind === 'audiooutput' && d.deviceId !== ''
           );
           const { camera, mic, speaker } = await daily.getInputDevices();
-          set(
-            cameraDevicesState,
+
+          const mapDevice = (
+            device: {} | MediaDeviceInfo,
+            d: MediaDeviceInfo,
+            prevDevices: StatefulDevice[]
+          ) => ({
+            device: d,
+            selected: 'deviceId' in device && d.deviceId === device.deviceId,
+            state:
+              prevDevices.find((p) => p.device.deviceId === d.deviceId)
+                ?.state ?? 'granted',
+          });
+          const sortDeviceByLabel = (a: StatefulDevice, b: StatefulDevice) => {
+            if (
+              a.device.deviceId === 'default' ||
+              b.device.deviceId === 'default'
+            )
+              return 1;
+            if (a.device.label < b.device.label) return -1;
+            if (a.device.label > b.device.label) return 1;
+            return 0;
+          };
+
+          set(cameraDevicesState, (prevCams) =>
             cams
               .filter(Boolean)
-              .map<StatefulDevice>((d) => ({
-                device: d,
-                selected:
-                  'deviceId' in camera && d.deviceId === camera.deviceId,
-                state: 'granted',
-              }))
-              .sort((a, b) => {
-                if (
-                  a.device.deviceId === 'default' ||
-                  b.device.deviceId === 'default'
-                )
-                  return 1;
-                if (a.device.label < b.device.label) return -1;
-                if (a.device.label > b.device.label) return 1;
-                return 0;
-              })
+              .map<StatefulDevice>((d) => mapDevice(camera, d, prevCams))
+              .sort(sortDeviceByLabel)
           );
-          set(
-            microphoneDevicesState,
+          set(microphoneDevicesState, (prevMics) =>
             mics
               .filter(Boolean)
-              .map<StatefulDevice>((d) => ({
-                device: d,
-                selected: 'deviceId' in mic && d.deviceId === mic.deviceId,
-                state: 'granted',
-              }))
-              .sort((a, b) => {
-                if (
-                  a.device.deviceId === 'default' ||
-                  b.device.deviceId === 'default'
-                )
-                  return 1;
-                if (a.device.label < b.device.label) return -1;
-                if (a.device.label > b.device.label) return 1;
-                return 0;
-              })
+              .map<StatefulDevice>((d) => mapDevice(mic, d, prevMics))
+              .sort(sortDeviceByLabel)
           );
-          set(
-            speakerDevicesState,
+          set(speakerDevicesState, (prevSpeakers) =>
             speakers
               .filter(Boolean)
-              .map<StatefulDevice>((d) => ({
-                device: d,
-                selected:
-                  'deviceId' in speaker && d.deviceId === speaker.deviceId,
-                state: 'granted',
-              }))
-              .sort((a, b) => {
-                if (
-                  a.device.deviceId === 'default' ||
-                  b.device.deviceId === 'default'
-                )
-                  return 1;
-                if (a.device.label < b.device.label) return -1;
-                if (a.device.label > b.device.label) return 1;
-                return 0;
-              })
+              .map<StatefulDevice>((d) => mapDevice(speaker, d, prevSpeakers))
+              .sort(sortDeviceByLabel)
           );
         } catch (e) {
           set(generalCameraState, 'not-supported');
@@ -150,91 +133,57 @@ export const useDevices = () => {
     [daily]
   );
 
+  /**
+   * Updates general and specific device states, based on blocked status.
+   */
   const updateDeviceStates = useRecoilCallback(
-    ({ set, snapshot }) =>
+    ({ set }) =>
       async () => {
         if (!daily) return;
 
         const { tracks } = daily.participants().local;
 
-        const cams = await snapshot.getPromise(cameraDevicesState);
-        const mics = await snapshot.getPromise(microphoneDevicesState);
-
         if (tracks.audio?.blocked?.byDeviceInUse) {
-          if (micDevices.some((m) => m.selected)) {
-            set(
-              microphoneDevicesState,
-              mics.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'in-use' } : m
-              )
-            );
-          } else {
-            set(generalMicrophoneState, 'in-use');
-          }
+          set(generalMicrophoneState, 'in-use');
+          set(microphoneDevicesState, (mics) =>
+            mics.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'in-use' } : m
+            )
+          );
         } else if (tracks.audio?.blocked?.byDeviceMissing) {
           set(generalMicrophoneState, 'not-found');
         } else if (tracks.audio?.blocked?.byPermissions) {
-          if (micDevices.some((m) => m.selected)) {
-            set(
-              microphoneDevicesState,
-              mics.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'blocked' } : m
-              )
-            );
-          } else {
-            set(generalMicrophoneState, 'blocked');
-          }
+          set(generalMicrophoneState, 'blocked');
         } else {
-          refreshDevices();
-          if (micDevices.some((m) => m.selected)) {
-            set(
-              microphoneDevicesState,
-              mics.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'granted' } : m
-              )
-            );
-          } else {
-            set(generalMicrophoneState, 'granted');
-          }
+          set(generalMicrophoneState, 'granted');
+          set(microphoneDevicesState, (mics) =>
+            mics.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'granted' } : m
+            )
+          );
         }
 
         if (tracks.video?.blocked?.byDeviceInUse) {
-          if (camDevices.some((m) => m.selected)) {
-            set(
-              cameraDevicesState,
-              cams.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'in-use' } : m
-              )
-            );
-          } else {
-            set(generalCameraState, 'in-use');
-          }
+          set(generalCameraState, 'in-use');
+          set(cameraDevicesState, (cams) =>
+            cams.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'in-use' } : m
+            )
+          );
         } else if (tracks.video?.blocked?.byDeviceMissing) {
           set(generalCameraState, 'not-found');
         } else if (tracks.video?.blocked?.byPermissions) {
-          if (camDevices.some((m) => m.selected)) {
-            set(
-              cameraDevicesState,
-              cams.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'blocked' } : m
-              )
-            );
-          } else {
-            set(generalCameraState, 'blocked');
-          }
+          set(generalCameraState, 'blocked');
         } else {
-          refreshDevices();
-          if (camDevices.some((m) => m.selected)) {
-            set(
-              cameraDevicesState,
-              cams.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'granted' } : m
-              )
-            );
-          } else {
-            set(generalCameraState, 'granted');
-          }
+          set(generalCameraState, 'granted');
+          set(cameraDevicesState, (cams) =>
+            cams.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'granted' } : m
+            )
+          );
         }
+
+        refreshDevices();
       },
     [daily, refreshDevices]
   );
@@ -302,12 +251,7 @@ export const useDevices = () => {
     )
   );
 
-  useDailyEvent(
-    'started-camera',
-    useCallback(() => {
-      updateDeviceStates();
-    }, [updateDeviceStates])
-  );
+  useDailyEvent('started-camera', updateDeviceStates);
 
   /**
    * Sets video input device to given deviceId.
@@ -349,16 +293,16 @@ export const useDevices = () => {
   );
 
   return {
-    camError: ['blocked', 'in-use', 'not-found'].includes(camState),
-    camState,
     cameras: camDevices,
-    setCamera,
-    micError: ['blocked', 'in-use', 'not-found'].includes(micState),
-    micState,
+    camState,
+    hasCamError: ['blocked', 'in-use', 'not-found'].includes(camState),
+    hasMicError: ['blocked', 'in-use', 'not-found'].includes(micState),
     microphones: micDevices,
-    setMicrophone,
-    speakers: speakerDevices,
-    setSpeaker,
+    micState,
     refreshDevices,
+    setCamera,
+    setMicrophone,
+    setSpeaker,
+    speakers: speakerDevices,
   };
 };
