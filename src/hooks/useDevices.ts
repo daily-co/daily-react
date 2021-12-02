@@ -9,7 +9,7 @@ import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
-type DeviceState =
+type GeneralState =
   | 'loading'
   | 'not-supported'
   | 'pending'
@@ -18,17 +18,18 @@ type DeviceState =
   | 'in-use'
   | 'not-found';
 
+type DeviceState = 'granted' | 'in-use';
 export interface StatefulDevice {
   device: MediaDeviceInfo;
   selected: boolean;
   state: DeviceState;
 }
 
-const generalCameraState = atom<DeviceState>({
+const generalCameraState = atom<GeneralState>({
   key: 'general-camera-state',
   default: 'loading',
 });
-const generalMicrophoneState = atom<DeviceState>({
+const generalMicrophoneState = atom<GeneralState>({
   key: 'general-microphone-state',
   default: 'loading',
 });
