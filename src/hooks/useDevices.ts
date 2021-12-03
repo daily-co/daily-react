@@ -98,11 +98,8 @@ export const useDevices = () => {
                 ?.state ?? 'granted',
           });
           const sortDeviceByLabel = (a: StatefulDevice, b: StatefulDevice) => {
-            if (
-              a.device.deviceId === 'default' ||
-              b.device.deviceId === 'default'
-            )
-              return 1;
+            if (a.device.deviceId === 'default') return -1;
+            if (b.device.deviceId === 'default') return 1;
             if (a.device.label < b.device.label) return -1;
             if (a.device.label > b.device.label) return 1;
             return 0;
