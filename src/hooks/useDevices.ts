@@ -50,7 +50,7 @@ export const useDevices = () => {
   const daily = useDaily();
 
   const camState = useRecoilValue(generalCameraState);
-  const micState = useRecoilValue(generalCameraState);
+  const micState = useRecoilValue(generalMicrophoneState);
   const camDevices = useRecoilValue(cameraDevicesState);
   const micDevices = useRecoilValue(microphoneDevicesState);
   const speakerDevices = useRecoilValue(speakerDevicesState);
