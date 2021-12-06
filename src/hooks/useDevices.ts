@@ -62,6 +62,9 @@ export const useDevices = () => {
   const refreshDevices = useRecoilCallback(
     ({ set }) =>
       async () => {
+        /**
+         * Check for legacy browsers.
+         */
         if (
           typeof navigator?.mediaDevices?.getUserMedia === 'undefined' ||
           typeof navigator?.mediaDevices?.enumerateDevices === 'undefined'
@@ -75,6 +78,9 @@ export const useDevices = () => {
 
         try {
           const { devices } = await daily.enumerateDevices();
+          /**
+           * Filter out "empty" devices for when device access has not been granted (yet).
+           */
           const cams = devices.filter(
             (d) => d.kind === 'videoinput' && d.deviceId !== ''
           );
