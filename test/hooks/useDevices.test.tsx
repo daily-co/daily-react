@@ -35,11 +35,11 @@ describe('useDevices', () => {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
-      expect(result.current.camState).toBe('loading');
+      expect(result.current.camState).toBe('pending');
       expect(result.current.cameras).toEqual([]);
       expect(result.current.hasCamError).toBe(false);
       expect(result.current.hasMicError).toBe(false);
-      expect(result.current.micState).toBe('loading');
+      expect(result.current.micState).toBe('pending');
       expect(result.current.microphones).toEqual([]);
       expect(typeof result.current.refreshDevices).toBe('function');
       expect(typeof result.current.setCamera).toBe('function');
@@ -470,8 +470,8 @@ describe('useDevices', () => {
           daily.emit('participant-updated', payload);
         });
         await waitFor(() => {
-          expect(result.current.camState).toBe('loading');
-          expect(result.current.micState).toBe('loading');
+          expect(result.current.camState).toBe('pending');
+          expect(result.current.micState).toBe('pending');
         });
       });
       it('local updates state (granted)', async () => {
@@ -509,6 +509,8 @@ describe('useDevices', () => {
           participant: local,
         };
         act(() => {
+          // @ts-ignore
+          daily.emit('started-camera', { action: 'started-camera' });
           // @ts-ignore
           daily.emit('participant-updated', payload);
         });
@@ -558,6 +560,11 @@ describe('useDevices', () => {
         };
         act(() => {
           // @ts-ignore
+          daily.emit('started-camera', { action: 'started-camera' });
+        });
+        await waitForNextUpdate();
+        act(() => {
+          // @ts-ignore
           daily.emit('participant-updated', payload);
         });
         expect(result.current.camState).toBe('in-use');
@@ -604,6 +611,11 @@ describe('useDevices', () => {
           action: 'participant-updated',
           participant: local,
         };
+        act(() => {
+          // @ts-ignore
+          daily.emit('started-camera', { action: 'started-camera' });
+        });
+        await waitForNextUpdate();
         act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);

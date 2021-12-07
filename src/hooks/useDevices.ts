@@ -233,6 +233,8 @@ export const useDevices = () => {
                   if (!audioOk) set(generalMicrophoneState, 'not-found');
                   break;
                 case 'not allowed': {
+                  set(generalCameraState, 'blocked');
+                  set(generalMicrophoneState, 'blocked');
                   updateDeviceStates();
                   break;
                 }
@@ -246,15 +248,18 @@ export const useDevices = () => {
 
   useDailyEvent(
     'error',
-    useCallback(
-      ({ errorMsg }: DailyEventObjectFatalError) => {
-        switch (errorMsg) {
-          case 'not allowed': {
-            updateDeviceStates();
-            break;
+    useRecoilCallback(
+      ({ set }) =>
+        ({ errorMsg }: DailyEventObjectFatalError) => {
+          switch (errorMsg) {
+            case 'not allowed': {
+              set(generalCameraState, 'blocked');
+              set(generalMicrophoneState, 'blocked');
+              updateDeviceStates();
+              break;
+            }
           }
-        }
-      },
+        },
       [updateDeviceStates]
     )
   );
