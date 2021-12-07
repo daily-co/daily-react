@@ -10,9 +10,8 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 type GeneralState =
-  | 'loading'
-  | 'not-supported'
   | 'pending'
+  | 'not-supported'
   | 'granted'
   | 'blocked'
   | 'in-use'
@@ -27,11 +26,11 @@ export interface StatefulDevice {
 
 const generalCameraState = atom<GeneralState>({
   key: 'general-camera-state',
-  default: 'loading',
+  default: 'pending',
 });
 const generalMicrophoneState = atom<GeneralState>({
   key: 'general-microphone-state',
-  default: 'loading',
+  default: 'pending',
 });
 const cameraDevicesState = atom<StatefulDevice[]>({
   key: 'camera-devices',
@@ -141,9 +140,14 @@ export const useDevices = () => {
    * Updates general and specific device states, based on blocked status.
    */
   const updateDeviceStates = useRecoilCallback(
-    ({ set }) =>
+    ({ set, snapshot }) =>
       async () => {
         if (!daily) return;
+
+        const currentCamState = await snapshot.getPromise(generalCameraState);
+        const currentMicState = await snapshot.getPromise(
+          generalMicrophoneState
+        );
 
         const { tracks } = daily.participants().local;
 
@@ -158,7 +162,7 @@ export const useDevices = () => {
           set(generalMicrophoneState, 'not-found');
         } else if (tracks.audio?.blocked?.byPermissions) {
           set(generalMicrophoneState, 'blocked');
-        } else {
+        } else if (currentMicState !== 'pending') {
           set(generalMicrophoneState, 'granted');
           set(microphoneDevicesState, (mics) =>
             mics.map<StatefulDevice>((m) =>
@@ -178,7 +182,7 @@ export const useDevices = () => {
           set(generalCameraState, 'not-found');
         } else if (tracks.video?.blocked?.byPermissions) {
           set(generalCameraState, 'blocked');
-        } else {
+        } else if (currentCamState !== 'pending') {
           set(generalCameraState, 'granted');
           set(cameraDevicesState, (cams) =>
             cams.map<StatefulDevice>((m) =>
@@ -255,7 +259,21 @@ export const useDevices = () => {
     )
   );
 
-  useDailyEvent('started-camera', updateDeviceStates);
+  /**
+   * Update all device state, when camera is started.
+   */
+  useDailyEvent(
+    'started-camera',
+    useRecoilCallback(
+      ({ set }) =>
+        () => {
+          set(generalCameraState, 'granted');
+          set(generalMicrophoneState, 'granted');
+          updateDeviceStates();
+        },
+      [updateDeviceStates]
+    )
+  );
 
   /**
    * Sets video input device to given deviceId.
