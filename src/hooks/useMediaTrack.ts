@@ -81,9 +81,6 @@ export const useMediaTrack = (
 
   return {
     ...trackState,
-    isOff:
-      trackState.state === 'blocked' ||
-      trackState.state === 'off' ||
-      trackState.state === 'interrupted',
+    isOff: trackState.state === 'blocked' || trackState.state === 'off',
   };
 };
