@@ -151,6 +151,11 @@ export const useDevices = () => {
 
         const { tracks } = daily.participants().local;
 
+        const awaitingCamAccess =
+          currentCamState === 'pending' && tracks.video.state === 'interrupted';
+        const awaitingMicAccess =
+          currentMicState === 'pending' && tracks.audio.state === 'interrupted';
+
         if (tracks.audio?.blocked?.byDeviceInUse) {
           set(generalMicrophoneState, 'in-use');
           set(microphoneDevicesState, (mics) =>
@@ -162,7 +167,7 @@ export const useDevices = () => {
           set(generalMicrophoneState, 'not-found');
         } else if (tracks.audio?.blocked?.byPermissions) {
           set(generalMicrophoneState, 'blocked');
-        } else if (currentMicState !== 'pending') {
+        } else if (!awaitingMicAccess) {
           set(generalMicrophoneState, 'granted');
           set(microphoneDevicesState, (mics) =>
             mics.map<StatefulDevice>((m) =>
@@ -182,7 +187,7 @@ export const useDevices = () => {
           set(generalCameraState, 'not-found');
         } else if (tracks.video?.blocked?.byPermissions) {
           set(generalCameraState, 'blocked');
-        } else if (currentCamState !== 'pending') {
+        } else if (!awaitingCamAccess) {
           set(generalCameraState, 'granted');
           set(cameraDevicesState, (cams) =>
             cams.map<StatefulDevice>((m) =>
