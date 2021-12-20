@@ -27,11 +27,11 @@ type Props =
 export const DailyContext = createContext<DailyCall | null>(null);
 
 interface EventContextValue {
-  on(ev: DailyEvent, callback: Function): void;
-  off(ev: DailyEvent, callback: Function): void;
+  on(ev: DailyEvent, callback: Function, key: number): void;
+  off(ev: DailyEvent, key: number): void;
 }
 
-type EventsMap = Partial<Record<DailyEvent, Set<Function>>>;
+type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyEventContext = createContext<EventContextValue>({
   on: () => {},
@@ -50,7 +50,8 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   const handleEvent = useCallback((ev: DailyEventObject) => {
     if (!('action' in ev)) return;
     const event = ev.action as DailyEvent;
-    eventsMap.current?.[event]?.forEach((cb) => {
+    const callbacks = Array.from(eventsMap.current?.[event]?.values() ?? []);
+    callbacks.forEach((cb) => {
       cb(ev);
     });
   }, []);
@@ -87,15 +88,15 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
    * Registers event callback.
    */
   const on = useCallback(
-    (ev: DailyEvent, cb: Function) => {
+    (ev: DailyEvent, cb: Function, key: number) => {
       if (!eventsMap.current[ev]) {
-        eventsMap.current[ev] = new Set();
+        eventsMap.current[ev] = new Map();
         if (callObject.current) {
           callObject.current?.on(ev, handleEvent);
         }
       }
-      if (!eventsMap.current[ev]?.has(cb)) {
-        eventsMap.current[ev]?.add(cb);
+      if (!eventsMap.current[ev]?.has(key)) {
+        eventsMap.current[ev]?.set(key, cb);
       }
     },
     [handleEvent]
@@ -105,8 +106,8 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
    * Unregisters event callback.
    */
   const off = useCallback(
-    (ev: DailyEvent, cb: Function) => {
-      eventsMap.current[ev]?.delete(cb);
+    (ev: DailyEvent, key: number) => {
+      eventsMap.current[ev]?.delete(key);
       if (eventsMap.current[ev]?.size === 0) {
         if (callObject.current) {
           callObject.current?.off(ev, handleEvent);

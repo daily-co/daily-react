@@ -1,14 +1,19 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DailyEventContext } from '../DailyProvider';
 
 type EventCallback = (event?: DailyEventObject) => void;
 
+let uniqueCounter = 0;
+const getUnique = () => uniqueCounter++;
+
 export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
   const { on, off } = useContext(DailyEventContext);
   const [isBlocked, setIsBlocked] = useState(false);
   const reassignCount = useRef<number>(0);
+
+  const eventId = useMemo(() => getUnique(), []);
 
   useEffect(() => {
     if (!ev || isBlocked) return;
@@ -29,10 +34,10 @@ export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
     const timeout = setTimeout(() => {
       reassignCount.current = 0;
     }, 50);
-    on(ev, callback);
+    on(ev, callback, eventId);
     return () => {
       clearTimeout(timeout);
-      off(ev, callback);
+      off(ev, eventId);
     };
-  }, [callback, ev, isBlocked, off, on]);
+  }, [callback, ev, eventId, isBlocked, off, on]);
 };
