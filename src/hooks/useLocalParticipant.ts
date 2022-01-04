@@ -10,6 +10,9 @@ const localIdState = atom<string>({
   default: '',
 });
 
+/**
+ * Returns the local participant object.
+ */
 export const useLocalParticipant = (): ReturnType<typeof useParticipant> => {
   const daily = useDaily();
   const localId = useRecoilValue(localIdState);

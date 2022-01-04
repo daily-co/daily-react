@@ -53,6 +53,10 @@ interface UseParticipantIdsArgs {
   sort?: SortParticipants;
 }
 
+/**
+ * Returns a list of participant ids (= session_id).
+ * The list can optionally be filtered and sorted, using the filter and sort options.
+ */
 export const useParticipantIds = (
   {
     filter = defaultFilter,

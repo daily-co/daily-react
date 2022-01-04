@@ -28,6 +28,10 @@ const networkThresholdState = atom<DailyNetworkStats['threshold']>({
   default: 'good',
 });
 
+/**
+ * Returns current information about network quality and topology.
+ * Allows to setup event listeners for daily's [network events](https://docs.daily.co/reference/daily-js/events/network-events).
+ */
 export const useNetwork = ({
   onNetworkConnection,
   onNetworkQualityChange,

@@ -45,6 +45,9 @@ const speakerDevicesState = atom<StatefulDevice[]>({
   default: [],
 });
 
+/**
+ * This hook allows to access information about the user's devices and their state.
+ */
 export const useDevices = () => {
   const daily = useDaily();
 
@@ -325,16 +328,49 @@ export const useDevices = () => {
   );
 
   return {
+    /**
+     * A list of the users camera (videoinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     */
     cameras: camDevices,
+    /**
+     * The general state for camera access.
+     */
     camState,
+    /**
+     * Indicates that there's an issue with camera devices.
+     */
     hasCamError: ['blocked', 'in-use', 'not-found'].includes(camState),
+    /**
+     * Indicates that there's an issue with microphone devices.
+     */
     hasMicError: ['blocked', 'in-use', 'not-found'].includes(micState),
+    /**
+     * A list of the users microphone (audioinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     */
     microphones: micDevices,
+    /**
+     * The general state for microphone access.
+     */
     micState,
+    /**
+     * Refreshes the list of devices using [enumerateDevices](https://docs.daily.co/reference/daily-js/instance-methods/enumerate-devices).
+     */
     refreshDevices,
+    /**
+     * Allows to switch to the camera with the specified deviceId. Calls [setInputDevicesAsync](https://docs.daily.co/reference/daily-js/instance-methods/set-input-devices-async) internally.
+     */
     setCamera,
+    /**
+     * Allows to switch to the microphone with the specified deviceId. Calls [setInputDevicesAsync](https://docs.daily.co/reference/daily-js/instance-methods/set-input-devices-async) internally.
+     */
     setMicrophone,
+    /**
+     * Allows to switch to the speaker with the specified deviceId. Calls [setOutputDevice](https://docs.daily.co/reference/daily-js/instance-methods/set-output-device) internally.
+     */
     setSpeaker,
+    /**
+     * A list of the users speaker (audiooutput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     */
     speakers: speakerDevices,
   };
 };

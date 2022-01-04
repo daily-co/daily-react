@@ -32,6 +32,12 @@ const liveStreamingState = atom<LiveStreamingState>({
   },
 });
 
+/**
+ * This hook allows to setup [live streaming events](https://docs.daily.co/reference/daily-js/events/live-streaming-events),
+ * as well as starting, stopping and updating live streams.
+ *
+ * Returns the current live streaming state, incl. the current layout and potential errorMsg.
+ */
 export const useLiveStreaming = ({
   onLiveStreamingStarted,
   onLiveStreamingStopped,

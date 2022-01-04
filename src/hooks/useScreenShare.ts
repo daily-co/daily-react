@@ -9,6 +9,9 @@ interface UseScreenShareArgs {
   onLocalScreenShareStopped?(): void;
 }
 
+/**
+ * Allows to start and stop screen shares.
+ */
 export const useScreenShare = ({
   onLocalScreenShareStarted,
   onLocalScreenShareStopped,

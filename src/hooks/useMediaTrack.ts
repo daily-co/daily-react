@@ -20,6 +20,14 @@ const mediaTrackState = atomFamily<DailyTrackState, string>({
   },
 });
 
+/**
+ * Returns a participant's track and state, based on the given MediaType.
+ *
+ * Equivalent to daily.participants()[participantId].tracks[type].
+ *
+ * @param participantId The participant's session_id.
+ * @param type The track type. Default: "video"
+ */
 export const useMediaTrack = (
   participantId: string,
   type: MediaType = 'video'
