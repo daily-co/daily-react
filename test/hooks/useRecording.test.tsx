@@ -4,6 +4,7 @@ import DailyIframe, {
   DailyCall,
   DailyEvent,
   DailyEventObjectNoPayload,
+  DailyEventObjectParticipant,
   DailyEventObjectRecordingData,
   DailyEventObjectRecordingStarted,
   DailyStreamingLayoutConfig,
@@ -235,6 +236,40 @@ describe('useRecording', () => {
     await waitFor(() => {
       expect(result.current.isRecording).toBe(true);
       expect(result.current.isLocalParticipantRecorded).toBe(false);
+    });
+  });
+  it('returns as recording when any participant is running a local recording', async () => {
+    const daily = DailyIframe.createCallObject();
+    const localId = faker.datatype.uuid();
+    const otherId = faker.datatype.uuid();
+    (daily.participants as jest.Mock).mockImplementation(() => ({
+      local: {
+        record: false,
+        session_id: localId,
+      },
+      [otherId]: {
+        record: true,
+        session_id: otherId,
+      },
+    }));
+    const { result, waitFor } = renderHook(() => useRecording(), {
+      wrapper: createWrapper(daily),
+    });
+    const event: DailyEvent = 'participant-joined';
+    const payload: DailyEventObjectParticipant = {
+      action: 'participant-joined',
+      // @ts-ignore
+      participant: {
+        record: true,
+        session_id: otherId,
+      },
+    };
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(result.current.isRecording).toBe(true);
     });
   });
 });
