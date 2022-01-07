@@ -17,7 +17,7 @@ interface UseActiveParticipantArgs {
 }
 
 /**
- * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change)  event.
+ * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
  */
 const activeIdState = atom({
   key: 'active-id',
