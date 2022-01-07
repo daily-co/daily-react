@@ -1,4 +1,5 @@
 import { DailyEventObjectActiveSpeakerChange } from '@daily-co/daily-js';
+import { useEffect, useState } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
@@ -32,21 +33,26 @@ export const useActiveParticipant = ({
   onActiveSpeakerChange,
 }: UseActiveParticipantArgs = {}) => {
   const daily = useDaily();
-  const activeId = useRecoilValue(activeIdState);
+  const recentActiveId = useRecoilValue(activeIdState);
+  const [activeId, setActiveId] = useState('');
   const activeParticipant = useParticipant(activeId);
+
+  useEffect(() => {
+    if (!daily) return;
+    const local = daily?.participants()?.local;
+    if (ignoreLocal && recentActiveId === local?.session_id) return;
+    setActiveId(recentActiveId);
+  }, [daily, ignoreLocal, recentActiveId]);
 
   useDailyEvent(
     'active-speaker-change',
     useRecoilCallback(
       ({ set }) =>
         (ev: DailyEventObjectActiveSpeakerChange) => {
-          const local = daily?.participants()?.local;
-          if (ignoreLocal && ev.activeSpeaker.peerId === local?.session_id)
-            return;
           set(activeIdState, ev.activeSpeaker.peerId);
           onActiveSpeakerChange?.(ev);
         },
-      [daily, ignoreLocal, onActiveSpeakerChange]
+      [onActiveSpeakerChange]
     )
   );
 
