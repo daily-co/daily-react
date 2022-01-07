@@ -1,8 +1,17 @@
-import { DailyScreenCaptureOptions } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { DailyScreenCaptureOptions, DailyTrackState } from '@daily-co/daily-js';
+import { useCallback, useMemo } from 'react';
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useParticipantIds } from './useParticipantIds';
+
+export interface ScreenShare {
+  local: boolean;
+  screenAudio: DailyTrackState;
+  screenVideo: DailyTrackState;
+  screenId: string;
+  session_id: string;
+}
 
 interface UseScreenShareArgs {
   onLocalScreenShareStarted?(): void;
@@ -10,7 +19,7 @@ interface UseScreenShareArgs {
 }
 
 /**
- * Allows to start and stop screen shares.
+ * Allows access to information about shared screens, and methods to start or stop a local screen share.
  */
 export const useScreenShare = ({
   onLocalScreenShareStarted,
@@ -44,7 +53,31 @@ export const useScreenShare = ({
     )
   );
 
+  const screenIds = useParticipantIds({
+    filter: (p) => p.screen,
+  });
+  const screens = useMemo(
+    () =>
+      screenIds
+        .map((id) => {
+          const participants = Object.values(daily?.participants?.() ?? {});
+          const p = participants.find((p) => p.session_id === id);
+          if (!p) return;
+          return {
+            local: p.local,
+            screenAudio: p.tracks.screenAudio,
+            screenVideo: p.tracks.screenVideo,
+            screenId: `${id}-screen`,
+            session_id: id,
+          };
+        })
+        .filter((p): p is ScreenShare => !!p),
+    [daily, screenIds]
+  );
+
   return {
+    isSharingScreen: screens.some((s) => s.local),
+    screens,
     startScreenShare,
     stopScreenShare,
   };
