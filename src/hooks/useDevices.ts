@@ -329,7 +329,7 @@ export const useDevices = () => {
 
   return {
     /**
-     * A list of the users camera (videoinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     * A list of the user's camera (videoinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
      */
     cameras: camDevices,
     /**
