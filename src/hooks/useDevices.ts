@@ -369,7 +369,7 @@ export const useDevices = () => {
      */
     setSpeaker,
     /**
-     * A list of the users speaker (audiooutput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     * A list of the user's speaker (audiooutput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
      */
     speakers: speakerDevices,
   };
