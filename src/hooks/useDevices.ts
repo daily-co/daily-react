@@ -345,7 +345,7 @@ export const useDevices = () => {
      */
     hasMicError: ['blocked', 'in-use', 'not-found'].includes(micState),
     /**
-     * A list of the users microphone (audioinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
+     * A list of the user's microphone (audioinput) devices. See [MediaDeviceInfo](https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo) for more info.
      */
     microphones: micDevices,
     /**
