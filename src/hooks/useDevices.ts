@@ -46,7 +46,7 @@ const speakerDevicesState = atom<StatefulDevice[]>({
 });
 
 /**
- * This hook allows to access information about the user's devices and their state.
+ * This hook allows access to information about the user's devices and their state.
  */
 export const useDevices = () => {
   const daily = useDaily();

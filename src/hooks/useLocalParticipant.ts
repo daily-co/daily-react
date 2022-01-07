@@ -11,7 +11,7 @@ const localIdState = atom<string>({
 });
 
 /**
- * Returns the local participant object.
+ * Returns the [participants() object](https://docs.daily.co/reference/daily-js/instance-methods/participants) for the local user.
  */
 export const useLocalParticipant = (): ReturnType<typeof useParticipant> => {
   const daily = useDaily();
