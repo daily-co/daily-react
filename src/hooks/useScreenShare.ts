@@ -71,6 +71,11 @@ export const useScreenShare = ({
             session_id: id,
           };
         })
+        /**
+         * We'll need a type predicate to fully convince TypeScript that this array
+         * can't contain undefined. Find a good quick intro about type predicates at:
+         * https://fettblog.eu/typescript-type-predicates/
+         */
         .filter((p): p is ScreenShare => !!p),
     [daily, screenIds]
   );
