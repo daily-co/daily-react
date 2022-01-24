@@ -14,6 +14,7 @@ export {
   useParticipant,
 } from './hooks/useParticipant';
 export { useParticipantIds } from './hooks/useParticipantIds';
+export { useRoom } from './hooks/useRoom';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
 export { ScreenShare, useScreenShare } from './hooks/useScreenShare';
 export { useScreenVideoTrack } from './hooks/useScreenVideoTrack';
