@@ -14,6 +14,7 @@ export {
   useParticipant,
 } from './hooks/useParticipant';
 export { useParticipantIds } from './hooks/useParticipantIds';
+export { useReceiveSettings } from './hooks/useReceiveSettings';
 export { useRoom } from './hooks/useRoom';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
 export { ScreenShare, useScreenShare } from './hooks/useScreenShare';
