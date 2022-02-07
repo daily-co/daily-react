@@ -5,6 +5,7 @@ export { useAudioTrack } from './hooks/useAudioTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';
 export { StatefulDevice, useDevices } from './hooks/useDevices';
+export { useInputSettings } from './hooks/useInputSettings';
 export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useLocalParticipant } from './hooks/useLocalParticipant';
 export { useMediaTrack } from './hooks/useMediaTrack';

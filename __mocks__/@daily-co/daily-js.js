@@ -24,7 +24,13 @@ const createCallObject = (properties) => {
       mic: {},
       speaker: {},
     })),
-    getInputSettings: jest.fn(),
+    getInputSettings: jest.fn(async () => ({
+      video: {
+        processor: {
+          type: 'none',
+        },
+      },
+    })),
     getMeetingSession: jest.fn(),
     getNetworkStats: jest.fn(),
     getNetworkTopology: jest.fn(),
