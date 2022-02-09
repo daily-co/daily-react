@@ -30,7 +30,7 @@ export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
     /**
      * Check if callback has been reassigned often enough without hitting the 50ms timeout.
      */
-    if (reassignCount.current > 100) {
+    if (reassignCount.current > 1000) {
       console.error(
         `useDailyEvent called with potentially non-memoized event callback.
         Memoize using useCallback to avoid re-render loop or reduce the amount of state transitions the callback depends on.
