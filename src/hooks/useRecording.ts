@@ -12,10 +12,10 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseRecordingArgs {
+  onRecordingData?(ev: DailyEventObjectRecordingData): void;
+  onRecordingError?(ev: DailyEventObjectNoPayload): void;
   onRecordingStarted?(ev: DailyEventObjectRecordingStarted): void;
   onRecordingStopped?(ev: DailyEventObjectNoPayload): void;
-  onRecordingError?(ev: DailyEventObjectNoPayload): void;
-  onRecordingData?(ev: DailyEventObjectRecordingData): void;
 }
 
 interface RecordingState {
