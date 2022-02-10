@@ -117,27 +117,6 @@ describe('useRecording', () => {
       expect(result.current.error).toBe(true);
     });
   });
-  it('recording-upload-completed calls onRecordingUploadCompleted', async () => {
-    const onRecordingUploadCompleted = jest.fn();
-    const daily = DailyIframe.createCallObject();
-    const { waitFor } = renderHook(
-      () => useRecording({ onRecordingUploadCompleted }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
-    const event: DailyEvent = 'recording-upload-completed';
-    const payload: DailyEventObjectNoPayload = {
-      action: 'recording-upload-completed',
-    };
-    act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
-    });
-    await waitFor(() => {
-      expect(onRecordingUploadCompleted).toHaveBeenCalledWith(payload);
-    });
-  });
   it('recording-data calls onRecordingData', async () => {
     const onRecordingData = jest.fn();
     const daily = DailyIframe.createCallObject();

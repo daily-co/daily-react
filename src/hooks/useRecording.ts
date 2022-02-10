@@ -15,7 +15,6 @@ interface UseRecordingArgs {
   onRecordingStarted?(ev: DailyEventObjectRecordingStarted): void;
   onRecordingStopped?(ev: DailyEventObjectNoPayload): void;
   onRecordingError?(ev: DailyEventObjectNoPayload): void;
-  onRecordingUploadCompleted?(ev: DailyEventObjectNoPayload): void;
   onRecordingData?(ev: DailyEventObjectRecordingData): void;
 }
 
@@ -43,7 +42,6 @@ export const useRecording = ({
   onRecordingStarted,
   onRecordingStopped,
   onRecordingError,
-  onRecordingUploadCompleted,
   onRecordingData,
 }: UseRecordingArgs = {}) => {
   const daily = useDaily();
@@ -130,15 +128,6 @@ export const useRecording = ({
           onRecordingError?.(ev);
         },
       [onRecordingError]
-    )
-  );
-  useDailyEvent(
-    'recording-upload-completed',
-    useCallback(
-      (ev: DailyEventObjectNoPayload) => {
-        onRecordingUploadCompleted?.(ev);
-      },
-      [onRecordingUploadCompleted]
     )
   );
   useDailyEvent(
