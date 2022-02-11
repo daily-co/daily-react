@@ -6,7 +6,7 @@ import { DailyEventContext } from '../DailyProvider';
 type EventCallback = (event?: DailyEventObject) => void;
 
 let uniqueCounter = 0;
-const getUnique = () => uniqueCounter++;
+export const getUnique = () => uniqueCounter++;
 
 /**
  * Sets up a daily event listener using [on](https://docs.daily.co/reference/daily-js/instance-methods/on) method.

@@ -20,5 +20,6 @@ export { useRoom } from './hooks/useRoom';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
 export { ScreenShare, useScreenShare } from './hooks/useScreenShare';
 export { useScreenVideoTrack } from './hooks/useScreenVideoTrack';
+export { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 export { useVideoTrack } from './hooks/useVideoTrack';
 export { useWaitingParticipants } from './hooks/useWaitingParticipants';

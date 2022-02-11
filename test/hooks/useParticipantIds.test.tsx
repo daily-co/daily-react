@@ -318,6 +318,12 @@ describe('useParticipantIds', () => {
   });
   it('joined-meeting adds local participant to array', async () => {
     const daily = DailyIframe.createCallObject();
+    (daily.participants as jest.Mock).mockImplementation(() => ({
+      local: {
+        local: true,
+        session_id: 'local',
+      },
+    }));
     const { result, waitFor } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });

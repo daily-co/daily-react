@@ -1,7 +1,6 @@
 import {
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
-  DailyEventObjectParticipants,
   DailyParticipant,
   DailyParticipantsObject,
 } from '@daily-co/daily-js';
@@ -10,6 +9,7 @@ import { atom, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 /**
  * Holds all session ids of joined participants.
@@ -28,6 +28,7 @@ type FilterParticipants =
   | 'local'
   | 'remote'
   | 'owner'
+  | 'record'
   | FilterParticipantsFunction;
 
 type SortParticipantsFunction = (
@@ -83,6 +84,9 @@ export const useParticipantIds = (
         case 'owner':
           filterFn = (p) => p.owner;
           break;
+        case 'record':
+          filterFn = (p) => p.record;
+          return;
         case 'remote':
           filterFn = (p) => !p.local;
           break;
@@ -127,14 +131,12 @@ export const useParticipantIds = (
    * Initializes state based on passed DailyParticipantsObject.
    */
   const initState = useRecoilCallback(
-    ({ set, snapshot }) =>
+    ({ set }) =>
       async (participants: DailyParticipantsObject) => {
-        const ids = await snapshot.getPromise(participantsState);
         const sessionIds = Object.values(participants ?? {}).map(
           (p) => p.session_id
         );
-        set(
-          participantsState,
+        set(participantsState, (ids) =>
           [...ids, ...sessionIds].filter(
             (id, idx, arr) => arr.indexOf(id) == idx
           )
@@ -151,75 +153,85 @@ export const useParticipantIds = (
   useDailyEvent(
     'joined-meeting',
     useRecoilCallback(
-      ({ set, snapshot }) =>
-        async (ev: DailyEventObjectParticipants) => {
-          const localParticipant = ev.participants.local;
-          const ids = await snapshot.getPromise(participantsState);
-          set(
-            participantsState,
+      ({ set }) =>
+        async () => {
+          if (!daily) return;
+          const participants = daily.participants();
+          const localParticipant = participants.local;
+          set(participantsState, (ids) =>
             [...ids, localParticipant.session_id].filter(
               (id, idx, arr) => arr.indexOf(id) == idx
             )
           );
-          updateSortedIds(ev.participants);
+          updateSortedIds(participants);
         },
-      [updateSortedIds]
+      [daily, updateSortedIds]
     )
   );
 
-  useDailyEvent(
+  useThrottledDailyEvent(
     'participant-joined',
     useRecoilCallback(
-      ({ set, snapshot }) =>
-        async (ev: DailyEventObjectParticipant) => {
-          const ids = await snapshot.getPromise(participantsState);
-          set(
-            participantsState,
-            [...ids, ev.participant.session_id].filter(
+      ({ set }) =>
+        async (evts: DailyEventObjectParticipant[]) => {
+          if (!evts.length) return;
+          set(participantsState, (ids) =>
+            [...ids, ...evts.map((ev) => ev.participant.session_id)].filter(
               (id, idx, arr) => arr.indexOf(id) == idx
             )
           );
-          if (daily) updateSortedIds(daily.participants());
-          onParticipantJoined?.(ev);
+          if (daily) {
+            updateSortedIds(daily.participants());
+          }
+          evts.forEach((ev) => onParticipantJoined?.(ev));
         },
       [daily, onParticipantJoined, updateSortedIds]
     )
   );
 
-  useDailyEvent(
+  useThrottledDailyEvent(
     'participant-updated',
     useRecoilCallback(
-      () => (ev: DailyEventObjectParticipant) => {
-        if (daily) updateSortedIds(daily.participants());
-        onParticipantUpdated?.(ev);
+      () => (evts: DailyEventObjectParticipant[]) => {
+        if (!evts.length) return;
+        if (daily) {
+          updateSortedIds(daily.participants());
+        }
+        evts.forEach((ev) => onParticipantUpdated?.(ev));
       },
       [daily, onParticipantUpdated, updateSortedIds]
     )
   );
 
-  useDailyEvent(
+  useThrottledDailyEvent(
     'active-speaker-change',
     useRecoilCallback(
-      () => async (ev: DailyEventObjectActiveSpeakerChange) => {
-        if (daily) updateSortedIds(daily.participants());
-        onActiveSpeakerChange?.(ev);
+      () => async (evts: DailyEventObjectActiveSpeakerChange[]) => {
+        if (!evts.length) return;
+        if (daily) {
+          updateSortedIds(daily.participants());
+        }
+        evts.forEach((ev) => onActiveSpeakerChange?.(ev));
       },
       [daily, onActiveSpeakerChange, updateSortedIds]
     )
   );
 
-  useDailyEvent(
+  useThrottledDailyEvent(
     'participant-left',
     useRecoilCallback(
-      ({ set, snapshot }) =>
-        async (ev: DailyEventObjectParticipant) => {
-          const ids = await snapshot.getPromise(participantsState);
-          set(
-            participantsState,
-            [...ids].filter((id) => id !== ev.participant.session_id)
+      ({ set }) =>
+        async (evts: DailyEventObjectParticipant[]) => {
+          if (!evts.length) return;
+          set(participantsState, (ids) =>
+            [...ids].filter(
+              (id) => !evts.some((ev) => ev.participant.session_id === id)
+            )
           );
-          if (daily) updateSortedIds(daily.participants());
-          onParticipantLeft?.(ev);
+          if (daily) {
+            updateSortedIds(daily.participants());
+          }
+          evts.forEach((ev) => onParticipantLeft?.(ev));
         },
       [daily, onParticipantLeft, updateSortedIds]
     )
