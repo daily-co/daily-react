@@ -44,6 +44,27 @@ describe('useRoom', () => {
       expect(result.current).toEqual(pendingRoom);
     });
   });
+  it('returns same object as daily.room() after started-camera event', async () => {
+    const daily = DailyIframe.createCallObject();
+    const pendingRoom: DailyPendingRoomInfo = {
+      roomUrlPendingJoin: faker.internet.url(),
+    };
+    (daily.room as jest.Mock<Promise<DailyPendingRoomInfo>>).mockImplementation(
+      () => Promise.resolve(pendingRoom)
+    );
+    const { result, waitFor } = renderHook(() => useRoom(), {
+      wrapper: createWrapper(daily),
+    });
+    act(() => {
+      // @ts-ignore
+      daily.emit('started-camera', {
+        action: 'started-camera',
+      });
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual(pendingRoom);
+    });
+  });
   it('returns same object as daily.room() after joining-meeting event', async () => {
     const daily = DailyIframe.createCallObject();
     const pendingRoom: DailyPendingRoomInfo = {

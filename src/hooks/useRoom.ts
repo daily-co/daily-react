@@ -21,41 +21,19 @@ export const useRoom = (options?: UseRoomArgs) => {
   const room = useRecoilValue(roomState);
   const daily = useDaily();
 
-  useDailyEvent(
-    'loaded',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
+  const updateRoom = useRecoilCallback(
+    ({ set }) =>
+      async () => {
+        if (!daily) return;
+        set(roomState, await daily.room(options));
+      },
+    [daily, options]
   );
 
-  useDailyEvent(
-    'joining-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
-  );
-
-  useDailyEvent(
-    'joined-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
-  );
+  useDailyEvent('loaded', updateRoom);
+  useDailyEvent('started-camera', updateRoom);
+  useDailyEvent('joining-meeting', updateRoom);
+  useDailyEvent('joined-meeting', updateRoom);
 
   return room;
 };
