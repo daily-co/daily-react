@@ -44,12 +44,6 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     // Imports are sorted via simple-import-sort
     'sort-imports': 0,
-    'react-hooks/exhaustive-deps': [
-      'warn',
-      {
-        additionalHooks: '(useRecoilCallback)',
-      },
-    ],
   },
   overrides: [
     {
