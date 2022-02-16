@@ -4,7 +4,6 @@ import DailyIframe, {
   DailyCall,
   DailyEvent,
   DailyEventObjectNoPayload,
-  DailyEventObjectParticipant,
   DailyEventObjectRecordingData,
   DailyEventObjectRecordingStarted,
   DailyStreamingLayoutConfig,
@@ -186,9 +185,6 @@ describe('useRecording', () => {
   });
   it('single-participant recording for other participant sets isLocalParticipantRecorded to false', async () => {
     const daily = DailyIframe.createCallObject();
-    const { result, waitFor } = renderHook(() => useRecording(), {
-      wrapper: createWrapper(daily),
-    });
     const localId = faker.datatype.uuid();
     const otherId = faker.datatype.uuid();
     (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -196,6 +192,12 @@ describe('useRecording', () => {
         session_id: localId,
       },
     }));
+    jest.mock('../../src/hooks/useLocalParticipant', () => ({
+      useLocalParticipant: () => ({ session_id: localId }),
+    }));
+    const { result, waitFor } = renderHook(() => useRecording(), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'recording-started';
     const payload: DailyEventObjectRecordingStarted = {
       action: 'recording-started',
@@ -206,7 +208,7 @@ describe('useRecording', () => {
       local: false,
       recordingId: faker.datatype.uuid(),
       startedBy: faker.datatype.uuid(),
-      type: 'cloud-beta',
+      type: 'cloud',
     };
     act(() => {
       // @ts-ignore
@@ -233,19 +235,6 @@ describe('useRecording', () => {
     }));
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
-    });
-    const event: DailyEvent = 'participant-joined';
-    const payload: DailyEventObjectParticipant = {
-      action: 'participant-joined',
-      // @ts-ignore
-      participant: {
-        record: true,
-        session_id: otherId,
-      },
-    };
-    act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
     });
     await waitFor(() => {
       expect(result.current.isRecording).toBe(true);

@@ -5,11 +5,18 @@ import {
   DailyStreamingLayoutConfig,
   DailyStreamingOptions,
 } from '@daily-co/daily-js';
-import { useCallback } from 'react';
-import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
+import { useCallback, useEffect } from 'react';
+import {
+  atom,
+  useRecoilCallback,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil';
 
+import { useParticipantIds } from '..';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useLocalParticipant } from './useLocalParticipant';
 
 interface UseRecordingArgs {
   onRecordingData?(ev: DailyEventObjectRecordingData): void;
@@ -46,25 +53,22 @@ export const useRecording = ({
 }: UseRecordingArgs = {}) => {
   const daily = useDaily();
   const state = useRecoilValue(recordingState);
+  const setState = useSetRecoilState(recordingState);
 
+  const localParticipant = useLocalParticipant();
+
+  const recordingParticipantIds = useParticipantIds({
+    filter: 'record',
+  });
   /**
-   * Checks if any participant is recording locally.
+   * Update recording state, whenever amount of recording participants changes.
    */
-  const handleParticipantChange = useRecoilCallback(
-    ({ set }) =>
-      () => {
-        const participants = Object.values(daily?.participants() ?? {});
-        const isSomeoneRecordingLocally = participants.some((p) => p.record);
-        set(recordingState, (s) => ({
-          ...s,
-          isRecording: isSomeoneRecordingLocally || s.isRecording,
-        }));
-      },
-    [daily]
-  );
-
-  useDailyEvent('participant-joined', handleParticipantChange);
-  useDailyEvent('participant-updated', handleParticipantChange);
+  useEffect(() => {
+    setState((s) => ({
+      ...s,
+      isRecording: recordingParticipantIds.length > 0 || s.isRecording,
+    }));
+  }, [recordingParticipantIds, setState]);
 
   useDailyEvent(
     'recording-started',
@@ -74,11 +78,10 @@ export const useRecording = ({
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
             case 'cloud': {
-              const localParticipant = daily?.participants?.()?.local;
               if (
                 localParticipant &&
                 ev.layout?.preset === 'single-participant' &&
-                ev.layout.session_id !== localParticipant.session_id
+                ev.layout.session_id !== localParticipant?.session_id
               ) {
                 isLocalParticipantRecorded = false;
               }
@@ -98,7 +101,7 @@ export const useRecording = ({
           });
           onRecordingStarted?.(ev);
         },
-      [daily, onRecordingStarted]
+      [localParticipant, onRecordingStarted]
     )
   );
   useDailyEvent(

@@ -86,7 +86,7 @@ export const useParticipantIds = (
           break;
         case 'record':
           filterFn = (p) => p.record;
-          return;
+          break;
         case 'remote':
           filterFn = (p) => !p.local;
           break;
