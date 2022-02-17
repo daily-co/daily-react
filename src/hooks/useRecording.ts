@@ -94,6 +94,7 @@ export const useRecording = ({
         (ev: DailyEventObjectRecordingStarted) => {
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
+            case 'cloud-beta':
             case 'cloud': {
               if (
                 localParticipant &&
