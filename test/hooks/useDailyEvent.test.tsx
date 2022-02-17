@@ -58,12 +58,14 @@ describe('useDailyEvent', () => {
       }
     );
     // Loop simulates re-render loop
-    for (let i = 0; i < 200; i++) {
-      rerender();
+    for (let i = 0; i < 2000; i++) {
+      act(() => {
+        rerender();
+      });
     }
     expect(console.error).toHaveBeenCalledWith(
       expect.stringContaining(
-        'useDailyEvent called with potentially non-memoized event callback'
+        'useDailyEvent called with potentially non-memoized event callback or due to too many re-renders'
       ),
       expect.any(Function)
     );
