@@ -13,10 +13,10 @@ import {
   useSetRecoilState,
 } from 'recoil';
 
-import { useParticipantIds } from '..';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useLocalParticipant } from './useLocalParticipant';
+import { useParticipantIds } from './useParticipantIds';
 
 interface UseRecordingArgs {
   onRecordingData?(ev: DailyEventObjectRecordingData): void;
@@ -64,11 +64,28 @@ export const useRecording = ({
    * Update recording state, whenever amount of recording participants changes.
    */
   useEffect(() => {
+    const hasRecordingParticipants = recordingParticipantIds.length > 0;
+    const isLocalParticipantRecording = recordingParticipantIds.includes(
+      localParticipant?.session_id ?? 'local'
+    );
     setState((s) => ({
       ...s,
-      isRecording: recordingParticipantIds.length > 0 || s.isRecording,
+      // In case type is local or not set, determine based on recording participants
+      isRecording:
+        s?.type === 'local' || !s?.type
+          ? hasRecordingParticipants
+          : s.isRecording,
+      local:
+        (s?.type === 'local' || !s?.type) && hasRecordingParticipants
+          ? isLocalParticipantRecording
+          : s?.local,
+      /**
+       * Set type in case recording participants are detected.
+       * We only set `record` on participants, when recording type is 'local'.
+       */
+      type: hasRecordingParticipants ? 'local' : s?.type,
     }));
-  }, [recordingParticipantIds, setState]);
+  }, [localParticipant?.session_id, recordingParticipantIds, setState]);
 
   useDailyEvent(
     'recording-started',
@@ -127,6 +144,7 @@ export const useRecording = ({
           set(recordingState, (prevState) => ({
             ...prevState,
             error: true,
+            isRecording: false,
           }));
           onRecordingError?.(ev);
         },

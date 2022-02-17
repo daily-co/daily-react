@@ -238,6 +238,8 @@ describe('useRecording', () => {
     });
     await waitFor(() => {
       expect(result.current.isRecording).toBe(true);
+      expect(result.current.local).toBe(false);
+      expect(result.current.type).toBe('local');
     });
   });
 });
