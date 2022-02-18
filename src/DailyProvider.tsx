@@ -15,6 +15,7 @@ type DailyProperties = Pick<
   | 'subscribeToTracksAutomatically'
   | 'token'
   | 'url'
+  | 'userName'
   | 'videoSource'
 >;
 
