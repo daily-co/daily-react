@@ -175,6 +175,7 @@ export const useRecording = ({
           set(recordingState, (prevState) => ({
             ...prevState,
             error: true,
+            isLocalParticipantRecorded: false,
             isRecording: false,
           }));
           onRecordingError?.(ev);
