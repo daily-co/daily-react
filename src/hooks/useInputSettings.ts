@@ -31,7 +31,7 @@ export const useInputSettings = ({
   const errorMsg = useRecoilValue(errorState);
   const daily = useDaily();
 
-  const updateInputSettings = useRecoilCallback(
+  const updateInputSettingsState = useRecoilCallback(
     ({ set }) =>
       (inputSettings: DailyInputSettings) => {
         set(inputSettingsState, inputSettings);
@@ -41,8 +41,8 @@ export const useInputSettings = ({
 
   useEffect(() => {
     if (!daily) return;
-    daily.getInputSettings().then(updateInputSettings);
-  }, [daily, updateInputSettings]);
+    daily.getInputSettings().then(updateInputSettingsState);
+  }, [daily, updateInputSettingsState]);
 
   /**
    * Handle 'input-settings-updated' events.
@@ -51,10 +51,10 @@ export const useInputSettings = ({
     'input-settings-updated',
     useCallback(
       (ev: DailyEventObjectInputSettingsUpdated) => {
-        updateInputSettings(ev.inputSettings);
+        updateInputSettingsState(ev.inputSettings);
         onInputSettingsUpdated?.(ev);
       },
-      [onInputSettingsUpdated, updateInputSettings]
+      [onInputSettingsUpdated, updateInputSettingsState]
     )
   );
 
@@ -74,8 +74,19 @@ export const useInputSettings = ({
     )
   );
 
+  /**
+   * Calls daily.updateInputSettings internally.
+   */
+  const updateInputSettings = useCallback(
+    (inputSettings: DailyInputSettings) => {
+      daily?.updateInputSettings(inputSettings);
+    },
+    [daily]
+  );
+
   return {
     errorMsg,
     inputSettings,
+    updateInputSettings,
   };
 };
