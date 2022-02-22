@@ -33,7 +33,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "daily-react-hooks",
+  "name": "@daily-co/daily-react-hooks",
   "author": "Daily (https://daily.co)",
   "contributors": [
     {
