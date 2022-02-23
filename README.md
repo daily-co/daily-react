@@ -9,16 +9,16 @@ Find our docs at https://docs.daily.co/reference/daily-react-hooks.
 The `daily-react-hooks` package is published to [npm](https://npmjs.com). To install the latest stable version, run one of the following commands:
 
 ```bash
-npm install daily-react-hooks @daily-co/daily-js recoil
+npm install @daily-co/daily-react-hooks @daily-co/daily-js recoil
 
 # or with yarn
 
-yarn add daily-react-hooks @daily-co/daily-js recoil
+yarn add @daily-co/daily-react-hooks @daily-co/daily-js recoil
 ```
 
-Notice that `daily-react-hooks` requires [@daily-co/daily-js](https://www.npmjs.com/package/@daily-co/daily-js) and [recoil](https://www.npmjs.com/package/recoil) as peer dependencies.
+Notice that `@daily-co/daily-react-hooks` requires [@daily-co/daily-js](https://www.npmjs.com/package/@daily-co/daily-js) and [recoil](https://www.npmjs.com/package/recoil) as peer dependencies.
 
-`daily-react-hooks` manages its internal state using `recoil`. You can read more about `recoil` in their [Motivation](https://recoiljs.org/docs/introduction/motivation) statement.
+`@daily-co/daily-react-hooks` manages its internal state using `recoil`. You can read more about `recoil` in their [Motivation](https://recoiljs.org/docs/introduction/motivation) statement.
 
 ## Tests
 
