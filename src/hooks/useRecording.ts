@@ -101,6 +101,10 @@ export const useRecording = ({
     setState((s) => ({
       ...s,
       // In case type is local or not set, determine based on recording participants
+      isLocalParticipantRecorded:
+        s?.type === 'local' || !s?.type
+          ? hasRecordingParticipants
+          : s.isLocalParticipantRecorded,
       isRecording:
         s?.type === 'local' || !s?.type
           ? hasRecordingParticipants
