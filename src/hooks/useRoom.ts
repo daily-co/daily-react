@@ -1,4 +1,5 @@
 import { DailyPendingRoomInfo, DailyRoomInfo } from '@daily-co/daily-js';
+import { useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
@@ -21,41 +22,27 @@ export const useRoom = (options?: UseRoomArgs) => {
   const room = useRecoilValue(roomState);
   const daily = useDaily();
 
-  useDailyEvent(
-    'loaded',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
+  const updateRoom = useRecoilCallback(
+    ({ set }) =>
+      async () => {
+        if (!daily) return;
+        set(roomState, await daily.room(options));
+      },
+    [daily, options]
   );
 
-  useDailyEvent(
-    'joining-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
-  );
-
-  useDailyEvent(
-    'joined-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          set(roomState, await daily.room(options));
-        },
-      [daily, options]
-    )
-  );
+  /**
+   * Load room as soon as daily is available.
+   */
+  useEffect(() => {
+    if (!daily) return;
+    updateRoom();
+  }, [daily, updateRoom]);
+  useDailyEvent('loaded', updateRoom);
+  useDailyEvent('access-state-updated', updateRoom);
+  useDailyEvent('started-camera', updateRoom);
+  useDailyEvent('joining-meeting', updateRoom);
+  useDailyEvent('joined-meeting', updateRoom);
 
   return room;
 };
