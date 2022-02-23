@@ -2,7 +2,54 @@
 
 Daily React Hooks makes it easier to integrate [@daily-co/daily-js](https://www.npmjs.com/package/@daily-co/daily-js) in React applications.
 
-Find our docs at https://docs.daily.co/reference/daily-react-hooks.
+## Usage
+
+To get started with Daily React Hooks, wrap your app with [`DailyProvider`](https://docs.daily.co/reference/daily-react-hooks/daily-provider):
+
+```jsx
+import { DailyProvider } from '@daily-co/daily-react-hooks';
+
+function App({ roomUrl }) {
+  return (
+    <DailyProvider url={roomUrl}>
+      {/* … */}
+    </DailyProvider>
+  )
+}
+```
+
+Then in your application you can access Daily React Hooks:
+
+```jsx
+import { useParticipant, useParticipantIds } from '@daily-co/daily-react-hooks';
+
+function ParticipantRow({ id }) {
+  const participant = useParticipant(id);
+
+  return (
+    <li style={{ display: 'flex', gap: 8 }}>
+      <span>{participant?.user_name ?? 'Guest'}</span>
+      <span>📷{participant?.video ? '✅' : '❌'}</span>
+      <span>🎙️{participant?.audio ? '✅' : '❌'}</span>
+    </li>
+  )
+}
+
+function Participants() {
+  const participantIds = useParticipantIds({
+    filter: 'remote',
+    sort: 'user_name'
+  });
+
+  return (
+    <ul>
+      {participantIds.map((id) => <ParticipantRow key={id} id={id} />)}
+    </ul>
+  )
+}
+```
+
+Learn more about Daily React Hooks by reading our docs at https://docs.daily.co/reference/daily-react-hooks.
 
 ## Installation
 
