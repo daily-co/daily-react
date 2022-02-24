@@ -29,8 +29,8 @@ function ParticipantRow({ id }) {
   return (
     <li style={{ display: 'flex', gap: 8 }}>
       <span>{participant?.user_name ?? 'Guest'}</span>
-      <span>📷{participant?.video ? '✅' : '❌'}</span>
-      <span>🎙️{participant?.audio ? '✅' : '❌'}</span>
+      <span>📷{participant?.tracks?.video?.state === 'playable' ? '✅' : '❌'}</span>
+      <span>🎙️{participant?.tracks?.audio?.state === 'playable' ? '✅' : '❌'}</span>
     </li>
   )
 }
