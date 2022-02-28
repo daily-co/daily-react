@@ -25,7 +25,7 @@ export const useRoom = (options?: UseRoomArgs) => {
   const updateRoom = useRecoilCallback(
     ({ set }) =>
       async () => {
-        if (!daily) return;
+        if (!daily || daily.meetingState() === 'left-meeting') return;
         set(roomState, await daily.room(options));
       },
     [daily, options]
