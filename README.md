@@ -4,7 +4,7 @@ Daily React Hooks makes it easier to integrate [@daily-co/daily-js](https://www.
 
 ## Usage
 
-To get started with Daily React Hooks, wrap your app with [`DailyProvider`](https://docs.daily.co/reference/daily-react-hooks/daily-provider):
+To get started with Daily React Hooks, include [`DailyProvider`](https://docs.daily.co/reference/daily-react-hooks/daily-provider) in your app:
 
 ```jsx
 import { DailyProvider } from '@daily-co/daily-react-hooks';
