@@ -15,7 +15,7 @@ export const DailyRoom: React.FC = ({ children }) => {
   const updateRoom = useRecoilCallback(
     ({ set }) =>
       async () => {
-        if (!daily) return;
+        if (!daily || daily.meetingState() === 'left-meeting') return;
         const room = await daily.room();
         set(roomState, room);
         return room;
