@@ -38,6 +38,7 @@
   "name": "@daily-co/daily-react-hooks",
   "author": "Daily (https://daily.co)",
   "homepage": "https://docs.daily.co/reference/daily-react-hooks",
+  "repository": "github:daily-co/daily-react-hooks",
   "contributors": [
     {
       "name": "Christian Stuff",
