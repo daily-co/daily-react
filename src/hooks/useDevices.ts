@@ -57,19 +57,6 @@ export const useDevices = () => {
   const micDevices = useRecoilValue(microphoneDevicesState);
   const speakerDevices = useRecoilValue(speakerDevicesState);
 
-  const createDefaultLabelIfEmpty = (
-    devices: MediaDeviceInfo[],
-    defaultLabel: string
-  ) => {
-    for (let i = 0; i < devices.length; i++) {
-      const device = devices[i];
-      if (!device.label) {
-        const label = `${defaultLabel} - ${i + 1}`;
-        devices[i] = Object.assign(device, { label });
-      }
-    }
-  };
-
   /**
    * Refreshes list of available devices using enumerateDevices.
    * Previous device states are kept in place, otherwise states are initialized as 'granted'.
@@ -93,25 +80,18 @@ export const useDevices = () => {
 
         try {
           const { devices } = await daily.enumerateDevices();
-
           /**
            * Filter out "empty" devices for when device access has not been granted (yet).
            */
           const cams = devices.filter(
             (d) => d.kind === 'videoinput' && d.deviceId !== ''
           );
-          createDefaultLabelIfEmpty(cams, 'Camera');
-
           const mics = devices.filter(
             (d) => d.kind === 'audioinput' && d.deviceId !== ''
           );
-          createDefaultLabelIfEmpty(mics, 'Microphone');
-
           const speakers = devices.filter(
             (d) => d.kind === 'audiooutput' && d.deviceId !== ''
           );
-          createDefaultLabelIfEmpty(speakers, 'Speaker');
-
           const { camera, mic, speaker } = await daily.getInputDevices();
 
           const mapDevice = (
