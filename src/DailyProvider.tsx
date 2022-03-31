@@ -7,6 +7,8 @@ import DailyIframe, {
 import React, { createContext, useCallback, useEffect, useRef } from 'react';
 import { RecoilRoot } from 'recoil';
 
+import { DailyRoom } from './DailyRoom';
+
 type DailyProperties = Pick<
   DailyCallOptions,
   | 'audioSource'
@@ -123,7 +125,7 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     <RecoilRoot>
       <DailyContext.Provider value={callObject.current}>
         <DailyEventContext.Provider value={{ on, off }}>
-          {children}
+          <DailyRoom>{children}</DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>
     </RecoilRoot>

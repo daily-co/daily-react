@@ -13,6 +13,14 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useParticipantIds } from '../../src/hooks/useParticipantIds';
 
+/**
+ * Mock DailyRoom.
+ * It's not required for useParticipantIds and causes unwanted state updates.
+ */
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>

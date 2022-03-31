@@ -13,6 +13,14 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useMediaTrack } from '../../src/hooks/useMediaTrack';
 
+/**
+ * Mock DailyRoom.
+ * It's not required for useMediaTrack and causes unwanted state updates.
+ */
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>

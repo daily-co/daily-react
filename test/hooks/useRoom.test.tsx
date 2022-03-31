@@ -17,11 +17,13 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useRoom', () => {
-  it('returns null initially', () => {
-    const { result } = renderHook(() => useRoom(), {
+  it('returns null initially', async () => {
+    const { result, waitFor } = renderHook(() => useRoom(), {
       wrapper: createWrapper(),
     });
-    expect(result.current).toBeNull();
+    await waitFor(() => {
+      expect(result.current).toBeNull();
+    });
   });
   it('returns same object as daily.room() after loaded event', async () => {
     const daily = DailyIframe.createCallObject();

@@ -8,6 +8,14 @@ import { DailyProvider } from '../../src/DailyProvider';
 import { useLocalParticipant } from '../../src/hooks/useLocalParticipant';
 import * as useParticipantModule from '../../src/hooks/useParticipant';
 
+/**
+ * Mock DailyRoom.
+ * It's not required for useLocalParticipant and causes unwanted state updates.
+ */
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
