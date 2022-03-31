@@ -44,6 +44,8 @@ describe('useNetwork', () => {
           videoRecvPacketLoss: 0,
           videoSendBitsPerSecond: 1000000,
           videoSendPacketLoss: 0,
+          totalSendPacketLoss: 0,
+          totalRecvPacketLoss: 0,
         },
         worstVideoRecvPacketLoss: 0,
         worstVideoSendPacketLoss: 0,
