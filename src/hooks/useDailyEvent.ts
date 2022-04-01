@@ -1,7 +1,7 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { DailyEventContext } from '../DailyProvider';
+import { DailyEventContext } from '../DailyEventContext';
 
 type EventCallback = (event?: DailyEventObject) => void;
 

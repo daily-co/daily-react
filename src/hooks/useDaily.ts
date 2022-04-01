@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 
-import { DailyContext } from '../DailyProvider';
+import { DailyContext } from '../DailyContext';
 
 /**
  * Returns callObject instance passed to or created by closest <DailyProvider>.

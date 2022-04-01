@@ -4,9 +4,11 @@ import DailyIframe, {
   DailyEvent,
   DailyEventObject,
 } from '@daily-co/daily-js';
-import React, { createContext, useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { RecoilRoot } from 'recoil';
 
+import { DailyContext } from './DailyContext';
+import { DailyEventContext } from './DailyEventContext';
 import { DailyRoom } from './DailyRoom';
 
 type DailyProperties = Pick<
@@ -27,19 +29,7 @@ type Props =
       callObject: DailyCall;
     };
 
-export const DailyContext = createContext<DailyCall | null>(null);
-
-interface EventContextValue {
-  on(ev: DailyEvent, callback: Function, key: number): void;
-  off(ev: DailyEvent, key: number): void;
-}
-
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
-
-export const DailyEventContext = createContext<EventContextValue>({
-  on: () => {},
-  off: () => {},
-});
 
 export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   const callObject = useRef<DailyCall | null>(
