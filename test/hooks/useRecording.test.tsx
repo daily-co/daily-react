@@ -12,19 +12,20 @@ import DailyIframe, {
 import { act, renderHook } from '@testing-library/react-hooks';
 import faker from 'faker';
 import React from 'react';
-import { RecoilRoot } from 'recoil';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRecording } from '../../src/hooks/useRecording';
 
+const localId = faker.datatype.uuid();
+
+jest.mock('../../src/hooks/useLocalParticipant', () => ({
+  useLocalParticipant: () => ({ session_id: localId }),
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
-    (
-      <DailyProvider callObject={callObject}>
-        <RecoilRoot>{children}</RecoilRoot>
-      </DailyProvider>
-    );
+    <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useRecording', () => {
   it('returns default state and functions', async () => {
@@ -185,15 +186,11 @@ describe('useRecording', () => {
   });
   it('single-participant recording for other participant sets isLocalParticipantRecorded to false', async () => {
     const daily = DailyIframe.createCallObject();
-    const localId = faker.datatype.uuid();
-    const otherId = faker.datatype.uuid();
+    const otherId = 'other';
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
         session_id: localId,
       },
-    }));
-    jest.mock('../../src/hooks/useLocalParticipant', () => ({
-      useLocalParticipant: () => ({ session_id: localId }),
     }));
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
@@ -207,7 +204,7 @@ describe('useRecording', () => {
       },
       local: false,
       recordingId: faker.datatype.uuid(),
-      startedBy: faker.datatype.uuid(),
+      startedBy: localId,
       type: 'cloud',
     };
     act(() => {
