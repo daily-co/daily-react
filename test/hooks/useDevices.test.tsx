@@ -366,7 +366,7 @@ describe('useDevices', () => {
             },
           })
         );
-        const { result, waitForNextUpdate } = renderHook(() => useDevices(), {
+        const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -379,12 +379,12 @@ describe('useDevices', () => {
           // @ts-ignore
           daily.emit('camera-error', payload);
         });
-        expect(result.current.camState).toBe('blocked');
-        expect(result.current.hasCamError).toBe(true);
-        expect(result.current.micState).toBe('blocked');
-        expect(result.current.hasMicError).toBe(true);
-        // other updates happening due to call to refreshDevices
-        await waitForNextUpdate();
+        await waitFor(() => {
+          expect(result.current.camState).toBe('blocked');
+          expect(result.current.hasCamError).toBe(true);
+          expect(result.current.micState).toBe('blocked');
+          expect(result.current.hasMicError).toBe(true);
+        });
       });
     });
     describe('error', () => {
@@ -433,7 +433,7 @@ describe('useDevices', () => {
             },
           })
         );
-        const { result, waitForNextUpdate } = renderHook(() => useDevices(), {
+        const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectFatalError = {
@@ -444,12 +444,12 @@ describe('useDevices', () => {
           // @ts-ignore
           daily.emit('error', payload);
         });
-        expect(result.current.camState).toBe('blocked');
-        expect(result.current.hasCamError).toBe(true);
-        expect(result.current.micState).toBe('blocked');
-        expect(result.current.hasMicError).toBe(true);
-        // other updates happening due to call to refreshDevices
-        await waitForNextUpdate();
+        await waitFor(() => {
+          expect(result.current.camState).toBe('blocked');
+          expect(result.current.hasCamError).toBe(true);
+          expect(result.current.micState).toBe('blocked');
+          expect(result.current.hasMicError).toBe(true);
+        });
       });
     });
     describe('participant-updated', () => {
@@ -501,7 +501,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitForNextUpdate } = renderHook(() => useDevices(), {
+        const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -514,9 +514,10 @@ describe('useDevices', () => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
         });
-        expect(result.current.camState).toBe('granted');
-        expect(result.current.micState).toBe('granted');
-        await waitForNextUpdate();
+        await waitFor(() => {
+          expect(result.current.camState).toBe('granted');
+          expect(result.current.micState).toBe('granted');
+        });
       });
       it('local updates state (device in use)', async () => {
         // @ts-ignore
@@ -551,7 +552,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitForNextUpdate } = renderHook(() => useDevices(), {
+        const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -561,15 +562,13 @@ describe('useDevices', () => {
         act(() => {
           // @ts-ignore
           daily.emit('started-camera', { action: 'started-camera' });
-        });
-        await waitForNextUpdate();
-        act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
         });
-        expect(result.current.camState).toBe('in-use');
-        expect(result.current.micState).toBe('in-use');
-        await waitForNextUpdate();
+        await waitFor(() => {
+          expect(result.current.camState).toBe('in-use');
+          expect(result.current.micState).toBe('in-use');
+        });
       });
       it('local updates state (device missing)', async () => {
         // @ts-ignore
@@ -604,7 +603,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitForNextUpdate } = renderHook(() => useDevices(), {
+        const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -614,15 +613,13 @@ describe('useDevices', () => {
         act(() => {
           // @ts-ignore
           daily.emit('started-camera', { action: 'started-camera' });
-        });
-        await waitForNextUpdate();
-        act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
         });
-        expect(result.current.camState).toBe('not-found');
-        expect(result.current.micState).toBe('not-found');
-        await waitForNextUpdate();
+        await waitFor(() => {
+          expect(result.current.camState).toBe('not-found');
+          expect(result.current.micState).toBe('not-found');
+        });
       });
       describe('with pre-selected device', () => {
         it('updates mic in-use', async () => {
