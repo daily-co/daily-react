@@ -4,6 +4,7 @@ import {
   DailyParticipant,
   DailyParticipantsObject,
 } from '@daily-co/daily-js';
+import { useRef } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { atom, useRecoilCallback } from 'recoil';
 
@@ -73,6 +74,14 @@ export const useParticipantIds = (
 ) => {
   const daily = useDaily();
   const [sortedIds, setSortedIds] = useState<string[]>([]);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const updateSortedIds = useCallback(
     (participants: DailyParticipantsObject) => {
@@ -115,6 +124,7 @@ export const useParticipantIds = (
         .sort(sortFn)
         .map((p) => p.session_id)
         .filter(Boolean);
+      if (!mounted.current) return;
       setSortedIds((ids) => {
         if (
           ids.length === newSorted.length &&
