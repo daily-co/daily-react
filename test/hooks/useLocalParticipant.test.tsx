@@ -1,15 +1,12 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
-  DailyCall,
-  DailyEvent,
-  DailyEventObject,
-} from '@daily-co/daily-js';
+import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useLocalParticipant } from '../../src/hooks/useLocalParticipant';
+import * as useParticipantModule from '../../src/hooks/useParticipant';
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
@@ -30,6 +27,7 @@ describe('useLocalParticipant', () => {
     const daily = DailyIframe.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
+        local: true,
         session_id: 'local',
         user_name: '',
       },
@@ -39,45 +37,33 @@ describe('useLocalParticipant', () => {
     });
     await waitFor(() => {
       expect(result.current).toEqual({
+        local: true,
         session_id: 'local',
         user_name: '',
       });
     });
   });
-  it('loaded event triggers a 1s timeout to init state', async () => {
-    jest.useFakeTimers();
-    const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+  it('participant-updated event inits state and calls useParticipant with session_id', async () => {
     const daily = DailyIframe.createCallObject();
-    const { result, waitFor } = renderHook(() => useLocalParticipant(), {
+    const spy = jest.spyOn(useParticipantModule, 'useParticipant');
+    const { waitFor } = renderHook(() => useLocalParticipant(), {
       wrapper: createWrapper(daily),
     });
-    const event: DailyEvent = 'loaded';
-    const payload: DailyEventObject = {
-      action: event,
-    };
-    act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
-    });
-    await waitFor(() => {
-      expect(setTimeoutSpy).toBeCalledWith(expect.any(Function), 1000);
-      expect(result.current).toBeNull();
-    });
-    (daily.participants as jest.Mock).mockImplementation(() => ({
-      local: {
+    const action = 'participant-updated';
+    const payload = {
+      action,
+      participant: {
+        local: true,
         session_id: 'local',
         user_name: '',
       },
-    }));
+    };
     act(() => {
-      jest.runAllTimers();
+      // @ts-ignore
+      daily.emit('participant-updated', payload);
     });
     await waitFor(() => {
-      expect(result.current).toEqual({
-        session_id: 'local',
-        user_name: '',
-      });
+      expect(spy).toHaveBeenCalledWith('local');
     });
-    jest.useRealTimers();
   });
 });

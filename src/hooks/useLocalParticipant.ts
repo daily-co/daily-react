@@ -1,8 +1,8 @@
-import { useCallback, useEffect } from 'react';
+import { DailyEventObjectParticipant } from '@daily-co/daily-js';
+import { useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
-import { useDailyEvent } from './useDailyEvent';
 import { useParticipant } from './useParticipant';
 
 const localIdState = atom<string>({
@@ -19,25 +19,27 @@ export const useLocalParticipant = (): ReturnType<typeof useParticipant> => {
 
   const initState = useRecoilCallback(
     ({ set }) =>
-      () => {
-        const local = daily?.participants()?.local;
-        if (!local) return;
-        set(localIdState, local.session_id);
+      (session_id: string) => {
+        if (!session_id) return;
+        set(localIdState, session_id);
       },
-    [daily]
+    []
   );
   useEffect(() => {
-    if (!daily) return;
-    initState();
-  }, [daily, initState]);
-
-  useDailyEvent(
-    'loaded',
-    useCallback(() => {
-      // Arbitrary timeout. See https://codepen.io/Regaddi/pen/zYdVBja
-      setTimeout(initState, 1000);
-    }, [initState])
-  );
+    if (!daily || localId) return;
+    if (daily.participants()?.local) {
+      initState(daily.participants().local.session_id);
+      return;
+    }
+    const handleParticipantUpdated = (ev?: DailyEventObjectParticipant) => {
+      if (!ev?.participant?.local) return;
+      initState(ev?.participant?.session_id);
+    };
+    daily.on('participant-updated', handleParticipantUpdated);
+    return () => {
+      daily.off('participant-updated', handleParticipantUpdated);
+    };
+  }, [daily, initState, localId]);
 
   return useParticipant(localId);
 };
