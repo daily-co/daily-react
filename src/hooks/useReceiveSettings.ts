@@ -48,7 +48,7 @@ export const useReceiveSettings = ({
           if (!(id in ids)) {
             reset(participantReceiveSettingsState(id));
           }
-          onReceiveSettingsUpdated?.(ev);
+          setTimeout(() => onReceiveSettingsUpdated?.(ev), 0);
         },
       [id, onReceiveSettingsUpdated]
     )

@@ -50,7 +50,7 @@ export const useActiveParticipant = ({
       ({ set }) =>
         (ev: DailyEventObjectActiveSpeakerChange) => {
           set(activeIdState, ev.activeSpeaker.peerId);
-          onActiveSpeakerChange?.(ev);
+          setTimeout(() => onActiveSpeakerChange?.(ev), 0);
         },
       [onActiveSpeakerChange]
     )

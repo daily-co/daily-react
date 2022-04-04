@@ -52,7 +52,7 @@ export const useInputSettings = ({
     useCallback(
       (ev: DailyEventObjectInputSettingsUpdated) => {
         updateInputSettingsState(ev.inputSettings);
-        onInputSettingsUpdated?.(ev);
+        setTimeout(() => onInputSettingsUpdated?.(ev), 0);
       },
       [onInputSettingsUpdated, updateInputSettingsState]
     )
@@ -68,7 +68,7 @@ export const useInputSettings = ({
         (ev: DailyEventObjectNonFatalError) => {
           if (ev.type !== 'input-settings-error') return;
           set(errorState, ev.errorMsg);
-          onError?.(ev);
+          setTimeout(() => onError?.(ev), 0);
         },
       [onError]
     )

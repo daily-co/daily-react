@@ -43,8 +43,8 @@ export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
     reassignCount.current++;
     const timeout = setTimeout(() => {
       reassignCount.current = 0;
+      on(ev, callback, eventId);
     }, 50);
-    on(ev, callback, eventId);
     return () => {
       clearTimeout(timeout);
       off(ev, eventId);

@@ -1,4 +1,5 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
+import throttle from 'lodash.throttle';
 import { useContext, useEffect, useMemo, useRef } from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
@@ -26,23 +27,35 @@ export const useThrottledDailyEvent = (
 
   const throttledEvents = useRef<DailyEventObject[]>([]);
 
+  const emitEvents = useMemo(
+    () =>
+      throttle(
+        () => {
+          if (throttledEvents.current.length === 0) return;
+          callback(throttledEvents.current);
+          throttledEvents.current = [];
+        },
+        throttleTimeout,
+        {
+          trailing: true,
+        }
+      ),
+    [callback, throttleTimeout]
+  );
+
   useEffect(() => {
     if (!ev) return;
-    const emitEvents = () => {
-      if (throttledEvents.current.length === 0) return;
-      callback(throttledEvents.current);
-      throttledEvents.current = [];
-    };
-    const interval = setInterval(emitEvents, throttleTimeout);
     const addEvent = (ev: DailyEventObject) => {
       throttledEvents.current.push(ev);
+      /**
+       * A 0ms timeout allows the event loop to process additional incoming events,
+       * while the throttle is active. Otherwise every event would be delayed.
+       */
+      setTimeout(emitEvents, 0);
     };
     on(ev, addEvent, eventId);
     return () => {
-      clearInterval(interval);
-      // Clear throttled queue
-      emitEvents();
       off(ev, eventId);
     };
-  }, [callback, ev, eventId, off, on, throttleTimeout]);
+  }, [emitEvents, ev, eventId, off, on, throttleTimeout]);
 };

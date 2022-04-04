@@ -69,7 +69,7 @@ export const useWaitingParticipants = ({
           return wps;
         });
         set(waitingParticipantState(ev.participant.id), ev.participant);
-        onWaitingParticipantAdded?.(ev);
+        setTimeout(() => onWaitingParticipantAdded?.(ev), 0);
       },
     [onWaitingParticipantAdded]
   );
@@ -81,7 +81,7 @@ export const useWaitingParticipants = ({
           wps.filter((wp) => wp !== ev.participant.id)
         );
         reset(waitingParticipantState(ev.participant.id));
-        onWaitingParticipantRemoved?.(ev);
+        setTimeout(() => onWaitingParticipantRemoved?.(ev), 0);
       },
     [onWaitingParticipantRemoved]
   );
@@ -90,7 +90,7 @@ export const useWaitingParticipants = ({
     ({ set }) =>
       (ev: DailyEventObjectWaitingParticipant) => {
         set(waitingParticipantState(ev.participant.id), ev.participant);
-        onWaitingParticipantUpdated?.(ev);
+        setTimeout(() => onWaitingParticipantUpdated?.(ev), 0);
       },
     [onWaitingParticipantUpdated]
   );

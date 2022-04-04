@@ -176,14 +176,15 @@ export const useParticipantIds = (
         async (evts: DailyEventObjectParticipant[]) => {
           if (!evts.length) return;
           set(participantsState, (ids) =>
-            [...ids, ...evts.map((ev) => ev.participant.session_id)].filter(
-              (id, idx, arr) => arr.indexOf(id) == idx
-            )
+            [
+              ...ids,
+              ...evts.map(({ participant }) => participant.session_id),
+            ].filter((id, idx, arr) => arr.indexOf(id) == idx)
           );
           if (daily) {
             updateSortedIds(daily.participants());
           }
-          evts.forEach((ev) => onParticipantJoined?.(ev));
+          evts.forEach((ev) => setTimeout(() => onParticipantJoined?.(ev), 0));
         },
       [daily, onParticipantJoined, updateSortedIds]
     )
@@ -197,7 +198,7 @@ export const useParticipantIds = (
         if (daily) {
           updateSortedIds(daily.participants());
         }
-        evts.forEach((ev) => onParticipantUpdated?.(ev));
+        evts.forEach((ev) => setTimeout(() => onParticipantUpdated?.(ev), 0));
       },
       [daily, onParticipantUpdated, updateSortedIds]
     )
@@ -211,7 +212,7 @@ export const useParticipantIds = (
         if (daily) {
           updateSortedIds(daily.participants());
         }
-        evts.forEach((ev) => onActiveSpeakerChange?.(ev));
+        evts.forEach((ev) => setTimeout(() => onActiveSpeakerChange?.(ev), 0));
       },
       [daily, onActiveSpeakerChange, updateSortedIds]
     )
@@ -231,7 +232,7 @@ export const useParticipantIds = (
           if (daily) {
             updateSortedIds(daily.participants());
           }
-          evts.forEach((ev) => onParticipantLeft?.(ev));
+          evts.forEach((ev) => setTimeout(() => onParticipantLeft?.(ev), 0));
         },
       [daily, onParticipantLeft, updateSortedIds]
     )

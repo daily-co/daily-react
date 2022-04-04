@@ -45,7 +45,7 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     const event = ev.action as DailyEvent;
     const callbacks = Array.from(eventsMap.current?.[event]?.values() ?? []);
     callbacks.forEach((cb) => {
-      cb(ev);
+      setTimeout(() => cb(ev), 0);
     });
   }, []);
 

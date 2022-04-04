@@ -55,7 +55,7 @@ export const useLiveStreaming = ({
             isLiveStreaming: true,
             layout: ev?.layout,
           });
-          onLiveStreamingStarted?.(ev);
+          setTimeout(() => onLiveStreamingStarted?.(ev), 0);
         },
       [onLiveStreamingStarted]
     )
@@ -71,7 +71,7 @@ export const useLiveStreaming = ({
             isLiveStreaming: false,
             layout: undefined,
           }));
-          onLiveStreamingStopped?.(ev);
+          setTimeout(() => onLiveStreamingStopped?.(ev), 0);
         },
       [onLiveStreamingStopped]
     )
@@ -86,7 +86,7 @@ export const useLiveStreaming = ({
             ...prevState,
             errorMsg: ev.errorMsg,
           }));
-          onLiveStreamingError?.(ev);
+          setTimeout(() => onLiveStreamingError?.(ev), 0);
         },
       [onLiveStreamingError]
     )

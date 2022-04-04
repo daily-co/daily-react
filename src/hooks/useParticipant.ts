@@ -85,7 +85,7 @@ export const useParticipant = (
         (ev: DailyEventObjectParticipant) => {
           if (ev.participant.session_id !== sessionId) return;
           set(participantState(sessionId), ev.participant);
-          onParticipantUpdated?.(ev);
+          setTimeout(() => onParticipantUpdated?.(ev), 0);
         },
       [onParticipantUpdated, sessionId]
     )
@@ -98,7 +98,7 @@ export const useParticipant = (
         (ev: DailyEventObjectParticipant) => {
           if (ev.participant.session_id !== sessionId) return;
           reset(participantState(sessionId));
-          onParticipantLeft?.(ev);
+          setTimeout(() => onParticipantLeft?.(ev), 0);
         },
       [onParticipantLeft, sessionId]
     )

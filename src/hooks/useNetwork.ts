@@ -51,7 +51,7 @@ export const useNetwork = ({
             if (ev.type === 'sfu') set(topologyState, 'sfu');
             break;
         }
-        onNetworkConnection?.(ev);
+        setTimeout(() => onNetworkConnection?.(ev), 0);
       },
     [onNetworkConnection]
   );
@@ -65,7 +65,7 @@ export const useNetwork = ({
         set(networkThresholdState, (prevThreshold) =>
           prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
         );
-        onNetworkQualityChange?.(ev);
+        setTimeout(() => onNetworkQualityChange?.(ev), 0);
       },
     [onNetworkQualityChange]
   );
