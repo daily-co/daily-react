@@ -9,6 +9,7 @@ import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type MediaType = keyof DailyParticipant['tracks'];
 
@@ -38,24 +39,29 @@ export const useMediaTrack = (
 
   const handleNewParticipantState = useRecoilCallback(
     ({ set, reset }) =>
-      (ev: DailyEventObjectParticipant) => {
-        if (ev.participant.session_id !== participantId) return;
-        switch (ev.action) {
-          case 'participant-joined':
-          case 'participant-updated':
-            set(mediaTrackState(key), ev.participant.tracks[type]);
-            break;
-          case 'participant-left':
-            reset(mediaTrackState(key));
-            break;
-        }
+      (evts: DailyEventObjectParticipant[]) => {
+        const filteredEvts = evts.filter(
+          (ev) => ev.participant.session_id === participantId
+        );
+        if (!filteredEvts.length) return;
+        filteredEvts.forEach((ev) => {
+          switch (ev.action) {
+            case 'participant-joined':
+            case 'participant-updated':
+              set(mediaTrackState(key), ev.participant.tracks[type]);
+              break;
+            case 'participant-left':
+              reset(mediaTrackState(key));
+              break;
+          }
+        });
       },
     [key, participantId, type]
   );
 
-  useDailyEvent('participant-joined', handleNewParticipantState);
-  useDailyEvent('participant-updated', handleNewParticipantState);
-  useDailyEvent('participant-left', handleNewParticipantState);
+  useThrottledDailyEvent('participant-joined', handleNewParticipantState);
+  useThrottledDailyEvent('participant-updated', handleNewParticipantState);
+  useThrottledDailyEvent('participant-left', handleNewParticipantState);
 
   useDailyEvent(
     'joined-meeting',
