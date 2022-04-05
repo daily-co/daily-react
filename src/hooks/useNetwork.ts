@@ -43,28 +43,32 @@ export const useNetwork = ({
   const threshold = useRecoilValue(networkThresholdState);
 
   const handleNetworkConnection = useRecoilCallback(
-    ({ set }) =>
+    ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectNetworkConnectionEvent) => {
-        switch (ev.event) {
-          case 'connected':
-            if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
-            if (ev.type === 'sfu') set(topologyState, 'sfu');
-            break;
-        }
+        transact_UNSTABLE(({ set }) => {
+          switch (ev.event) {
+            case 'connected':
+              if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
+              if (ev.type === 'sfu') set(topologyState, 'sfu');
+              break;
+          }
+        });
         setTimeout(() => onNetworkConnection?.(ev), 0);
       },
     [onNetworkConnection]
   );
 
   const handleNetworkQualityChange = useRecoilCallback(
-    ({ set }) =>
+    ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectNetworkQualityEvent) => {
-        set(networkQualityState, (prevQuality) =>
-          prevQuality !== ev.quality ? ev.quality : prevQuality
-        );
-        set(networkThresholdState, (prevThreshold) =>
-          prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
-        );
+        transact_UNSTABLE(({ set }) => {
+          set(networkQualityState, (prevQuality) =>
+            prevQuality !== ev.quality ? ev.quality : prevQuality
+          );
+          set(networkThresholdState, (prevThreshold) =>
+            prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
+          );
+        });
         setTimeout(() => onNetworkQualityChange?.(ev), 0);
       },
     [onNetworkQualityChange]

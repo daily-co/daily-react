@@ -202,8 +202,8 @@ export const useParticipantIds = (
 
   useThrottledDailyEvent(
     'participant-updated',
-    useRecoilCallback(
-      () => (evts: DailyEventObjectParticipant[]) => {
+    useCallback(
+      (evts: DailyEventObjectParticipant[]) => {
         if (!evts.length) return;
         if (daily) {
           updateSortedIds(daily.participants());
@@ -216,8 +216,8 @@ export const useParticipantIds = (
 
   useThrottledDailyEvent(
     'active-speaker-change',
-    useRecoilCallback(
-      () => async (evts: DailyEventObjectActiveSpeakerChange[]) => {
+    useCallback(
+      async (evts: DailyEventObjectActiveSpeakerChange[]) => {
         if (!evts.length) return;
         if (daily) {
           updateSortedIds(daily.participants());

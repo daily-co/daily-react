@@ -39,15 +39,17 @@ export const useReceiveSettings = ({
   useDailyEvent(
     'receive-settings-updated',
     useRecoilCallback(
-      ({ reset, set }) =>
+      ({ transact_UNSTABLE }) =>
         (ev: DailyEventObjectReceiveSettingsUpdated) => {
-          const { ...ids } = ev.receiveSettings;
-          for (let [id, settings] of Object.entries(ids)) {
-            set(participantReceiveSettingsState(id), settings);
-          }
-          if (!(id in ids)) {
-            reset(participantReceiveSettingsState(id));
-          }
+          transact_UNSTABLE(({ set, reset }) => {
+            const { ...ids } = ev.receiveSettings;
+            for (let [id, settings] of Object.entries(ids)) {
+              set(participantReceiveSettingsState(id), settings);
+            }
+            if (!(id in ids)) {
+              reset(participantReceiveSettingsState(id));
+            }
+          });
           setTimeout(() => onReceiveSettingsUpdated?.(ev), 0);
         },
       [id, onReceiveSettingsUpdated]

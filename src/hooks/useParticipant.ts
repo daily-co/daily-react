@@ -59,19 +59,19 @@ export const useParticipant = (
   useDailyEvent(
     'active-speaker-change',
     useRecoilCallback(
-      ({ set, snapshot }) =>
+      ({ transact_UNSTABLE }) =>
         async (ev: DailyEventObjectActiveSpeakerChange) => {
           if (ev.activeSpeaker.peerId !== sessionId) return;
-          let participant = await snapshot.getPromise(
-            participantState(sessionId)
-          );
-          if (!participant && daily) {
-            participant = daily.participants()[sessionId];
-          }
-          if (!participant) return;
-          set(participantState(sessionId), {
-            ...participant,
-            last_active: new Date(),
+          transact_UNSTABLE(({ get, set }) => {
+            let participant = get(participantState(sessionId));
+            if (!participant && daily) {
+              participant = daily.participants()[sessionId];
+            }
+            if (!participant) return;
+            set(participantState(sessionId), {
+              ...participant,
+              last_active: new Date(),
+            });
           });
         },
       [daily, sessionId]

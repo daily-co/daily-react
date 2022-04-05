@@ -38,22 +38,24 @@ export const useMediaTrack = (
   const trackState = useRecoilValue(mediaTrackState(key));
 
   const handleNewParticipantState = useRecoilCallback(
-    ({ set, reset }) =>
+    ({ transact_UNSTABLE }) =>
       (evts: DailyEventObjectParticipant[]) => {
         const filteredEvts = evts.filter(
           (ev) => ev.participant.session_id === participantId
         );
         if (!filteredEvts.length) return;
-        filteredEvts.forEach((ev) => {
-          switch (ev.action) {
-            case 'participant-joined':
-            case 'participant-updated':
-              set(mediaTrackState(key), ev.participant.tracks[type]);
-              break;
-            case 'participant-left':
-              reset(mediaTrackState(key));
-              break;
-          }
+        transact_UNSTABLE(({ set, reset }) => {
+          filteredEvts.forEach((ev) => {
+            switch (ev.action) {
+              case 'participant-joined':
+              case 'participant-updated':
+                set(mediaTrackState(key), ev.participant.tracks[type]);
+                break;
+              case 'participant-left':
+                reset(mediaTrackState(key));
+                break;
+            }
+          });
         });
       },
     [key, participantId, type]

@@ -60,27 +60,31 @@ export const useWaitingParticipants = ({
   const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
 
   const handleAdded = useRecoilCallback(
-    ({ set }) =>
+    ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectWaitingParticipant) => {
-        set(waitingParticipantsState, (wps) => {
-          if (!wps.includes(ev.participant.id)) {
-            return [...wps, ev.participant.id];
-          }
-          return wps;
+        transact_UNSTABLE(({ set }) => {
+          set(waitingParticipantsState, (wps) => {
+            if (!wps.includes(ev.participant.id)) {
+              return [...wps, ev.participant.id];
+            }
+            return wps;
+          });
+          set(waitingParticipantState(ev.participant.id), ev.participant);
         });
-        set(waitingParticipantState(ev.participant.id), ev.participant);
         setTimeout(() => onWaitingParticipantAdded?.(ev), 0);
       },
     [onWaitingParticipantAdded]
   );
 
   const handleRemoved = useRecoilCallback(
-    ({ reset, set }) =>
+    ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectWaitingParticipant) => {
-        set(waitingParticipantsState, (wps) =>
-          wps.filter((wp) => wp !== ev.participant.id)
-        );
-        reset(waitingParticipantState(ev.participant.id));
+        transact_UNSTABLE(({ set, reset }) => {
+          set(waitingParticipantsState, (wps) =>
+            wps.filter((wp) => wp !== ev.participant.id)
+          );
+          reset(waitingParticipantState(ev.participant.id));
+        });
         setTimeout(() => onWaitingParticipantRemoved?.(ev), 0);
       },
     [onWaitingParticipantRemoved]

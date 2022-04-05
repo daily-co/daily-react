@@ -43,10 +43,9 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   const handleEvent = useCallback((ev: DailyEventObject) => {
     if (!('action' in ev)) return;
     const event = ev.action as DailyEvent;
-    const callbacks = Array.from(eventsMap.current?.[event]?.values() ?? []);
-    callbacks.forEach((cb) => {
-      setTimeout(() => cb(ev), 0);
-    });
+    for (let cb of eventsMap.current?.[event]?.values() ?? []) {
+      cb(ev);
+    }
   }, []);
 
   /**
