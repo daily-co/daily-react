@@ -8,11 +8,14 @@ import { DailyProvider } from '../../src/DailyProvider';
 import { useDailyEvent } from '../../src/hooks/useDailyEvent';
 
 /**
- * Mock DailyRoom.
+ * Mock DailyRoom & DailyParticipants.
  * It's not required for useDailyEvent and causes unwanted state updates.
  */
 jest.mock('../../src/DailyRoom', () => ({
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =

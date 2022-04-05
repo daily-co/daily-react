@@ -11,11 +11,14 @@ import { DailyProvider } from '../../src/DailyProvider';
 import { useThrottledDailyEvent } from '../../src/hooks/useThrottledDailyEvent';
 
 /**
- * Mock DailyRoom.
- * It's not required for useThrottledDailyEvent and causes unwanted state updates.
+ * Mock DailyRoom & DailyParticipants.
+ * It's not required for useDailyEvent and causes unwanted state updates.
  */
 jest.mock('../../src/DailyRoom', () => ({
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =

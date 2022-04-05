@@ -1,13 +1,14 @@
 import {
-  DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
   DailyParticipant,
 } from '@daily-co/daily-js';
+import { useCallback } from 'react';
 import { useEffect } from 'react';
-import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { participantState } from '../DailyParticipants';
 import { useDaily } from './useDaily';
-import { useDailyEvent } from './useDailyEvent';
+import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -15,14 +16,6 @@ import { useDailyEvent } from './useDailyEvent';
 export interface ExtendedDailyParticipant extends DailyParticipant {
   last_active?: Date;
 }
-
-/**
- * Holds each inidividual participant's state object.
- */
-const participantState = atomFamily<ExtendedDailyParticipant | null, string>({
-  key: 'participant',
-  default: null,
-});
 
 interface UseParticipantArgs {
   onParticipantLeft?(ev: DailyEventObjectParticipant): void;
@@ -56,50 +49,34 @@ export const useParticipant = (
     initState(participant);
   }, [daily, initState, sessionId]);
 
-  useDailyEvent(
-    'active-speaker-change',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        async (ev: DailyEventObjectActiveSpeakerChange) => {
-          if (ev.activeSpeaker.peerId !== sessionId) return;
-          transact_UNSTABLE(({ get, set }) => {
-            let participant = get(participantState(sessionId));
-            if (!participant && daily) {
-              participant = daily.participants()[sessionId];
-            }
-            if (!participant) return;
-            set(participantState(sessionId), {
-              ...participant,
-              last_active: new Date(),
-            });
-          });
-        },
-      [daily, sessionId]
-    )
-  );
-
-  useDailyEvent(
+  useThrottledDailyEvent(
     'participant-updated',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev: DailyEventObjectParticipant) => {
-          if (ev.participant.session_id !== sessionId) return;
-          set(participantState(sessionId), ev.participant);
+    useCallback(
+      (evts: DailyEventObjectParticipant[]) => {
+        const filteredEvts = evts.filter(
+          (ev) => ev.participant.session_id === sessionId
+        );
+        if (!filteredEvts.length) return;
+        filteredEvts.forEach((ev) => {
           setTimeout(() => onParticipantUpdated?.(ev), 0);
-        },
+        });
+      },
       [onParticipantUpdated, sessionId]
     )
   );
 
-  useDailyEvent(
+  useThrottledDailyEvent(
     'participant-left',
-    useRecoilCallback(
-      ({ reset }) =>
-        (ev: DailyEventObjectParticipant) => {
-          if (ev.participant.session_id !== sessionId) return;
-          reset(participantState(sessionId));
-          setTimeout(() => onParticipantLeft?.(ev), 0);
-        },
+    useCallback(
+      (evts: DailyEventObjectParticipant[]) => {
+        const filteredEvts = evts.filter(
+          (ev) => ev.participant.session_id === sessionId
+        );
+        if (!filteredEvts.length) return;
+        // Last event is sufficient to pass the information
+        const ev = evts[evts.length - 1];
+        setTimeout(() => onParticipantLeft?.(ev), 0);
+      },
       [onParticipantLeft, sessionId]
     )
   );

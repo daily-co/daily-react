@@ -9,6 +9,7 @@ import { RecoilRoot } from 'recoil';
 
 import { DailyContext } from './DailyContext';
 import { DailyEventContext } from './DailyEventContext';
+import { DailyParticipants } from './DailyParticipants';
 import { DailyRoom } from './DailyRoom';
 
 type DailyProperties = Pick<
@@ -114,7 +115,9 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     <RecoilRoot>
       <DailyContext.Provider value={callObject.current}>
         <DailyEventContext.Provider value={{ on, off }}>
-          <DailyRoom>{children}</DailyRoom>
+          <DailyRoom>
+            <DailyParticipants>{children}</DailyParticipants>
+          </DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>
     </RecoilRoot>
