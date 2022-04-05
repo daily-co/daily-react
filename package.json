@@ -22,7 +22,7 @@
   "peerDependencies": {
     "@daily-co/daily-js": "^0.22.0",
     "react": ">=16",
-    "recoil": "^0.5.2"
+    "recoil": "^0.7.0"
   },
   "husky": {
     "hooks": {
