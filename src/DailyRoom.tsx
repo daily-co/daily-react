@@ -31,16 +31,36 @@ export const DailyRoom: React.FC = ({ children }) => {
    * when this event is emitted.
    */
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const room = updateRoom();
-      if ('config' in room) {
-        clearInterval(interval);
-      }
-    }, 250);
-    return () => {
-      clearInterval(interval);
+    if (!daily) return;
+
+    let accessStateInterval: ReturnType<typeof setInterval>;
+    const handleAccessStateUpdated = () => {
+      accessStateInterval = setInterval(async () => {
+        const room = await updateRoom();
+        if (room && 'config' in room) {
+          clearInterval(accessStateInterval);
+        }
+      }, 250);
     };
-  }, [updateRoom]);
+    let joiningInterval: ReturnType<typeof setInterval>;
+    const handleJoining = () => {
+      clearInterval(accessStateInterval);
+      joiningInterval = setInterval(async () => {
+        const room = await updateRoom();
+        if (room && 'config' in room) {
+          clearInterval(joiningInterval);
+        }
+      }, 250);
+    };
+
+    updateRoom();
+    daily.on('access-state-updated', handleAccessStateUpdated);
+    daily.on('joining-meeting', handleJoining);
+    return () => {
+      daily.off('access-state-updated', handleAccessStateUpdated);
+      daily.off('joining-meeting', handleJoining);
+    };
+  }, [daily, updateRoom]);
 
   return <>{children}</>;
 };
