@@ -11,6 +11,10 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useActiveParticipant } from '../../src/hooks/useActiveParticipant';
 
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>

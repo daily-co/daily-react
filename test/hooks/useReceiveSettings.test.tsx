@@ -9,19 +9,21 @@ import DailyIframe, {
 import { act, renderHook } from '@testing-library/react-hooks';
 import faker from 'faker';
 import React from 'react';
-import { RecoilRoot } from 'recoil';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useReceiveSettings } from '../../src/hooks/useReceiveSettings';
 
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
-    (
-      <DailyProvider callObject={callObject}>
-        <RecoilRoot>{children}</RecoilRoot>
-      </DailyProvider>
-    );
+    <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useReceiveSettings', () => {
   it('returns base settings and updateReceiveSettings', async () => {

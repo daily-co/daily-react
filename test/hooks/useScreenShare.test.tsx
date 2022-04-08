@@ -7,19 +7,21 @@ import DailyIframe, {
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
-import { RecoilRoot } from 'recoil';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useScreenShare } from '../../src/hooks/useScreenShare';
 
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
-    (
-      <DailyProvider callObject={callObject}>
-        <RecoilRoot>{children}</RecoilRoot>
-      </DailyProvider>
-    );
+    <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useScreenShare', () => {
   it('returns functions to start and stop screen shares', async () => {

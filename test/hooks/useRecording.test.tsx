@@ -16,6 +16,13 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRecording } from '../../src/hooks/useRecording';
 
+jest.mock('../../src/DailyRoom', () => ({
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const localId = faker.datatype.uuid();
 
 jest.mock('../../src/hooks/useLocalParticipant', () => ({

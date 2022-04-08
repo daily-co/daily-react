@@ -11,6 +11,10 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRoom } from '../../src/hooks/useRoom';
 
+jest.mock('../../src/DailyParticipants', () => ({
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
@@ -25,7 +29,7 @@ describe('useRoom', () => {
       expect(result.current).toBeNull();
     });
   });
-  it('returns same object as daily.room() after loaded event', async () => {
+  it('returns same object as daily.room() after access-state-updated event', async () => {
     const daily = DailyIframe.createCallObject();
     const pendingRoom: DailyPendingRoomInfo = {
       roomUrlPendingJoin: faker.internet.url(),
@@ -38,29 +42,8 @@ describe('useRoom', () => {
     });
     act(() => {
       // @ts-ignore
-      daily.emit('loaded', {
-        action: 'loaded',
-      });
-    });
-    await waitFor(() => {
-      expect(result.current).toEqual(pendingRoom);
-    });
-  });
-  it('returns same object as daily.room() after started-camera event', async () => {
-    const daily = DailyIframe.createCallObject();
-    const pendingRoom: DailyPendingRoomInfo = {
-      roomUrlPendingJoin: faker.internet.url(),
-    };
-    (daily.room as jest.Mock<Promise<DailyPendingRoomInfo>>).mockImplementation(
-      () => Promise.resolve(pendingRoom)
-    );
-    const { result, waitFor } = renderHook(() => useRoom(), {
-      wrapper: createWrapper(daily),
-    });
-    act(() => {
-      // @ts-ignore
-      daily.emit('started-camera', {
-        action: 'started-camera',
+      daily.emit('access-state-updated', {
+        action: 'access-state-updated',
       });
     });
     await waitFor(() => {
@@ -82,27 +65,6 @@ describe('useRoom', () => {
       // @ts-ignore
       daily.emit('joining-meeting', {
         action: 'joining-meeting',
-      });
-    });
-    await waitFor(() => {
-      expect(result.current).toEqual(pendingRoom);
-    });
-  });
-  it('returns same object as daily.room() after joined-meeting event', async () => {
-    const daily = DailyIframe.createCallObject();
-    const pendingRoom: DailyPendingRoomInfo = {
-      roomUrlPendingJoin: faker.internet.url(),
-    };
-    (daily.room as jest.Mock<Promise<DailyPendingRoomInfo>>).mockImplementation(
-      () => Promise.resolve(pendingRoom)
-    );
-    const { result, waitFor } = renderHook(() => useRoom(), {
-      wrapper: createWrapper(daily),
-    });
-    act(() => {
-      // @ts-ignore
-      daily.emit('joined-meeting', {
-        action: 'joined-meeting',
       });
     });
     await waitFor(() => {
