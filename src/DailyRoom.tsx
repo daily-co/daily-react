@@ -24,7 +24,7 @@ export const DailyRoom: React.FC = ({ children }) => {
   );
 
   /**
-   * TODO: This is a workaround due to the lack of a dedicated event to listen for
+   * TODO: The intervals and timeouts are a workaround due to the lack of a dedicated event to listen for
    * when a room configuration is available.
    * The closest event to listen for is the access-state-updated event,
    * unfortunately daily.room() doesn't immediately return the room config,
@@ -53,12 +53,16 @@ export const DailyRoom: React.FC = ({ children }) => {
       }, 250);
     };
 
-    updateRoom();
+    // schedule updateRoom to be run asynchronously, using a timeout with 0
+    const updateRoomTimeout = setTimeout(() => {
+      updateRoom();
+    }, 0);
     daily.on('access-state-updated', handleAccessStateUpdated);
     daily.on('joining-meeting', handleJoining);
     return () => {
       daily.off('access-state-updated', handleAccessStateUpdated);
       daily.off('joining-meeting', handleJoining);
+      clearTimeout(updateRoomTimeout);
     };
   }, [daily, updateRoom]);
 
