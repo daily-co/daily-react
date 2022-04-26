@@ -4,7 +4,7 @@ import DailyIframe, {
   DailyEvent,
   DailyEventObject,
 } from '@daily-co/daily-js';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RecoilRoot } from 'recoil';
 
 import { DailyContext } from './DailyContext';
@@ -33,7 +33,7 @@ type Props =
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
-  const callObject = useRef<DailyCall | null>(
+  const [callObject, setCallObject] = useState<DailyCall | null>(
     'callObject' in props ? props.callObject : null
   );
   const eventsMap = useRef<EventsMap>({});
@@ -66,16 +66,16 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
   );
 
   useEffect(() => {
-    if (callObject.current) return;
+    if (callObject) return;
     if ('callObject' in props) {
-      callObject.current = props.callObject;
+      setCallObject(props.callObject);
       initEventHandlers(props.callObject);
       return;
     }
     const co = DailyIframe.createCallObject(props);
-    callObject.current = co;
+    setCallObject(co);
     initEventHandlers(co);
-  }, [initEventHandlers, props]);
+  }, [callObject, initEventHandlers, props]);
 
   /**
    * Registers event callback.
@@ -84,15 +84,13 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     (ev: DailyEvent, cb: Function, key: number) => {
       if (!eventsMap.current[ev]) {
         eventsMap.current[ev] = new Map();
-        if (callObject.current) {
-          callObject.current?.on(ev, handleEvent);
-        }
+        callObject?.on(ev, handleEvent);
       }
       if (!eventsMap.current[ev]?.has(key)) {
         eventsMap.current[ev]?.set(key, cb);
       }
     },
-    [handleEvent]
+    [callObject, handleEvent]
   );
 
   /**
@@ -102,18 +100,16 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     (ev: DailyEvent, key: number) => {
       eventsMap.current[ev]?.delete(key);
       if (eventsMap.current[ev]?.size === 0) {
-        if (callObject.current) {
-          callObject.current?.off(ev, handleEvent);
-        }
+        callObject?.off(ev, handleEvent);
         delete eventsMap.current[ev];
       }
     },
-    [handleEvent]
+    [callObject, handleEvent]
   );
 
   return (
     <RecoilRoot>
-      <DailyContext.Provider value={callObject.current}>
+      <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
             <DailyParticipants>{children}</DailyParticipants>
