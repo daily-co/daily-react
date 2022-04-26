@@ -24,6 +24,7 @@ const createWrapper =
 describe('useLocalParticipant', () => {
   it('returns null, if daily.participants() does not contain local user yet', async () => {
     const daily = DailyIframe.createCallObject();
+    (daily.participants as jest.Mock).mockImplementation(() => ({}));
     const { result, waitFor } = renderHook(() => useLocalParticipant(), {
       wrapper: createWrapper(daily),
     });

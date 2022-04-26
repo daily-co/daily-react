@@ -2,23 +2,13 @@ import {
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
   DailyParticipant,
-  DailyParticipantsObject,
 } from '@daily-co/daily-js';
-import { useRef } from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { atom, useRecoilCallback } from 'recoil';
+import { useCallback, useMemo } from 'react';
+import { useRecoilValue } from 'recoil';
 
+import { participantsState } from '../DailyParticipants';
 import { useDaily } from './useDaily';
-import { useDailyEvent } from './useDailyEvent';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
-
-/**
- * Holds all session ids of joined participants.
- */
-const participantsState = atom<string[]>({
-  key: 'participants',
-  default: [],
-});
 
 type FilterParticipantsFunction = (
   p: DailyParticipant,
@@ -73,130 +63,61 @@ export const useParticipantIds = (
   }
 ) => {
   const daily = useDaily();
-  const [sortedIds, setSortedIds] = useState<string[]>([]);
-  const mounted = useRef(false);
+  const participantIds = useRecoilValue(participantsState);
 
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  const updateSortedIds = useCallback(
-    (participants: DailyParticipantsObject) => {
-      let filterFn: FilterParticipantsFunction;
-      switch (filter) {
-        case 'local':
-          filterFn = (p) => p.local;
-          break;
-        case 'owner':
-          filterFn = (p) => p.owner;
-          break;
-        case 'record':
-          filterFn = (p) => p.record;
-          break;
-        case 'remote':
-          filterFn = (p) => !p.local;
-          break;
-        default:
-          filterFn = filter;
-          break;
-      }
-      let sortFn: SortParticipantsFunction;
-      switch (sort) {
-        case 'joined_at':
-        case 'session_id':
-        case 'user_id':
-        case 'user_name':
-          sortFn = (a, b) => {
-            if (a[sort] < b[sort]) return -1;
-            if (a[sort] > b[sort]) return 1;
-            return 0;
-          };
-          break;
-        default:
-          sortFn = sort;
-          break;
-      }
-      const newSorted = Object.values(participants)
-        .filter(filterFn)
-        .sort(sortFn)
-        .map((p) => p.session_id)
-        .filter(Boolean);
-      if (!mounted.current) return;
-      setSortedIds((ids) => {
-        if (
-          ids.length === newSorted.length &&
-          ids.every((id, idx) => newSorted[idx] === id)
-        )
-          return ids;
-        return newSorted;
-      });
-    },
-    [filter, sort]
-  );
-
-  /**
-   * Initializes state based on passed DailyParticipantsObject.
-   */
-  const initState = useRecoilCallback(
-    ({ set }) =>
-      async (participants: DailyParticipantsObject) => {
-        const sessionIds = Object.values(participants ?? {}).map(
-          (p) => p.session_id
-        );
-        set(participantsState, (ids) =>
-          [...ids, ...sessionIds].filter(
-            (id, idx, arr) => arr.indexOf(id) == idx
-          )
-        );
-        updateSortedIds(participants ?? {});
-      },
-    [updateSortedIds]
-  );
-  useEffect(() => {
-    if (!daily) return;
-    initState(daily.participants());
-  }, [daily, initState]);
-
-  useDailyEvent(
-    'joined-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          const participants = daily.participants();
-          const localParticipant = participants.local;
-          set(participantsState, (ids) =>
-            [...ids, localParticipant.session_id].filter(
-              (id, idx, arr) => arr.indexOf(id) == idx
-            )
-          );
-          updateSortedIds(participants);
-        },
-      [daily, updateSortedIds]
-    )
-  );
+  const sortedIds = useMemo(() => {
+    let filterFn: FilterParticipantsFunction;
+    switch (filter) {
+      case 'local':
+        filterFn = (p) => p.local;
+        break;
+      case 'owner':
+        filterFn = (p) => p.owner;
+        break;
+      case 'record':
+        filterFn = (p) => p.record;
+        break;
+      case 'remote':
+        filterFn = (p) => !p.local;
+        break;
+      default:
+        filterFn = filter;
+        break;
+    }
+    let sortFn: SortParticipantsFunction;
+    switch (sort) {
+      case 'joined_at':
+      case 'session_id':
+      case 'user_id':
+      case 'user_name':
+        sortFn = (a, b) => {
+          if (a[sort] < b[sort]) return -1;
+          if (a[sort] > b[sort]) return 1;
+          return 0;
+        };
+        break;
+      default:
+        sortFn = sort;
+        break;
+    }
+    const participants = Object.values(daily?.participants() ?? {});
+    return participantIds
+      .map((id) => participants.find((p) => p.session_id === id))
+      .filter((p): p is DailyParticipant => !!p)
+      .filter(filterFn)
+      .sort(sortFn)
+      .map((p) => p.session_id)
+      .filter(Boolean);
+  }, [daily, filter, participantIds, sort]);
 
   useThrottledDailyEvent(
     'participant-joined',
-    useRecoilCallback(
-      ({ set }) =>
-        async (evts: DailyEventObjectParticipant[]) => {
-          if (!evts.length) return;
-          set(participantsState, (ids) =>
-            [
-              ...ids,
-              ...evts.map(({ participant }) => participant.session_id),
-            ].filter((id, idx, arr) => arr.indexOf(id) == idx)
-          );
-          if (daily) {
-            updateSortedIds(daily.participants());
-          }
-          evts.forEach((ev) => setTimeout(() => onParticipantJoined?.(ev), 0));
-        },
-      [daily, onParticipantJoined, updateSortedIds]
+    useCallback(
+      (evts: DailyEventObjectParticipant[]) => {
+        if (!evts.length) return;
+        evts.forEach((ev) => setTimeout(() => onParticipantJoined?.(ev), 0));
+      },
+      [onParticipantJoined]
     )
   );
 
@@ -205,12 +126,9 @@ export const useParticipantIds = (
     useCallback(
       (evts: DailyEventObjectParticipant[]) => {
         if (!evts.length) return;
-        if (daily) {
-          updateSortedIds(daily.participants());
-        }
         evts.forEach((ev) => setTimeout(() => onParticipantUpdated?.(ev), 0));
       },
-      [daily, onParticipantUpdated, updateSortedIds]
+      [onParticipantUpdated]
     )
   );
 
@@ -219,32 +137,20 @@ export const useParticipantIds = (
     useCallback(
       async (evts: DailyEventObjectActiveSpeakerChange[]) => {
         if (!evts.length) return;
-        if (daily) {
-          updateSortedIds(daily.participants());
-        }
         evts.forEach((ev) => setTimeout(() => onActiveSpeakerChange?.(ev), 0));
       },
-      [daily, onActiveSpeakerChange, updateSortedIds]
+      [onActiveSpeakerChange]
     )
   );
 
   useThrottledDailyEvent(
     'participant-left',
-    useRecoilCallback(
-      ({ set }) =>
-        async (evts: DailyEventObjectParticipant[]) => {
-          if (!evts.length) return;
-          set(participantsState, (ids) =>
-            [...ids].filter(
-              (id) => !evts.some((ev) => ev.participant.session_id === id)
-            )
-          );
-          if (daily) {
-            updateSortedIds(daily.participants());
-          }
-          evts.forEach((ev) => setTimeout(() => onParticipantLeft?.(ev), 0));
-        },
-      [daily, onParticipantLeft, updateSortedIds]
+    useCallback(
+      (evts: DailyEventObjectParticipant[]) => {
+        if (!evts.length) return;
+        evts.forEach((ev) => setTimeout(() => onParticipantLeft?.(ev), 0));
+      },
+      [onParticipantLeft]
     )
   );
 

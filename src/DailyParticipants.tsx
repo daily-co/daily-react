@@ -2,9 +2,10 @@ import {
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
   DailyParticipant,
+  DailyParticipantsObject,
 } from '@daily-co/daily-js';
-import React from 'react';
-import { atomFamily, useRecoilCallback } from 'recoil';
+import React, { useEffect } from 'react';
+import { atom, atomFamily, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
@@ -28,8 +29,56 @@ export const participantState = atomFamily<
   default: null,
 });
 
+/**
+ * Holds all session ids of joined participants.
+ */
+export const participantsState = atom<string[]>({
+  key: 'participants',
+  default: [],
+});
+
 export const DailyParticipants: React.FC = ({ children }) => {
   const daily = useDaily();
+
+  /**
+   * Initializes list of session ids based on passed DailyParticipantsObject.
+   */
+  const initState = useRecoilCallback(
+    ({ set }) =>
+      async (participants: DailyParticipantsObject) => {
+        const sessionIds = Object.values(participants ?? {}).map(
+          (p) => p.session_id
+        );
+        set(participantsState, (ids) =>
+          [...ids, ...sessionIds].filter(
+            (id, idx, arr) => arr.indexOf(id) == idx
+          )
+        );
+      },
+    []
+  );
+  useEffect(() => {
+    if (!daily) return;
+    initState(daily.participants());
+  }, [daily, initState]);
+
+  useDailyEvent(
+    'joined-meeting',
+    useRecoilCallback(
+      ({ set }) =>
+        async () => {
+          if (!daily) return;
+          const participants = daily.participants();
+          const localParticipant = participants.local;
+          set(participantsState, (ids) =>
+            [...ids, localParticipant.session_id].filter(
+              (id, idx, arr) => arr.indexOf(id) == idx
+            )
+          );
+        },
+      [daily]
+    )
+  );
 
   useDailyEvent(
     'active-speaker-change',
@@ -54,6 +103,23 @@ export const DailyParticipants: React.FC = ({ children }) => {
   );
 
   useThrottledDailyEvent(
+    'participant-joined',
+    useRecoilCallback(
+      ({ set }) =>
+        async (evts: DailyEventObjectParticipant[]) => {
+          if (!evts.length) return;
+          set(participantsState, (ids) =>
+            [
+              ...ids,
+              ...evts.map(({ participant }) => participant.session_id),
+            ].filter((id, idx, arr) => arr.indexOf(id) == idx)
+          );
+        },
+      []
+    )
+  );
+
+  useThrottledDailyEvent(
     'participant-updated',
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
@@ -73,10 +139,15 @@ export const DailyParticipants: React.FC = ({ children }) => {
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
         (evts: DailyEventObjectParticipant[]) => {
-          transact_UNSTABLE(({ reset }) => {
+          transact_UNSTABLE(({ reset, set }) => {
             evts.forEach((ev) => {
               reset(participantState(ev.participant.session_id));
             });
+            set(participantsState, (ids) =>
+              [...ids].filter(
+                (id) => !evts.some((ev) => ev.participant.session_id === id)
+              )
+            );
           });
         },
       []

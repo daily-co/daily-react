@@ -23,6 +23,9 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useParticipantIds', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('returns ids of participants', async () => {
     const daily = DailyIframe.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -350,7 +353,7 @@ describe('useParticipantIds', () => {
       expect(result.current).toEqual(['local']);
     });
   });
-  it('participant-joined adds new participant to array and calls onParticipantJoined', async () => {
+  it('participant-joined adds id and calls onParticipantJoined', async () => {
     const daily = DailyIframe.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
@@ -365,6 +368,9 @@ describe('useParticipantIds', () => {
         wrapper: createWrapper(daily),
       }
     );
+    await waitFor(() => {
+      expect(result.current).toEqual(['local']);
+    });
     const event: DailyEvent = 'participant-joined';
     const payload: DailyEventObjectParticipant = {
       action: event,
@@ -393,7 +399,7 @@ describe('useParticipantIds', () => {
       expect(onParticipantJoined).toBeCalledWith(payload);
     });
   });
-  it('participant-updated reconciles array of ids and calls onParticipantUpdated', async () => {
+  it('participant-updated calls onParticipantUpdated', async () => {
     const daily = DailyIframe.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
@@ -401,29 +407,24 @@ describe('useParticipantIds', () => {
         session_id: 'local',
         user_name: 'Gamma',
       },
-      a: {
-        local: false,
-        session_id: 'a',
-        user_name: 'Alpha',
-      },
     }));
     const onParticipantUpdated = jest.fn();
     const { result, waitFor } = renderHook(
-      () => useParticipantIds({ onParticipantUpdated, sort: 'user_name' }),
+      () => useParticipantIds({ onParticipantUpdated }),
       {
         wrapper: createWrapper(daily),
       }
     );
     await waitFor(() => {
-      expect(result.current).toEqual(['a', 'local']);
+      expect(result.current).toEqual(['local']);
     });
     const event: DailyEvent = 'participant-updated';
     const payload: DailyEventObjectParticipant = {
       action: event,
       // @ts-ignore
       participant: {
-        local: false,
-        session_id: 'a',
+        local: true,
+        session_id: 'local',
         user_name: 'Zeta',
       },
     };
@@ -431,11 +432,6 @@ describe('useParticipantIds', () => {
       local: {
         local: true,
         session_id: 'local',
-        user_name: 'Gamma',
-      },
-      a: {
-        local: false,
-        session_id: 'a',
         user_name: 'Zeta',
       },
     }));
@@ -444,7 +440,6 @@ describe('useParticipantIds', () => {
       daily.emit(event, payload);
     });
     await waitFor(() => {
-      expect(result.current).toEqual(['local', 'a']);
       expect(onParticipantUpdated).toBeCalledWith(payload);
     });
   });

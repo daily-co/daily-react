@@ -47,7 +47,12 @@ const createCallObject = (properties) => {
     off: jest.fn(emitter.off),
     on: jest.fn(emitter.on),
     once: jest.fn(emitter.once),
-    participants: jest.fn(),
+    participants: jest.fn(() => ({
+      local: {
+        local: true,
+        session_id: 'local'
+      }
+    })),
     preAuth: jest.fn(),
     properties,
     requestAccess: jest.fn(),
