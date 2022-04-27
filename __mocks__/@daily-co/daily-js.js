@@ -68,6 +68,7 @@ const createCallObject = (properties) => {
     setLocalVideo: jest.fn(),
     setNetworkTopology: jest.fn(),
     setOutputDevice: jest.fn(),
+    setOutputDeviceAsync: jest.fn(),
     setPlayNewParticipantSound: jest.fn(),
     setShowLocalVideo: jest.fn(),
     setShowNamesMode: jest.fn(),
