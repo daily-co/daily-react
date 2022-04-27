@@ -34,6 +34,9 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useRecording', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('returns default state and functions', async () => {
     const daily = DailyIframe.createCallObject();
     const { result } = renderHook(() => useRecording(), {
@@ -224,20 +227,29 @@ describe('useRecording', () => {
   });
   it('returns as recording when any participant is running a local recording', async () => {
     const daily = DailyIframe.createCallObject();
-    const localId = faker.datatype.uuid();
     const otherId = faker.datatype.uuid();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
+        local: true,
         record: false,
         session_id: localId,
       },
       [otherId]: {
+        local: false,
         record: true,
         session_id: otherId,
       },
     }));
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
+    });
+    act(() => {
+      // @ts-ignore
+      daily.emit('recording-started', {
+        action: 'recording-started',
+        local: false,
+        type: 'local',
+      });
     });
     await waitFor(() => {
       expect(result.current.isLocalParticipantRecorded).toBe(true);
