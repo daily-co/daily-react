@@ -3,6 +3,7 @@ import {
   DailyEventObjectParticipant,
   DailyEventObjectParticipants,
   DailyParticipant,
+  DailyParticipantsObject,
 } from '@daily-co/daily-js';
 import React, { useEffect } from 'react';
 import { atom, selectorFamily, useRecoilCallback } from 'recoil';
@@ -45,36 +46,36 @@ export const DailyParticipants: React.FC = ({ children }) => {
   useDailyEvent(
     'active-speaker-change',
     useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
+      ({ set, snapshot }) =>
         async (ev: DailyEventObjectActiveSpeakerChange) => {
           const sessionId = ev.activeSpeaker.peerId;
-          transact_UNSTABLE(({ get, set }) => {
-            let participant = get(participantState(sessionId));
-            if (!participant && daily) {
-              participant = daily.participants()[sessionId];
-            }
-            if (!participant) return;
-            set(participantsState, (prev) =>
-              [...prev].map((p) =>
-                p.session_id === sessionId
-                  ? {
-                      ...p,
-                      last_active: new Date(),
-                    }
-                  : p
-              )
-            );
-          });
+          let participant = await snapshot.getPromise(
+            participantState(sessionId)
+          );
+          if (!participant && daily) {
+            participant = daily.participants()[sessionId];
+          }
+          if (!participant) return;
+          set(participantsState, (prev) =>
+            [...prev].map((p) =>
+              p.session_id === sessionId
+                ? {
+                    ...p,
+                    last_active: new Date(),
+                  }
+                : p
+            )
+          );
         },
       [daily]
     )
   );
 
-  const initLocalParticipant = useRecoilCallback(
+  const initParticipants = useRecoilCallback(
     ({ set }) =>
-      async (localParticipant: DailyParticipant) => {
+      async (participants: DailyParticipantsObject) => {
         set(participantsState, (prev) =>
-          [...prev, localParticipant].filter(
+          [...prev, ...Object.values(participants)].filter(
             (participant, idx, arr) =>
               arr.findIndex((p) => p.session_id === participant.session_id) ==
               idx
@@ -88,13 +89,13 @@ export const DailyParticipants: React.FC = ({ children }) => {
     const interval = setInterval(() => {
       const participants = daily.participants();
       if (!('local' in participants)) return;
-      initLocalParticipant(participants.local);
+      initParticipants(participants);
       clearInterval(interval);
     }, 100);
     return () => {
       clearInterval(interval);
     };
-  }, [daily, initLocalParticipant]);
+  }, [daily, initParticipants]);
 
   useDailyEvent(
     'joined-meeting',
