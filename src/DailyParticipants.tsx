@@ -4,7 +4,7 @@ import {
   DailyEventObjectParticipants,
   DailyParticipant,
 } from '@daily-co/daily-js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
@@ -70,10 +70,40 @@ export const DailyParticipants: React.FC = ({ children }) => {
     )
   );
 
+  const initLocalParticipant = useRecoilCallback(
+    ({ set }) =>
+      async (localParticipant: DailyParticipant) => {
+        set(participantsState, (prev) =>
+          [...prev, localParticipant].filter(
+            (participant, idx, arr) =>
+              arr.findIndex((p) => p.session_id === participant.session_id) ==
+              idx
+          )
+        );
+      },
+    []
+  );
+  useEffect(() => {
+    if (!daily) return;
+    const interval = setInterval(() => {
+      const participants = daily.participants();
+      if (!('local' in participants)) return;
+      initLocalParticipant(participants.local);
+      clearInterval(interval);
+    }, 100);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [daily, initLocalParticipant]);
+
   useDailyEvent(
     'joined-meeting',
     useRecoilCallback(({ set }) => (ev: DailyEventObjectParticipants) => {
-      set(participantsState, (prev) => [...prev, ev.participants.local]);
+      set(participantsState, (prev) => {
+        if (prev.some((p) => p.local))
+          return [...prev].map((p) => (p.local ? ev.participants.local : p));
+        return [...prev, ev.participants.local];
+      });
     })
   );
 
