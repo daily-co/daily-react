@@ -7,7 +7,6 @@ import { useCallback, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
-import { useDaily } from './useDaily';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type FilterParticipantsFunction = (
@@ -20,6 +19,7 @@ type FilterParticipants =
   | 'remote'
   | 'owner'
   | 'record'
+  | 'screen'
   | FilterParticipantsFunction;
 
 type SortParticipantsFunction = (
@@ -62,11 +62,10 @@ export const useParticipantIds = (
     sort: defaultSort,
   }
 ) => {
-  const daily = useDaily();
-  const participantIds = useRecoilValue(participantsState);
+  const allParticipants = useRecoilValue(participantsState);
 
   const sortedIds = useMemo(() => {
-    let filterFn: FilterParticipantsFunction;
+    let filterFn = defaultFilter;
     switch (filter) {
       case 'local':
         filterFn = (p) => p.local;
@@ -80,9 +79,11 @@ export const useParticipantIds = (
       case 'remote':
         filterFn = (p) => !p.local;
         break;
+      case 'screen':
+        filterFn = (p) => p.screen;
+        break;
       default:
         filterFn = filter;
-        break;
     }
     let sortFn: SortParticipantsFunction;
     switch (sort) {
@@ -100,15 +101,12 @@ export const useParticipantIds = (
         sortFn = sort;
         break;
     }
-    const participants = Object.values(daily?.participants() ?? {});
-    return participantIds
-      .map((id) => participants.find((p) => p.session_id === id))
-      .filter((p): p is DailyParticipant => !!p)
+    return allParticipants
       .filter(filterFn)
       .sort(sortFn)
       .map((p) => p.session_id)
       .filter(Boolean);
-  }, [daily, filter, participantIds, sort]);
+  }, [allParticipants, filter, sort]);
 
   useThrottledDailyEvent(
     'participant-joined',

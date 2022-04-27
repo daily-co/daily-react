@@ -1,11 +1,11 @@
 import {
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
+  DailyEventObjectParticipants,
   DailyParticipant,
-  DailyParticipantsObject,
 } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
-import { atom, atomFamily, useRecoilCallback } from 'recoil';
+import React from 'react';
+import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
@@ -18,67 +18,29 @@ export interface ExtendedDailyParticipant extends DailyParticipant {
   last_active?: Date;
 }
 
+export const participantsState = atom<ExtendedDailyParticipant[]>({
+  key: 'participants-objects',
+  default: [],
+});
+
 /**
  * Holds each inidividual participant's state object.
  */
-export const participantState = atomFamily<
+export const participantState = selectorFamily<
   ExtendedDailyParticipant | null,
   string
 >({
   key: 'participant',
-  default: null,
-});
-
-/**
- * Holds all session ids of joined participants.
- */
-export const participantsState = atom<string[]>({
-  key: 'participants',
-  default: [],
+  get:
+    (id) =>
+    ({ get }) => {
+      const participants = get(participantsState);
+      return participants.find((p) => p.session_id === id) ?? null;
+    },
 });
 
 export const DailyParticipants: React.FC = ({ children }) => {
   const daily = useDaily();
-
-  /**
-   * Initializes list of session ids based on passed DailyParticipantsObject.
-   */
-  const initState = useRecoilCallback(
-    ({ set }) =>
-      async (participants: DailyParticipantsObject) => {
-        const sessionIds = Object.values(participants ?? {}).map(
-          (p) => p.session_id
-        );
-        set(participantsState, (ids) =>
-          [...ids, ...sessionIds].filter(
-            (id, idx, arr) => arr.indexOf(id) == idx
-          )
-        );
-      },
-    []
-  );
-  useEffect(() => {
-    if (!daily) return;
-    initState(daily.participants());
-  }, [daily, initState]);
-
-  useDailyEvent(
-    'joined-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        async () => {
-          if (!daily) return;
-          const participants = daily.participants();
-          const localParticipant = participants.local;
-          set(participantsState, (ids) =>
-            [...ids, localParticipant.session_id].filter(
-              (id, idx, arr) => arr.indexOf(id) == idx
-            )
-          );
-        },
-      [daily]
-    )
-  );
 
   useDailyEvent(
     'active-speaker-change',
@@ -92,14 +54,27 @@ export const DailyParticipants: React.FC = ({ children }) => {
               participant = daily.participants()[sessionId];
             }
             if (!participant) return;
-            set(participantState(sessionId), {
-              ...participant,
-              last_active: new Date(),
-            });
+            set(participantsState, (prev) =>
+              [...prev].map((p) =>
+                p.session_id === sessionId
+                  ? {
+                      ...p,
+                      last_active: new Date(),
+                    }
+                  : p
+              )
+            );
           });
         },
       [daily]
     )
+  );
+
+  useDailyEvent(
+    'joined-meeting',
+    useRecoilCallback(({ set }) => (ev: DailyEventObjectParticipants) => {
+      set(participantsState, (prev) => [...prev, ev.participants.local]);
+    })
   );
 
   useThrottledDailyEvent(
@@ -108,11 +83,12 @@ export const DailyParticipants: React.FC = ({ children }) => {
       ({ set }) =>
         async (evts: DailyEventObjectParticipant[]) => {
           if (!evts.length) return;
-          set(participantsState, (ids) =>
-            [
-              ...ids,
-              ...evts.map(({ participant }) => participant.session_id),
-            ].filter((id, idx, arr) => arr.indexOf(id) == idx)
+          set(participantsState, (prev) =>
+            [...prev, ...evts.map(({ participant }) => participant)].filter(
+              (participant, idx, arr) =>
+                arr.findIndex((p) => p.session_id === participant.session_id) ==
+                idx
+            )
           );
         },
       []
@@ -125,8 +101,12 @@ export const DailyParticipants: React.FC = ({ children }) => {
       ({ transact_UNSTABLE }) =>
         (evts: DailyEventObjectParticipant[]) => {
           transact_UNSTABLE(({ set }) => {
-            evts.forEach((ev) => {
-              set(participantState(ev.participant.session_id), ev.participant);
+            evts.forEach(({ participant }) => {
+              set(participantsState, (prev) =>
+                [...prev].map((p) =>
+                  p.session_id === participant.session_id ? participant : p
+                )
+              );
             });
           });
         },
@@ -137,18 +117,14 @@ export const DailyParticipants: React.FC = ({ children }) => {
   useThrottledDailyEvent(
     'participant-left',
     useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
+      ({ set }) =>
         (evts: DailyEventObjectParticipant[]) => {
-          transact_UNSTABLE(({ reset, set }) => {
-            evts.forEach((ev) => {
-              reset(participantState(ev.participant.session_id));
-            });
-            set(participantsState, (ids) =>
-              [...ids].filter(
-                (id) => !evts.some((ev) => ev.participant.session_id === id)
-              )
-            );
-          });
+          set(participantsState, (prev) =>
+            [...prev].filter(
+              (p) =>
+                !evts.some((ev) => ev.participant.session_id === p.session_id)
+            )
+          );
         },
       []
     )

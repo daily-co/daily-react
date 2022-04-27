@@ -1,21 +1,9 @@
-import {
-  DailyEventObjectParticipant,
-  DailyParticipant,
-} from '@daily-co/daily-js';
+import { DailyEventObjectParticipant } from '@daily-co/daily-js';
 import { useCallback } from 'react';
-import { useEffect } from 'react';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 
 import { participantState } from '../DailyParticipants';
-import { useDaily } from './useDaily';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
-
-/**
- * Extends DailyParticipant with convenient additional properties.
- */
-export interface ExtendedDailyParticipant extends DailyParticipant {
-  last_active?: Date;
-}
 
 interface UseParticipantArgs {
   onParticipantLeft?(ev: DailyEventObjectParticipant): void;
@@ -30,24 +18,7 @@ export const useParticipant = (
   sessionId: string,
   { onParticipantLeft, onParticipantUpdated }: UseParticipantArgs = {}
 ) => {
-  const daily = useDaily();
   const participant = useRecoilValue(participantState(sessionId));
-
-  const initState = useRecoilCallback(
-    ({ set }) =>
-      (p: DailyParticipant) => {
-        set(participantState(sessionId), p);
-      },
-    [sessionId]
-  );
-  useEffect(() => {
-    if (!daily) return;
-    const participant = Object.values(daily.participants() ?? {}).find(
-      (p) => p.session_id === sessionId
-    );
-    if (!participant) return;
-    initState(participant);
-  }, [daily, initState, sessionId]);
 
   useThrottledDailyEvent(
     'participant-updated',

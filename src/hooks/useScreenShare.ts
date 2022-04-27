@@ -54,7 +54,7 @@ export const useScreenShare = ({
   );
 
   const screenIds = useParticipantIds({
-    filter: (p) => p.screen,
+    filter: 'screen',
   });
   const screens = useMemo(
     () =>

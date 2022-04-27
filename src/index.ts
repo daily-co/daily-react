@@ -1,3 +1,4 @@
+export { ExtendedDailyParticipant } from './DailyParticipants';
 export { DailyProvider } from './DailyProvider';
 export { useActiveParticipant } from './hooks/useActiveParticipant';
 export { useAppMessage } from './hooks/useAppMessage';
@@ -10,10 +11,7 @@ export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useLocalParticipant } from './hooks/useLocalParticipant';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
-export {
-  ExtendedDailyParticipant,
-  useParticipant,
-} from './hooks/useParticipant';
+export { useParticipant } from './hooks/useParticipant';
 export { useParticipantIds } from './hooks/useParticipantIds';
 export { useReceiveSettings } from './hooks/useReceiveSettings';
 export { useRecording } from './hooks/useRecording';
