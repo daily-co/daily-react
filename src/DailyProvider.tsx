@@ -84,7 +84,13 @@ export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
     (ev: DailyEvent, cb: Function, key: number) => {
       if (!eventsMap.current[ev]) {
         eventsMap.current[ev] = new Map();
-        callObject?.on(ev, handleEvent);
+        if (callObject) {
+          /**
+           * Make sure only 1 event listener is registered at anytime for handleEvent.
+           * Otherwise events sent from daily-js might be handled multiple times.
+           */
+          callObject.off(ev, handleEvent).on(ev, handleEvent);
+        }
       }
       if (!eventsMap.current[ev]?.has(key)) {
         eventsMap.current[ev]?.set(key, cb);
