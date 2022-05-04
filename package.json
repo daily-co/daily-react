@@ -20,8 +20,8 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "@daily-co/daily-js": "^0.22.0",
-    "react": ">=16",
+    "@daily-co/daily-js": ">=0.22.0 <1",
+    "react": ">=16.13.1",
     "recoil": "^0.7.0"
   },
   "husky": {
