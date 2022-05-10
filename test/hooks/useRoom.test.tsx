@@ -1,9 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
-  DailyCall,
-  DailyPendingRoomInfo,
-} from '@daily-co/daily-js';
+import DailyIframe, { DailyCall, DailyRoomInfo } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import faker from 'faker';
 import React from 'react';
@@ -31,11 +28,15 @@ describe('useRoom', () => {
   });
   it('returns same object as daily.room() after access-state-updated event', async () => {
     const daily = DailyIframe.createCallObject();
-    const pendingRoom: DailyPendingRoomInfo = {
-      roomUrlPendingJoin: faker.internet.url(),
+    const room: DailyRoomInfo = {
+      config: {},
+      domainConfig: {},
+      id: faker.datatype.uuid(),
+      name: faker.random.alphaNumeric(),
+      tokenConfig: {},
     };
-    (daily.room as jest.Mock<Promise<DailyPendingRoomInfo>>).mockImplementation(
-      () => Promise.resolve(pendingRoom)
+    (daily.room as jest.Mock<Promise<DailyRoomInfo>>).mockImplementation(() =>
+      Promise.resolve(room)
     );
     const { result, waitFor } = renderHook(() => useRoom(), {
       wrapper: createWrapper(daily),
@@ -47,28 +48,7 @@ describe('useRoom', () => {
       });
     });
     await waitFor(() => {
-      expect(result.current).toEqual(pendingRoom);
-    });
-  });
-  it('returns same object as daily.room() after joining-meeting event', async () => {
-    const daily = DailyIframe.createCallObject();
-    const pendingRoom: DailyPendingRoomInfo = {
-      roomUrlPendingJoin: faker.internet.url(),
-    };
-    (daily.room as jest.Mock<Promise<DailyPendingRoomInfo>>).mockImplementation(
-      () => Promise.resolve(pendingRoom)
-    );
-    const { result, waitFor } = renderHook(() => useRoom(), {
-      wrapper: createWrapper(daily),
-    });
-    act(() => {
-      // @ts-ignore
-      daily.emit('joining-meeting', {
-        action: 'joining-meeting',
-      });
-    });
-    await waitFor(() => {
-      expect(result.current).toEqual(pendingRoom);
+      expect(result.current).toEqual(room);
     });
   });
 });
