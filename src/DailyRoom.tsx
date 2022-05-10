@@ -1,10 +1,11 @@
-import { DailyPendingRoomInfo, DailyRoomInfo } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
+import { DailyRoomInfo } from '@daily-co/daily-js';
+import React from 'react';
 import { atom, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
+import { useDailyEvent } from './hooks/useDailyEvent';
 
-export const roomState = atom<DailyPendingRoomInfo | DailyRoomInfo | null>({
+export const roomState = atom<DailyRoomInfo | null>({
   key: 'room',
   default: null,
 });
@@ -17,54 +18,15 @@ export const DailyRoom: React.FC = ({ children }) => {
       async () => {
         if (!daily) return;
         const room = await daily.room();
-        set(roomState, room);
+        if (room && 'id' in room) {
+          set(roomState, room);
+        }
         return room;
       },
     [daily]
   );
 
-  /**
-   * TODO: The intervals and timeouts are a workaround due to the lack of a dedicated event to listen for
-   * when a room configuration is available.
-   * The closest event to listen for is the access-state-updated event,
-   * unfortunately daily.room() doesn't immediately return the room config,
-   * when this event is emitted.
-   */
-  useEffect(() => {
-    if (!daily) return;
-
-    let accessStateInterval: ReturnType<typeof setInterval>;
-    const handleAccessStateUpdated = () => {
-      accessStateInterval = setInterval(async () => {
-        const room = await updateRoom();
-        if (room && 'config' in room) {
-          clearInterval(accessStateInterval);
-        }
-      }, 250);
-    };
-    let joiningInterval: ReturnType<typeof setInterval>;
-    const handleJoining = () => {
-      clearInterval(accessStateInterval);
-      joiningInterval = setInterval(async () => {
-        const room = await updateRoom();
-        if (room && 'config' in room) {
-          clearInterval(joiningInterval);
-        }
-      }, 250);
-    };
-
-    // schedule updateRoom to be run asynchronously, using a timeout with 0
-    const updateRoomTimeout = setTimeout(() => {
-      updateRoom();
-    }, 0);
-    daily.on('access-state-updated', handleAccessStateUpdated);
-    daily.on('joining-meeting', handleJoining);
-    return () => {
-      daily.off('access-state-updated', handleAccessStateUpdated);
-      daily.off('joining-meeting', handleJoining);
-      clearTimeout(updateRoomTimeout);
-    };
-  }, [daily, updateRoom]);
+  useDailyEvent('access-state-updated', updateRoom);
 
   return <>{children}</>;
 };
