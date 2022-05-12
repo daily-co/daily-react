@@ -39,7 +39,10 @@ export const DailyEventContext = createContext<EventContextValue>({
   off: () => {},
 });
 
-export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
+export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
+  children,
+  ...props
+}) => {
   const callObject = useRef<DailyCall | null>(
     'callObject' in props ? props.callObject : null
   );
