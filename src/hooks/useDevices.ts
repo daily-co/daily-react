@@ -228,6 +228,8 @@ export const useDevices = () => {
     )
   );
 
+  useDailyEvent('available-devices-updated', refreshDevices);
+
   useDailyEvent(
     'camera-error',
     useRecoilCallback(
