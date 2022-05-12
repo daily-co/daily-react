@@ -32,7 +32,10 @@ type Props =
 
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
-export const DailyProvider: React.FC<Props> = ({ children, ...props }) => {
+export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
+  children,
+  ...props
+}) => {
   const [callObject, setCallObject] = useState<DailyCall | null>(
     'callObject' in props ? props.callObject : null
   );

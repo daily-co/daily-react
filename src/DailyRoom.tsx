@@ -10,7 +10,9 @@ export const roomState = atom<DailyRoomInfo | null>({
   default: null,
 });
 
-export const DailyRoom: React.FC = ({ children }) => {
+export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
+  children,
+}) => {
   const daily = useDaily();
 
   const updateRoom = useRecoilCallback(

@@ -40,7 +40,9 @@ export const participantState = selectorFamily<
     },
 });
 
-export const DailyParticipants: React.FC = ({ children }) => {
+export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
+  children,
+}) => {
   const daily = useDaily();
 
   useDailyEvent(
