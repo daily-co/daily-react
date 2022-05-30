@@ -235,8 +235,8 @@ export const useDevices = () => {
     useRecoilCallback(
       ({ set, transact_UNSTABLE }) =>
         ({
-          errorMsg: { errorMsg, audioOk, videoOk },
           error,
+          errorMsg: { audioOk, errorMsg, videoOk },
         }: DailyEventObjectCameraError) => {
           switch (error?.type) {
             case 'cam-in-use':

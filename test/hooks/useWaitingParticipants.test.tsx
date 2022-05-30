@@ -178,8 +178,8 @@ describe('useWaitingParticipants', () => {
   `(
     '$method',
     ({
-      method,
       grantRequestedAccess,
+      method,
     }: {
       method: 'denyAccess' | 'grantAccess';
       grantRequestedAccess: boolean;
