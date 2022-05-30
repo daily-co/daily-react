@@ -44,7 +44,7 @@ export const useMediaTrack = (
           (ev) => ev.participant.session_id === participantId
         );
         if (!filteredEvts.length) return;
-        transact_UNSTABLE(({ set, reset }) => {
+        transact_UNSTABLE(({ reset, set }) => {
           filteredEvts.forEach((ev) => {
             switch (ev.action) {
               case 'participant-joined':

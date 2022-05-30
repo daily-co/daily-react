@@ -26,7 +26,7 @@ module.exports = {
     },
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'simple-import-sort', 'prettier', 'jest'],
+  plugins: ['@typescript-eslint', 'simple-import-sort', 'sort-destructure-keys', 'prettier', 'jest'],
   rules: {
     // Unused vars are checked by @typescript-eslint/no-unused-vars
     'no-unused-vars': 0,
@@ -44,6 +44,12 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     // Imports are sorted via simple-import-sort
     'sort-imports': 0,
+    'sort-destructure-keys/sort-destructure-keys': [
+      'error',
+      {
+        caseSensitive: false
+      }
+    ]
   },
   overrides: [
     {

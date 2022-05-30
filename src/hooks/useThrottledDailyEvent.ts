@@ -22,7 +22,7 @@ export const useThrottledDailyEvent = (
   callback: EventCallback,
   throttleTimeout = 100
 ) => {
-  const { on, off } = useContext(DailyEventContext);
+  const { off, on } = useContext(DailyEventContext);
   const eventId = useMemo(() => getUnique(), []);
 
   const throttledEvents = useRef<DailyEventObject[]>([]);

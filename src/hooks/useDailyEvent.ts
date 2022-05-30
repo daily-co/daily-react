@@ -19,7 +19,7 @@ export const getUnique = () => uniqueCounter++;
  * @param callback A memoized callback reference to run when the event is emitted.
  */
 export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
-  const { on, off } = useContext(DailyEventContext);
+  const { off, on } = useContext(DailyEventContext);
   const [isBlocked, setIsBlocked] = useState(false);
   const reassignCount = useRef<number>(0);
 

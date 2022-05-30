@@ -39,9 +39,9 @@ const liveStreamingState = atom<LiveStreamingState>({
  * Returns the current live streaming state, incl. the current layout and potential errorMsg.
  */
 export const useLiveStreaming = ({
+  onLiveStreamingError,
   onLiveStreamingStarted,
   onLiveStreamingStopped,
-  onLiveStreamingError,
 }: UseLiveStreamingArgs = {}) => {
   const daily = useDaily();
   const state = useRecoilValue(liveStreamingState);

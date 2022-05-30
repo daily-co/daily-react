@@ -76,10 +76,10 @@ const recordingState = atom<RecordingState>({
 });
 
 export const useRecording = ({
+  onRecordingData,
+  onRecordingError,
   onRecordingStarted,
   onRecordingStopped,
-  onRecordingError,
-  onRecordingData,
 }: UseRecordingArgs = {}) => {
   const daily = useDaily();
   const state = useRecoilValue(recordingState);

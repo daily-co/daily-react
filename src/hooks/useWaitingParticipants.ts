@@ -79,7 +79,7 @@ export const useWaitingParticipants = ({
   const handleRemoved = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectWaitingParticipant) => {
-        transact_UNSTABLE(({ set, reset }) => {
+        transact_UNSTABLE(({ reset, set }) => {
           set(waitingParticipantsState, (wps) =>
             wps.filter((wp) => wp !== ev.participant.id)
           );
