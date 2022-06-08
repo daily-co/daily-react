@@ -319,6 +319,7 @@ export const useDevices = () => {
   const setCamera = useCallback(
     async (deviceId: string) => {
       await daily?.setInputDevicesAsync({
+        audioDeviceId: null,
         videoDeviceId: deviceId,
       });
       refreshDevices();
@@ -333,6 +334,7 @@ export const useDevices = () => {
     async (deviceId: string) => {
       await daily?.setInputDevicesAsync({
         audioDeviceId: deviceId,
+        videoDeviceId: null,
       });
       refreshDevices();
     },
