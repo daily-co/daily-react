@@ -929,6 +929,7 @@ describe('useDevices', () => {
         await waitForNextUpdate();
         await waitFor(() => {
           expect(daily.setInputDevicesAsync).toBeCalledWith({
+            audioDeviceId: null,
             videoDeviceId: id,
           });
         });
@@ -950,6 +951,7 @@ describe('useDevices', () => {
         await waitFor(() => {
           expect(daily.setInputDevicesAsync).toBeCalledWith({
             audioDeviceId: id,
+            videoDeviceId: null,
           });
         });
       });
