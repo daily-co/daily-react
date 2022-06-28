@@ -955,7 +955,7 @@ describe('useDevices', () => {
           });
         });
       });
-      it('setSpeaker calls setOutputDevice', async () => {
+      it('setSpeaker calls setOutputDeviceAsync', async () => {
         const daily = DailyIframe.createCallObject();
         const { result, waitFor, waitForNextUpdate } = renderHook(
           () => useDevices(),
@@ -970,7 +970,7 @@ describe('useDevices', () => {
         // Let state updates via refreshDevices() settle
         await waitForNextUpdate();
         await waitFor(() => {
-          expect(daily.setOutputDevice).toBeCalledWith({
+          expect(daily.setOutputDeviceAsync).toBeCalledWith({
             outputDeviceId: id,
           });
         });

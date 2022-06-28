@@ -346,7 +346,7 @@ export const useDevices = () => {
    */
   const setSpeaker = useCallback(
     async (deviceId: string) => {
-      daily?.setOutputDevice({
+      await daily?.setOutputDeviceAsync({
         outputDeviceId: deviceId,
       });
       refreshDevices();
