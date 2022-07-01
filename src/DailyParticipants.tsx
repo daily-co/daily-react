@@ -5,7 +5,7 @@ import {
   DailyParticipant,
   DailyParticipantsObject,
 } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
@@ -18,6 +18,11 @@ import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 export interface ExtendedDailyParticipant extends DailyParticipant {
   last_active?: Date;
 }
+
+export const localIdState = atom<string>({
+  key: 'local-id',
+  default: '',
+});
 
 export const participantsState = atom<ExtendedDailyParticipant[]>({
   key: 'participants-objects',
@@ -76,6 +81,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   const initParticipants = useRecoilCallback(
     ({ set }) =>
       async (participants: DailyParticipantsObject) => {
+        set(localIdState, participants.local.session_id);
         set(participantsState, (prev) =>
           [...prev, ...Object.values(participants)].filter(
             (participant, idx, arr) =>
@@ -86,6 +92,10 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
       },
     []
   );
+  /**
+   * Initialize participants state based on daily.participants().
+   * Retries every 100ms to initialize the state, until daily is ready.
+   */
   useEffect(() => {
     if (!daily) return;
     const interval = setInterval(() => {
@@ -98,18 +108,28 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
       clearInterval(interval);
     };
   }, [daily, initParticipants]);
-
+  useDailyEvent(
+    'joining-meeting',
+    useCallback(() => {
+      if (!daily) return;
+      const participants = daily?.participants();
+      if (!participants.local) return;
+      initParticipants(participants);
+    }, [daily, initParticipants])
+  );
   useDailyEvent(
     'joined-meeting',
-    useRecoilCallback(({ set }) => (ev: DailyEventObjectParticipants) => {
-      set(participantsState, (prev) => {
-        if (prev.some((p) => p.local))
-          return [...prev].map((p) => (p.local ? ev.participants.local : p));
-        return [...prev, ev.participants.local];
-      });
-    })
+    useCallback(
+      (ev: DailyEventObjectParticipants) => {
+        initParticipants(ev.participants);
+      },
+      [initParticipants]
+    )
   );
 
+  /**
+   * Add new participant to state, if not already existent.
+   */
   useThrottledDailyEvent(
     'participant-joined',
     useRecoilCallback(
@@ -128,6 +148,9 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     )
   );
 
+  /**
+   * Update participant in state.
+   */
   useThrottledDailyEvent(
     'participant-updated',
     useRecoilCallback(
@@ -147,6 +170,9 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     )
   );
 
+  /**
+   * Remove left participant from state.
+   */
   useThrottledDailyEvent(
     'participant-left',
     useRecoilCallback(
@@ -158,6 +184,21 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                 !evts.some((ev) => ev.participant.session_id === p.session_id)
             )
           );
+        },
+      []
+    )
+  );
+
+  /**
+   * Reset stored participants, when meeting has ended.
+   */
+  useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(localIdState);
+          reset(participantsState);
         },
       []
     )
