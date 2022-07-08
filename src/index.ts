@@ -9,6 +9,7 @@ export { StatefulDevice, useDevices } from './hooks/useDevices';
 export { useInputSettings } from './hooks/useInputSettings';
 export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useLocalParticipant } from './hooks/useLocalParticipant';
+export { useLocalSessionId } from './hooks/useLocalSessionId';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';
