@@ -1,6 +1,18 @@
 {
   "version": "0.2.4",
   "license": "BSD-2-Clause",
+  "keywords": [
+    "daily",
+    "react",
+    "hooks",
+    "audio",
+    "video",
+    "chat",
+    "live",
+    "webrtc",
+    "browser",
+    "library"
+  ],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
