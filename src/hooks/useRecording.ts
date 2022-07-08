@@ -15,7 +15,7 @@ import {
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
-import { useLocalParticipant } from './useLocalParticipant';
+import { useLocalSessionId } from './useLocalSessionId';
 import { useParticipantIds } from './useParticipantIds';
 
 interface UseRecordingArgs {
@@ -85,7 +85,7 @@ export const useRecording = ({
   const state = useRecoilValue(recordingState);
   const setState = useSetRecoilState(recordingState);
 
-  const localParticipant = useLocalParticipant();
+  const localSessionId = useLocalSessionId();
 
   const recordingParticipantIds = useParticipantIds({
     filter: 'record',
@@ -96,7 +96,7 @@ export const useRecording = ({
   useEffect(() => {
     const hasRecordingParticipants = recordingParticipantIds.length > 0;
     const isLocalParticipantRecording = recordingParticipantIds.includes(
-      localParticipant?.session_id ?? 'local'
+      localSessionId ?? 'local'
     );
     setState((s) => ({
       ...s,
@@ -119,7 +119,7 @@ export const useRecording = ({
        */
       type: hasRecordingParticipants ? 'local' : s?.type,
     }));
-  }, [localParticipant?.session_id, recordingParticipantIds, setState]);
+  }, [localSessionId, recordingParticipantIds, setState]);
 
   useDailyEvent(
     'recording-started',
@@ -131,9 +131,9 @@ export const useRecording = ({
             case 'cloud-beta':
             case 'cloud': {
               if (
-                localParticipant &&
+                localSessionId &&
                 ev.layout?.preset === 'single-participant' &&
-                ev.layout.session_id !== localParticipant?.session_id
+                ev.layout.session_id !== localSessionId
               ) {
                 isLocalParticipantRecorded = false;
               }
@@ -153,7 +153,7 @@ export const useRecording = ({
           });
           setTimeout(() => onRecordingStarted?.(ev), 0);
         },
-      [localParticipant, onRecordingStarted]
+      [localSessionId, onRecordingStarted]
     )
   );
   useDailyEvent(
