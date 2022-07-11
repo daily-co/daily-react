@@ -42,6 +42,22 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   const eventsMap = useRef<EventsMap>({});
 
   /**
+   * Update callObject reference, in case externally created instance has changed.
+   */
+  useEffect(() => {
+    if (
+      'callObject' in props &&
+      callObject &&
+      props.callObject &&
+      // TODO: Replace _callFrameId check with something "official".
+      // @ts-ignore
+      callObject?._callFrameId !== props?.callObject?._callFrameId
+    ) {
+      setCallObject(props.callObject);
+    }
+  }, [callObject, props]);
+
+  /**
    * Generic event handler to loop through registered event callbacks.
    */
   const handleEvent = useCallback((ev: DailyEventObject) => {
