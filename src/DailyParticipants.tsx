@@ -12,6 +12,13 @@ import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 
+type PropertyType = {
+  id: string;
+  property: keyof DailyParticipant;
+};
+
+type ValueOf<T> = T[keyof T];
+
 /**
  * Extends DailyParticipant with convenient additional properties.
  */
@@ -30,7 +37,7 @@ export const participantsState = atom<ExtendedDailyParticipant[]>({
 });
 
 /**
- * Holds each inidividual participant's state object.
+ * Holds each individual participant's state object.
  */
 export const participantState = selectorFamily<
   ExtendedDailyParticipant | null,
@@ -42,6 +49,22 @@ export const participantState = selectorFamily<
     ({ get }) => {
       const participants = get(participantsState);
       return participants.find((p) => p.session_id === id) ?? null;
+    },
+});
+
+/**
+ * Holds each individual participant's property.
+ */
+export const participantPropertyState = selectorFamily<
+  ValueOf<DailyParticipant> | null,
+  PropertyType
+>({
+  key: 'participant-field',
+  get:
+    ({ id, property }) =>
+    ({ get }) => {
+      const participants = get(participantsState);
+      return participants.find((p) => p.session_id === id)?.[property] ?? null;
     },
 });
 

@@ -13,6 +13,7 @@ export { useMediaTrack } from './hooks/useMediaTrack';
 export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';
 export { useParticipantIds } from './hooks/useParticipantIds';
+export { useParticipantProperty } from './hooks/useParticipantProperty';
 export { useReceiveSettings } from './hooks/useReceiveSettings';
 export { useRecording } from './hooks/useRecording';
 export { useRoom } from './hooks/useRoom';
