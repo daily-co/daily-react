@@ -1,11 +1,14 @@
 import { DailyParticipant } from '@daily-co/daily-js';
 
-import { NestedKeyOf } from '../types/util';
-
-export const resolveParticipantPath = (
+export const getParticipantPathValue = (
   participant: DailyParticipant,
-  path: NestedKeyOf<DailyParticipant>
+  path: string
 ) => {
-  // @ts-ignore
-  return path.split('.').reduce((o, p) => o?.[p], participant);
+  const paths = path.split('.');
+  let value = participant;
+  for (let i = 0; i < paths.length; i++) {
+    // @ts-ignore
+    value = value[paths[i]];
+  }
+  return value;
 };
