@@ -23,7 +23,7 @@ describe('useParticipantProperty', () => {
   it('returns participant property identified by given session_id and the property field', async () => {
     const daily = DailyIframe.createCallObject();
     const { result, waitFor } = renderHook(
-      () => useParticipantProperty('a', 'user_name'),
+      () => useParticipantProperty('a', 'tracks.audio.subscribed'),
       {
         wrapper: createWrapper(daily),
       }
@@ -31,6 +31,24 @@ describe('useParticipantProperty', () => {
     const participant = {
       session_id: 'a',
       user_name: 'Alpha',
+      tracks: {
+        audio: {
+          subscribed: true,
+          state: 'playable',
+        },
+        video: {
+          subscribed: true,
+          state: 'playable',
+        },
+        screenAudio: {
+          subscribed: true,
+          state: 'playable',
+        },
+        screenVideo: {
+          subscribed: true,
+          state: 'playable',
+        },
+      },
     };
     act(() => {
       // @ts-ignore
@@ -40,7 +58,7 @@ describe('useParticipantProperty', () => {
       });
     });
     await waitFor(() => {
-      expect(result.current).toEqual(participant.user_name);
+      expect(result.current).toEqual(participant.tracks.audio.subscribed);
     });
   });
 });

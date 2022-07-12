@@ -11,13 +11,8 @@ import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-
-type PropertyType = {
-  id: string;
-  property: keyof DailyParticipant;
-};
-
-type ValueOf<T> = T[keyof T];
+import { NestedKeyOf } from './types/util';
+import { resolveParticipantPath } from './utils/resolveParticipantPath';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -25,6 +20,11 @@ type ValueOf<T> = T[keyof T];
 export interface ExtendedDailyParticipant extends DailyParticipant {
   last_active?: Date;
 }
+
+type PropertyType = {
+  id: string;
+  property: NestedKeyOf<DailyParticipant>;
+};
 
 export const localIdState = atom<string>({
   key: 'local-id',
@@ -56,15 +56,18 @@ export const participantState = selectorFamily<
  * Holds each individual participant's property.
  */
 export const participantPropertyState = selectorFamily<
-  ValueOf<DailyParticipant> | null,
+  Pick<DailyParticipant, keyof DailyParticipant> | null,
   PropertyType
 >({
-  key: 'participant-field',
+  key: 'participant-property',
   get:
     ({ id, property }) =>
     ({ get }) => {
-      const participants = get(participantsState);
-      return participants.find((p) => p.session_id === id)?.[property] ?? null;
+      const participants: DailyParticipant[] = get(participantsState);
+      const participant = participants.find((p) => p.session_id === id) ?? null;
+
+      if (!participant) return null;
+      return resolveParticipantPath(participant, property);
     },
 });
 

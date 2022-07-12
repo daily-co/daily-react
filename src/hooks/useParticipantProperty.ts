@@ -2,6 +2,7 @@ import { DailyParticipant } from '@daily-co/daily-js';
 import { useRecoilValue } from 'recoil';
 
 import { participantPropertyState } from '../DailyParticipants';
+import { NestedKeyOf } from '../types/util';
 
 /**
  * Returns a participant's property that you subscribe to.
@@ -10,7 +11,7 @@ import { participantPropertyState } from '../DailyParticipants';
  */
 export const useParticipantProperty = (
   participantId: string,
-  propertyPath: keyof DailyParticipant
+  propertyPath: NestedKeyOf<DailyParticipant>
 ) => {
   return useRecoilValue(
     participantPropertyState({ id: participantId, property: propertyPath })
