@@ -4,11 +4,6 @@ export const getParticipantPathValue = (
   participant: DailyParticipant,
   path: string
 ) => {
-  const paths = path.split('.');
-  let value = participant;
-  for (let i = 0; i < paths.length; i++) {
-    // @ts-ignore
-    value = value[paths[i]];
-  }
-  return value;
+  // @ts-ignore
+  return path.split('.').reduce((r, k) => r?.[k], participant);
 };
