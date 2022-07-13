@@ -1,5 +1,5 @@
 import { ExtendedDailyParticipant } from '../DailyParticipants';
-import { Paths } from '../types/paths';
+import type { Paths } from '../../types/paths';
 
 export const getParticipantPathValue = (
   participant: ExtendedDailyParticipant,

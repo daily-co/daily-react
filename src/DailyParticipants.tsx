@@ -11,8 +11,8 @@ import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-import type { Paths } from './types/paths';
-import type { PathValue } from './types/pathValues';
+import type { Paths } from '../types/paths';
+import type { PathValue } from '../types/pathValues';
 import { getParticipantPathValue } from './utils/resolveParticipantPath';
 
 /**
