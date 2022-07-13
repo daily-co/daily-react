@@ -4,7 +4,8 @@ import {
   ExtendedDailyParticipant,
   participantPropertyState,
 } from '../DailyParticipants';
-import { Paths, PathValue } from '../types/util';
+import type { Paths } from '../types/paths';
+import type { PathValue } from '../types/pathValues';
 
 /**
  * Returns a participant's property that you subscribe to.

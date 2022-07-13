@@ -1,8 +1,9 @@
-import { DailyParticipant } from '@daily-co/daily-js';
+import { ExtendedDailyParticipant } from '../DailyParticipants';
+import { Paths } from '../types/paths';
 
 export const getParticipantPathValue = (
-  participant: DailyParticipant,
-  path: string
+  participant: ExtendedDailyParticipant,
+  path: Paths<ExtendedDailyParticipant>
 ) => {
   // @ts-ignore
   return path.split('.').reduce((r, k) => r?.[k], participant);
