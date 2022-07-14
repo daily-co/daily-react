@@ -1,5 +1,7 @@
-// it's a long tuple that we use to get the previous number, to limit the recursion as
-// we go deeper in the object.
+/**
+ * Prev will return us the previous number, ex: Prev<10> will give us -> 9
+ * it is to limit the recursion as we go deeper in the object.
+ */
 
 export type Prev = [
   never,

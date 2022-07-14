@@ -1,8 +1,10 @@
 import type { Idx } from './idx';
 import type { Paths } from './paths';
 
-// returns all possible type values of a given type
-// ex: PathValue<{ a: string, b: { c: string } }, Paths<{ a: string, b: { c: string } }>>
+/**
+ * PathValue will return us all the possible values for a given type.
+ * ex: PathValue<{ a: string, b: { c: string } }, Paths<{ a: string, b: { c: string } }>>
+ */
 
 export type PathValue<
   T,
