@@ -1,7 +1,6 @@
 import { useRecoilValue } from 'recoil';
 
 import type { Paths } from '../../types/paths';
-import type { PathValue } from '../../types/pathValues';
 import {
   ExtendedDailyParticipant,
   participantPropertyState,
@@ -18,8 +17,5 @@ export const useParticipantProperty = (
 ) => {
   return useRecoilValue(
     participantPropertyState({ id: participantId, property: propertyPath })
-  ) as PathValue<
-    ExtendedDailyParticipant,
-    Paths<ExtendedDailyParticipant>
-  > | null;
+  );
 };
