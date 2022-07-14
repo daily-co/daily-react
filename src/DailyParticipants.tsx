@@ -82,13 +82,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     ({ set }) =>
       async (participants: DailyParticipantsObject) => {
         set(localIdState, participants.local.session_id);
-        set(participantsState, (prev) =>
-          [...prev, ...Object.values(participants)].filter(
-            (participant, idx, arr) =>
-              arr.findIndex((p) => p.session_id === participant.session_id) ==
-              idx
-          )
-        );
+        set(participantsState, Object.values(participants));
       },
     []
   );
@@ -108,15 +102,15 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
       clearInterval(interval);
     };
   }, [daily, initParticipants]);
-  useDailyEvent(
-    'joining-meeting',
-    useCallback(() => {
-      if (!daily) return;
-      const participants = daily?.participants();
-      if (!participants.local) return;
-      initParticipants(participants);
-    }, [daily, initParticipants])
-  );
+  const handleInitEvent = useCallback(() => {
+    if (!daily) return;
+    const participants = daily?.participants();
+    if (!participants.local) return;
+    initParticipants(participants);
+  }, [daily, initParticipants]);
+  useDailyEvent('started-camera', handleInitEvent);
+  useDailyEvent('access-state-updated', handleInitEvent);
+  useDailyEvent('joining-meeting', handleInitEvent);
   useDailyEvent(
     'joined-meeting',
     useCallback(
