@@ -24,8 +24,8 @@ jest.mock('../../src/DailyRoom', () => ({
 
 const localId = faker.datatype.uuid();
 
-jest.mock('../../src/hooks/useLocalParticipant', () => ({
-  useLocalParticipant: () => ({ session_id: localId }),
+jest.mock('../../src/hooks/useLocalSessionId', () => ({
+  useLocalSessionId: () => localId,
 }));
 
 const createWrapper =
