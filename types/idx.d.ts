@@ -1,5 +1,6 @@
-// to check the type of the given property
-
+/**
+ * Checks the type of the given property.
+ */
 export type Idx<T, K> = K extends keyof T
   ? T[K]
   : number extends keyof T
