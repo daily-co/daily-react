@@ -8,12 +8,12 @@ import {
 import React, { useCallback, useEffect } from 'react';
 import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 
+import type { Paths } from '../types/paths';
+import type { PathValue } from '../types/pathValues';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-import type { Paths } from '../types/paths';
-import type { PathValue } from '../types/pathValues';
-import { getParticipantPathValue } from './utils/resolveParticipantPath';
+import { resolveParticipantPath } from './utils/resolveParticipantPath';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -64,11 +64,11 @@ export const participantPropertyState = selectorFamily<
   get:
     ({ id, property }) =>
     ({ get }) => {
-      const participants: DailyParticipant[] = get(participantsState);
+      const participants = get(participantsState);
       const participant = participants.find((p) => p.session_id === id) ?? null;
 
       if (!participant) return null;
-      return getParticipantPathValue(participant, property);
+      return resolveParticipantPath(participant, property);
     },
 });
 

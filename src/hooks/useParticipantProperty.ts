@@ -1,11 +1,11 @@
 import { useRecoilValue } from 'recoil';
 
+import type { Paths } from '../../types/paths';
+import type { PathValue } from '../../types/pathValues';
 import {
   ExtendedDailyParticipant,
   participantPropertyState,
 } from '../DailyParticipants';
-import type { Paths } from '../../types/paths';
-import type { PathValue } from '../../types/pathValues';
 
 /**
  * Returns a participant's property that you subscribe to.

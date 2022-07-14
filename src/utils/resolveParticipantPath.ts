@@ -1,7 +1,7 @@
-import { ExtendedDailyParticipant } from '../DailyParticipants';
 import type { Paths } from '../../types/paths';
+import { ExtendedDailyParticipant } from '../DailyParticipants';
 
-export const getParticipantPathValue = (
+export const resolveParticipantPath = (
   participant: ExtendedDailyParticipant,
   path: Paths<ExtendedDailyParticipant>
 ) => {
