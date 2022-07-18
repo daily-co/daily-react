@@ -13,13 +13,18 @@ import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type MediaType = keyof DailyParticipant['tracks'];
 
-const mediaTrackState = atomFamily<DailyTrackState, string>({
+// TODO: Handle optional tracks better
+const mediaTrackState = atomFamily<DailyTrackState | undefined, string>({
   key: 'media-track',
   default: {
     state: 'loading',
     subscribed: false,
   },
 });
+
+export interface MediaTrackState extends DailyTrackState {
+  isOff: boolean;
+}
 
 /**
  * Returns a participant's track and state, based on the given MediaType.
@@ -32,7 +37,7 @@ const mediaTrackState = atomFamily<DailyTrackState, string>({
 export const useMediaTrack = (
   participantId: string,
   type: MediaType = 'video'
-) => {
+): MediaTrackState => {
   const daily = useDaily();
   const key = useMemo(() => `${participantId}-${type}`, [participantId, type]);
   const trackState = useRecoilValue(mediaTrackState(key));
@@ -78,7 +83,7 @@ export const useMediaTrack = (
 
   const setInitialState = useRecoilCallback(
     ({ set }) =>
-      (initialState: DailyTrackState) => {
+      (initialState: DailyTrackState | null) => {
         if (!initialState) return;
         set(mediaTrackState(key), initialState);
       },
@@ -92,8 +97,16 @@ export const useMediaTrack = (
       (p) => p.session_id === participantId
     );
     if (!participant) return;
-    setInitialState(participant.tracks[type]);
+    setInitialState(participant.tracks?.[type] ?? null);
   }, [daily, participantId, setInitialState, type]);
+
+  if (!trackState)
+    return {
+      isOff: true,
+      persistentTrack: undefined,
+      state: 'off',
+      subscribed: false,
+    };
 
   return {
     ...trackState,
