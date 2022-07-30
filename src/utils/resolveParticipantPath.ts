@@ -1,5 +1,5 @@
-import type { Paths } from '../../types/paths';
 import { ExtendedDailyParticipant } from '../DailyParticipants';
+import type { Paths } from '../types/paths';
 
 export const resolveParticipantPath = (
   participant: ExtendedDailyParticipant,

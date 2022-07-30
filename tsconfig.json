@@ -1,6 +1,6 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types"],
+  "include": ["src"],
   "compilerOptions": {
     "module": "esnext",
     "target": "ES5",
@@ -34,8 +34,6 @@
     // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
     "noEmit": true,
     "types": ["node", "react"],
-    "typeRoots": [
-      "./types/*.ts"
-    ]
+    "typeRoots": ["./src/types/*.d.ts"]
   }
 }
