@@ -229,6 +229,7 @@ export const useDevices = () => {
   );
 
   useDailyEvent('available-devices-updated', refreshDevices);
+  useDailyEvent('selected-devices-updated', refreshDevices);
 
   useDailyEvent(
     'camera-error',
