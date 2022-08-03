@@ -3,9 +3,10 @@
 import DailyIframe, {
   DailyCall,
   DailyEvent,
-  DailyEventObjectNoPayload,
   DailyEventObjectRecordingData,
+  DailyEventObjectRecordingError,
   DailyEventObjectRecordingStarted,
+  DailyEventObjectRecordingStopped,
   DailyStreamingLayoutConfig,
   DailyStreamingOptions,
 } from '@daily-co/daily-js';
@@ -92,7 +93,7 @@ describe('useRecording', () => {
       }
     );
     const event: DailyEvent = 'recording-stopped';
-    const payload: DailyEventObjectNoPayload = {
+    const payload: DailyEventObjectRecordingStopped = {
       action: 'recording-stopped',
     };
     act(() => {
@@ -114,8 +115,9 @@ describe('useRecording', () => {
       }
     );
     const event: DailyEvent = 'recording-error';
-    const payload: DailyEventObjectNoPayload = {
+    const payload: DailyEventObjectRecordingError = {
       action: 'recording-error',
+      errorMsg: 'error while recording',
     };
     act(() => {
       // @ts-ignore
