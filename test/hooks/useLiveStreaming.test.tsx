@@ -4,7 +4,7 @@ import DailyIframe, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
-  DailyEventObjectGenericError,
+  DailyEventObjectLiveStreamingError,
   DailyEventObjectLiveStreamingStarted,
   DailyLiveStreamingOptions,
   DailyStreamingLayoutConfig,
@@ -96,7 +96,7 @@ describe('useLiveStreaming', () => {
       }
     );
     const event: DailyEvent = 'live-streaming-error';
-    const payload: DailyEventObjectGenericError = {
+    const payload: DailyEventObjectLiveStreamingError = {
       action: 'live-streaming-error',
       errorMsg: 'An error occurred',
     };

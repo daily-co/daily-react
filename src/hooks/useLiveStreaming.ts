@@ -1,6 +1,6 @@
 import {
   DailyEventObject,
-  DailyEventObjectGenericError,
+  DailyEventObjectLiveStreamingError,
   DailyEventObjectLiveStreamingStarted,
   DailyLiveStreamingOptions,
   DailyStreamingLayoutConfig,
@@ -14,7 +14,7 @@ import { useDailyEvent } from './useDailyEvent';
 interface UseLiveStreamingArgs {
   onLiveStreamingStarted?(ev: DailyEventObjectLiveStreamingStarted): void;
   onLiveStreamingStopped?(ev: DailyEventObject): void;
-  onLiveStreamingError?(ev: DailyEventObjectGenericError): void;
+  onLiveStreamingError?(ev: DailyEventObjectLiveStreamingError): void;
 }
 
 interface LiveStreamingState {
@@ -81,7 +81,7 @@ export const useLiveStreaming = ({
     'live-streaming-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectGenericError) => {
+        (ev: DailyEventObjectLiveStreamingError) => {
           set(liveStreamingState, (prevState) => ({
             ...prevState,
             errorMsg: ev.errorMsg,
