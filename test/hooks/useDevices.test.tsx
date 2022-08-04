@@ -12,8 +12,9 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import faker from 'faker';
 import React from 'react';
 
+import { StatefulDevice } from '../../src/DailyDevices';
 import { DailyProvider } from '../../src/DailyProvider';
-import { StatefulDevice, useDevices } from '../../src/hooks/useDevices';
+import { useDevices } from '../../src/hooks/useDevices';
 
 jest.mock('../../src/DailyRoom', () => ({
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
