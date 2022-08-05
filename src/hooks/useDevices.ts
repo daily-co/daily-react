@@ -34,9 +34,9 @@ export const useDevices = () => {
         audioDeviceId: null,
         videoDeviceId: deviceId,
       });
-      refreshDevices();
+      // refreshDevices();
     },
-    [daily, refreshDevices]
+    [daily]
   );
 
   /**
@@ -48,9 +48,9 @@ export const useDevices = () => {
         audioDeviceId: deviceId,
         videoDeviceId: null,
       });
-      refreshDevices();
+      // refreshDevices();
     },
-    [daily, refreshDevices]
+    [daily]
   );
 
   /**
@@ -61,9 +61,9 @@ export const useDevices = () => {
       await daily?.setOutputDeviceAsync({
         outputDeviceId: deviceId,
       });
-      refreshDevices();
+      // refreshDevices();
     },
-    [daily, refreshDevices]
+    [daily]
   );
 
   return {
