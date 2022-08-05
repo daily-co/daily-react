@@ -5,6 +5,7 @@ import DailyIframe, {
   DailyEventObjectCameraError,
   DailyEventObjectFatalError,
   DailyEventObjectParticipant,
+  DailyEventObjectSelectedDevicesUpdated,
   DailyParticipant,
   DailyParticipantsObject,
 } from '@daily-co/daily-js';
@@ -672,14 +673,21 @@ describe('useDevices', () => {
           (daily.participants as jest.Mock).mockImplementation(() => ({
             local,
           }));
-          const { result, waitFor, waitForNextUpdate } = renderHook(
-            () => useDevices(),
-            {
-              wrapper: createWrapper(daily),
-            }
-          );
+          const { result, waitFor } = renderHook(() => useDevices(), {
+            wrapper: createWrapper(daily),
+          });
           act(() => {
             result.current.setMicrophone(microphones[0].deviceId);
+            const payload: DailyEventObjectSelectedDevicesUpdated = {
+              action: 'selected-devices-updated',
+              devices: {
+                camera: {},
+                mic: microphones[0],
+                speaker: {},
+              },
+            };
+            // @ts-ignore
+            daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.microphones).toHaveLength(1);
@@ -692,7 +700,6 @@ describe('useDevices', () => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
           });
-          await waitForNextUpdate();
           await waitFor(() => {
             expect(result.current.microphones[0].state).toBe('in-use');
             expect(result.current.microphones[0].selected).toBe(true);
@@ -750,6 +757,16 @@ describe('useDevices', () => {
           );
           act(() => {
             result.current.setMicrophone(microphones[0].deviceId);
+            const payload: DailyEventObjectSelectedDevicesUpdated = {
+              action: 'selected-devices-updated',
+              devices: {
+                camera: {},
+                mic: microphones[0],
+                speaker: {},
+              },
+            };
+            // @ts-ignore
+            daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.microphones).toHaveLength(1);
@@ -823,6 +840,16 @@ describe('useDevices', () => {
           );
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
+            const payload: DailyEventObjectSelectedDevicesUpdated = {
+              action: 'selected-devices-updated',
+              devices: {
+                camera: cameras[0],
+                mic: {},
+                speaker: {},
+              },
+            };
+            // @ts-ignore
+            daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.cameras).toHaveLength(1);
@@ -893,6 +920,16 @@ describe('useDevices', () => {
           );
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
+            const payload: DailyEventObjectSelectedDevicesUpdated = {
+              action: 'selected-devices-updated',
+              devices: {
+                camera: cameras[0],
+                mic: {},
+                speaker: {},
+              },
+            };
+            // @ts-ignore
+            daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.cameras).toHaveLength(1);
@@ -916,18 +953,13 @@ describe('useDevices', () => {
     describe('setting devices', () => {
       it('setCamera calls setInputDevicesAsync', async () => {
         const daily = DailyIframe.createCallObject();
-        const { result, waitFor, waitForNextUpdate } = renderHook(
-          () => useDevices(),
-          {
-            wrapper: createWrapper(daily),
-          }
-        );
+        const { result, waitFor } = renderHook(() => useDevices(), {
+          wrapper: createWrapper(daily),
+        });
         const id = faker.random.alphaNumeric(12);
         act(() => {
           result.current.setCamera(id);
         });
-        // Let state updates via refreshDevices() settle
-        await waitForNextUpdate();
         await waitFor(() => {
           expect(daily.setInputDevicesAsync).toBeCalledWith({
             audioDeviceId: null,
@@ -937,18 +969,13 @@ describe('useDevices', () => {
       });
       it('setMicrophone calls setInputDevicesAsync', async () => {
         const daily = DailyIframe.createCallObject();
-        const { result, waitFor, waitForNextUpdate } = renderHook(
-          () => useDevices(),
-          {
-            wrapper: createWrapper(daily),
-          }
-        );
+        const { result, waitFor } = renderHook(() => useDevices(), {
+          wrapper: createWrapper(daily),
+        });
         const id = faker.random.alphaNumeric(12);
         act(() => {
           result.current.setMicrophone(id);
         });
-        // Let state updates via refreshDevices() settle
-        await waitForNextUpdate();
         await waitFor(() => {
           expect(daily.setInputDevicesAsync).toBeCalledWith({
             audioDeviceId: id,
@@ -958,18 +985,13 @@ describe('useDevices', () => {
       });
       it('setSpeaker calls setOutputDeviceAsync', async () => {
         const daily = DailyIframe.createCallObject();
-        const { result, waitFor, waitForNextUpdate } = renderHook(
-          () => useDevices(),
-          {
-            wrapper: createWrapper(daily),
-          }
-        );
+        const { result, waitFor } = renderHook(() => useDevices(), {
+          wrapper: createWrapper(daily),
+        });
         const id = faker.random.alphaNumeric(12);
         act(() => {
           result.current.setSpeaker(id);
         });
-        // Let state updates via refreshDevices() settle
-        await waitForNextUpdate();
         await waitFor(() => {
           expect(daily.setOutputDeviceAsync).toBeCalledWith({
             outputDeviceId: id,
