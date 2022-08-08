@@ -12,7 +12,6 @@ import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import type { Paths } from './types/paths';
-import type { PathValue } from './types/pathValue';
 import { resolveParticipantPath } from './utils/resolveParticipantPath';
 
 /**
@@ -56,10 +55,7 @@ export const participantState = selectorFamily<
 /**
  * Holds each individual participant's property.
  */
-export const participantPropertyState = selectorFamily<
-  PathValue<ExtendedDailyParticipant, Paths<ExtendedDailyParticipant>> | null,
-  PropertyType
->({
+export const participantPropertyState = selectorFamily<any, PropertyType>({
   key: 'participant-property',
   get:
     ({ id, property }) =>

@@ -1,5 +1,4 @@
-import type { Idx } from './idx';
-import type { Paths } from './paths';
+import type { Path } from './test';
 
 /**
  * PathValue will return us all the possible values for a given type.
@@ -8,9 +7,13 @@ import type { Paths } from './paths';
 
 export type PathValue<
   T,
-  P extends Paths<T, 4>
+  P extends Path<T>
 > = P extends `${infer Key}.${infer Rest}`
-  ? Rest extends Paths<Idx<T, Key>, 4>
-    ? PathValue<Idx<T, Key>, Rest>
+  ? Key extends keyof T
+    ? Rest extends Path<T[Key]>
+      ? PathValue<T[Key], Rest>
+      : never
     : never
-  : Idx<T, P>;
+  : P extends keyof T
+  ? T[P]
+  : never;
