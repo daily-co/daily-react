@@ -10,7 +10,7 @@ import type { PathValue } from '../types/pathValue';
 /**
  * Returns a participant's property that you subscribe to.
  * @param participantId The participant's session_id.
- * @param propertyPath the participant property that you want to subscribe to.
+ * @param propertyPaths the array of participant property that you want to subscribe to.
  */
 export const useParticipantProperty = <
   T extends ExtendedDailyParticipant,
@@ -18,12 +18,12 @@ export const useParticipantProperty = <
   P extends Paths<T>
 >(
   participantId: ID,
-  propertyPath: P
-): PathValue<T, P> | null => {
+  propertyPaths: P[]
+): { [K in P]: PathValue<T, K> } => {
   return useRecoilValue(
     participantPropertyState({
       id: participantId,
-      property: propertyPath as Paths<ExtendedDailyParticipant>,
+      properties: propertyPaths as Paths<ExtendedDailyParticipant>[],
     })
   );
 };
