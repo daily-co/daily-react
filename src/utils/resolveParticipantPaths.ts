@@ -3,7 +3,7 @@ import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
 
 const resolvePath = <T extends ExtendedDailyParticipant, P extends Paths<T>>(
-  participant: T,
+  participant: T | null,
   path: P
 ): PathValue<T, P> => {
   return String(path)
@@ -16,14 +16,11 @@ export const resolveParticipantPaths = <
   T extends ExtendedDailyParticipant,
   P extends Paths<T>
 >(
-  participant: T,
+  participant: T | null,
   paths: P[]
 ): { [K in P]: PathValue<T, K> } => {
-  const result = {};
-  paths.map(
-    // @ts-ignore
-    (path) => (result[path] = resolvePath(participant, path))
-  );
+  const result = {} as { [K in P]: PathValue<T, K> };
+  paths.map((path) => (result[path] = resolvePath(participant, path)));
 
-  return result as { [K in P]: PathValue<T, K> };
+  return result;
 };

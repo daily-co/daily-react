@@ -63,7 +63,6 @@ export const participantPropertyState = selectorFamily<any, PropertyType>({
       const participants = get(participantsState);
       const participant = participants.find((p) => p.session_id === id) ?? null;
 
-      if (!participant) return null;
       return resolveParticipantPaths(participant, properties);
     },
 });
