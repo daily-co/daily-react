@@ -16,6 +16,9 @@ import { useParticipantIds } from '../../src/hooks/useParticipantIds';
 jest.mock('../../src/DailyRoom', () => ({
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyDevices', () => ({
+  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+}));
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>

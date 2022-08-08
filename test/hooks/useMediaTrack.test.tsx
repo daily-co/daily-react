@@ -16,9 +16,6 @@ import { useMediaTrack } from '../../src/hooks/useMediaTrack';
 jest.mock('../../src/DailyRoom', () => ({
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
-jest.mock('../../src/DailyParticipants', () => ({
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
-}));
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
@@ -115,7 +112,7 @@ describe('useMediaTrack', () => {
       });
     });
   });
-  it('participant-left events resets state to non-subscribed & loading', async () => {
+  it('returns off state for unknown participant', async () => {
     const daily = DailyIframe.createCallObject();
     const participantId = faker.datatype.uuid();
 
@@ -125,23 +122,12 @@ describe('useMediaTrack', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const payload: DailyEventObjectParticipant = {
-      action: 'participant-left',
-      participant: {
-        ...participantBase,
-        session_id: participantId,
-        user_id: participantId,
-      },
-    };
-    act(() => {
-      // @ts-ignore
-      daily.emit('participant-left', payload);
-    });
     await waitFor(() => {
       expect(result.current).toEqual<ReturnType<typeof useMediaTrack>>({
-        state: 'loading',
+        persistentTrack: undefined,
+        state: 'off',
         subscribed: false,
-        isOff: false,
+        isOff: true,
       });
     });
   });

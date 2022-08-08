@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RecoilRoot } from 'recoil';
 
 import { DailyContext } from './DailyContext';
+import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRoom } from './DailyRoom';
@@ -137,7 +138,9 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
-            <DailyParticipants>{children}</DailyParticipants>
+            <DailyParticipants>
+              <DailyDevices>{children}</DailyDevices>
+            </DailyParticipants>
           </DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>
