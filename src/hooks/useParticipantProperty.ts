@@ -14,10 +14,9 @@ import type { PathValue } from '../types/pathValue';
  */
 export const useParticipantProperty = <
   T extends ExtendedDailyParticipant,
-  ID extends string,
   P extends Paths<T>
 >(
-  participantId: ID,
+  participantId: string,
   propertyPaths: P[]
 ): { [K in P]: PathValue<T, K> } => {
   return useRecoilValue(

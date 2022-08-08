@@ -20,12 +20,8 @@ export const useMediaTrack = (
   participantId: string,
   type: MediaType = 'video'
 ): MediaTrackState => {
-  const trackState = useParticipantProperty(
-    participantId,
-    // TypeScript refuses to identify the right types here, so we'll ignore this for now.
-    // @ts-ignore
-    `tracks.${type}`
-  ) as DailyTrackState;
+  const track = useParticipantProperty(participantId, [`tracks.${type}`]);
+  const trackState = track?.[`tracks.${type}`];
 
   if (!trackState)
     return {
