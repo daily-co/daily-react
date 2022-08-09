@@ -10,7 +10,9 @@ import { PathValue } from '../types/pathValue';
 type MyReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T> | Paths<T>[]
-> = P extends any[] ? { [K in keyof P]: PathValue<T, P[K]> } : PathValue<T, P>;
+> = P extends Paths<T>[]
+  ? { [K in keyof P]: PathValue<T, P[K]> }
+  : PathValue<T, P>;
 
 /**
  * Returns a participant's property that you subscribe to.
