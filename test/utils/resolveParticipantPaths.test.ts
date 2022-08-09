@@ -31,7 +31,7 @@ describe('Resolve the participant path', () => {
       participant,
       ['user_name']
     );
-    expect(result).toEqual({ user_name: participant.user_name });
+    expect(result).toEqual(['Alpha']);
   });
   it('Accessing an object', () => {
     const result = resolveParticipantPaths(
@@ -39,7 +39,12 @@ describe('Resolve the participant path', () => {
       participant,
       ['tracks.audio']
     );
-    expect(result).toEqual({ 'tracks.audio': participant.tracks.audio });
+    expect(result).toEqual([
+      {
+        subscribed: true,
+        state: 'playable',
+      },
+    ]);
   });
   it('Accessing a non-existent property', () => {
     const result = resolveParticipantPaths(
@@ -47,7 +52,7 @@ describe('Resolve the participant path', () => {
       participant,
       ['tracks.audio.persistentTrack']
     );
-    expect(result).toEqual({ 'tracks.audio.persistentTrack': undefined });
+    expect(result).toEqual([undefined]);
   });
   it('Accessing a nested value', () => {
     const result = resolveParticipantPaths(
@@ -55,9 +60,7 @@ describe('Resolve the participant path', () => {
       participant,
       ['tracks.audio.subscribed']
     );
-    expect(result).toEqual({
-      'tracks.audio.subscribed': participant.tracks.audio.subscribed,
-    });
+    expect(result).toEqual([true]);
   });
   it('Accessing multiple values', () => {
     const result = resolveParticipantPaths(
@@ -65,9 +68,6 @@ describe('Resolve the participant path', () => {
       participant,
       ['tracks.audio.subscribed', 'user_name']
     );
-    expect(result).toEqual({
-      'tracks.audio.subscribed': participant.tracks.audio.subscribed,
-      user_name: participant.user_name,
-    });
+    expect(result).toEqual([true, 'Alpha']);
   });
 });

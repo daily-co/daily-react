@@ -59,10 +59,7 @@ describe('useParticipantProperty', () => {
       });
     });
     await waitFor(() => {
-      expect(result.current).toEqual({
-        'tracks.audio.subscribed': participant.tracks.audio.subscribed,
-        user_name: participant.user_name,
-      });
+      expect(result.current).toEqual([true, 'Alpha']);
     });
   });
 });

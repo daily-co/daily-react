@@ -5,7 +5,12 @@ import {
   participantPropertyState,
 } from '../DailyParticipants';
 import type { Paths } from '../types/paths';
-import type { PathValue } from '../types/pathValue';
+import { PathValue } from '../types/pathValue';
+
+type MyReturnType<
+  T extends ExtendedDailyParticipant,
+  P extends Paths<T> | Paths<T>[]
+> = P extends any[] ? { [K in keyof P]: PathValue<T, P[K]> } : PathValue<T, P>;
 
 /**
  * Returns a participant's property that you subscribe to.
@@ -14,15 +19,21 @@ import type { PathValue } from '../types/pathValue';
  */
 export const useParticipantProperty = <
   T extends ExtendedDailyParticipant,
-  P extends Paths<T>
+  P extends Paths<T> | Paths<T>[]
 >(
   participantId: string,
-  propertyPaths: P[]
-): { [K in P]: PathValue<T, K> } => {
-  return useRecoilValue(
+  propertyPaths: P
+): MyReturnType<T, P> => {
+  const participantProperties = useRecoilValue(
     participantPropertyState({
       id: participantId,
-      properties: propertyPaths as Paths<ExtendedDailyParticipant>[],
+      properties: (Array.isArray(propertyPaths)
+        ? propertyPaths
+        : [propertyPaths]) as Paths<ExtendedDailyParticipant>[],
     })
   );
+
+  return Array.isArray(propertyPaths)
+    ? participantProperties
+    : participantProperties[0];
 };

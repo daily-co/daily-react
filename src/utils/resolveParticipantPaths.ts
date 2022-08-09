@@ -14,13 +14,12 @@ const resolvePath = <T extends ExtendedDailyParticipant, P extends Paths<T>>(
 
 export const resolveParticipantPaths = <
   T extends ExtendedDailyParticipant,
-  P extends Paths<T>
+  P extends Paths<T>[]
 >(
   participant: T | null,
-  paths: P[]
-): { [K in P]: PathValue<T, K> } => {
-  const result = {} as { [K in P]: PathValue<T, K> };
-  paths.map((path) => (result[path] = resolvePath(participant, path)));
-
-  return result;
+  paths: P
+): { [K in keyof P]: PathValue<T, P[K]> } => {
+  return paths.map((path) => resolvePath(participant, path)) as {
+    [K in keyof P]: PathValue<T, P[K]>;
+  };
 };

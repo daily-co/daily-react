@@ -20,8 +20,7 @@ export const useMediaTrack = (
   participantId: string,
   type: MediaType = 'video'
 ): MediaTrackState => {
-  const track = useParticipantProperty(participantId, [`tracks.${type}`]);
-  const trackState = track?.[`tracks.${type}`];
+  const trackState = useParticipantProperty(participantId, `tracks.${type}`);
 
   if (!trackState)
     return {
