@@ -11,8 +11,10 @@ type MyReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T> | Paths<T>[]
 > = P extends Paths<T>[]
-  ? { [K in keyof P]: PathValue<T, P[K]> }
-  : PathValue<T, P>;
+  ? { [K in keyof P]-?: K extends number ? PathValue<T, P[K]> : never }
+  : P extends Paths<T>
+  ? PathValue<T, P>
+  : never;
 
 /**
  * Returns a participant's property that you subscribe to.

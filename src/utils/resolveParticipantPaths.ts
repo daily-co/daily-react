@@ -12,14 +12,19 @@ const resolvePath = <T extends ExtendedDailyParticipant, P extends Paths<T>>(
     .reduce((p: any, key) => p && p[key], participant);
 };
 
+type MyReturnType<T extends ExtendedDailyParticipant, P extends Paths<T>[]> = {
+  [K in keyof P]-?: K extends number ? PathValue<T, P[K]> : never;
+};
+
 export const resolveParticipantPaths = <
   T extends ExtendedDailyParticipant,
   P extends Paths<T>[]
 >(
   participant: T | null,
   paths: P
-): { [K in keyof P]: PathValue<T, P[K]> } => {
-  return paths.map((path) => resolvePath(participant, path)) as {
-    [K in keyof P]: PathValue<T, P[K]>;
-  };
+): MyReturnType<T, P> => {
+  return paths.map((path) => resolvePath(participant, path)) as MyReturnType<
+    T,
+    P
+  >;
 };
