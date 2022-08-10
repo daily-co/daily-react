@@ -46,14 +46,24 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
    * Update callObject reference, in case externally created instance has changed.
    */
   useEffect(() => {
-    if (
-      'callObject' in props &&
-      callObject &&
-      props.callObject &&
+    if (!('callObject' in props)) return;
+    const callFrameIdChanged =
       // TODO: Replace _callFrameId check with something "official".
       // @ts-ignore
-      callObject?._callFrameId !== props?.callObject?._callFrameId
-    ) {
+      callObject?._callFrameId !== props?.callObject?._callFrameId;
+    const callObjectNullified = !props.callObject;
+    const callObjectCreated = !callObject && props.callObject;
+
+    if (callObjectNullified) {
+      /**
+       * Passed callObject prop has been unset, e.g. because it was destroyed.
+       * We'll want to let go the internal reference in that case.
+       */
+      setCallObject(null);
+    } else if (callFrameIdChanged || callObjectCreated) {
+      /**
+       * Passed callObject has been created or changed.
+       */
       setCallObject(props.callObject);
     }
   }, [callObject, props]);
