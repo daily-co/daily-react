@@ -5,9 +5,9 @@ import {
   participantPropertyState,
 } from '../DailyParticipants';
 import type { Paths } from '../types/paths';
-import { PathValue } from '../types/pathValue';
+import type { PathValue } from '../types/pathValue';
 
-type MyReturnType<
+type UseParticipantPropertyReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T> | Paths<T>[]
 > = P extends Paths<T>[]
@@ -27,7 +27,7 @@ export const useParticipantProperty = <
 >(
   participantId: string,
   propertyPaths: P
-): MyReturnType<T, P> => {
+): UseParticipantPropertyReturnType<T, P> => {
   const participantProperties = useRecoilValue(
     participantPropertyState({
       id: participantId,
