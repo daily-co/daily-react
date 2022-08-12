@@ -5,10 +5,7 @@ import type { Paths } from './paths';
  * ex: PathValue<{ a: string, b: { c: string } }, 'a'> will return 'string'
  */
 
-export type PathValue<
-  T,
-  P extends Paths<T>
-> = P extends `${infer Key}.${infer Rest}`
+export type PathValue<T, P> = P extends `${infer Key}.${infer Rest}`
   ? Key extends keyof T
     ? Rest extends Paths<T[Key]>
       ? PathValue<T[Key], Rest>

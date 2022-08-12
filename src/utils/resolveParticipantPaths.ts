@@ -1,4 +1,5 @@
 import { ExtendedDailyParticipant } from '../DailyParticipants';
+import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
 
@@ -15,9 +16,7 @@ const resolvePath = <T extends ExtendedDailyParticipant, P extends Paths<T>>(
 type ResolveParticipantPathsReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T>[]
-> = {
-  [K in keyof P]-?: K extends number ? PathValue<T, P[K]> : never;
-};
+> = { [K in keyof P]: K extends NumericKeys ? PathValue<T, P[K]> : never };
 
 export const resolveParticipantPaths = <
   T extends ExtendedDailyParticipant,

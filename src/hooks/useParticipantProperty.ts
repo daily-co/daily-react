@@ -4,6 +4,7 @@ import {
   ExtendedDailyParticipant,
   participantPropertyState,
 } from '../DailyParticipants';
+import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
 
@@ -11,7 +12,7 @@ type UseParticipantPropertyReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T> | Paths<T>[]
 > = P extends Paths<T>[]
-  ? { [K in keyof P]-?: K extends number ? PathValue<T, P[K]> : never }
+  ? { [K in keyof P]: K extends NumericKeys ? PathValue<T, P[K]> : never }
   : P extends Paths<T>
   ? PathValue<T, P>
   : never;
@@ -23,7 +24,7 @@ type UseParticipantPropertyReturnType<
  */
 export const useParticipantProperty = <
   T extends ExtendedDailyParticipant,
-  P extends Paths<T> | Paths<T>[]
+  P extends Paths<T> | [Paths<T>, ...Paths<T>[]]
 >(
   participantId: string,
   propertyPaths: P
