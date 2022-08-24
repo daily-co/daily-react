@@ -28,6 +28,7 @@ const participantBase: DailyParticipant = {
   joined_at: faker.date.recent(),
   local: false,
   owner: false,
+  permissions: { canSend: true, hasPresence: true },
   record: false,
   screen: false,
   screen_info: {},

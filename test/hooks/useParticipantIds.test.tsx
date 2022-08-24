@@ -5,6 +5,7 @@ import DailyIframe, {
   DailyEvent,
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
+  DailyEventObjectParticipantLeft,
   DailyEventObjectParticipants,
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
@@ -510,7 +511,7 @@ describe('useParticipantIds', () => {
       expect(result.current).toEqual(['local', 'a']);
     });
     const event: DailyEvent = 'participant-left';
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipantLeft = {
       action: event,
       // @ts-ignore
       participant: {
