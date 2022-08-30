@@ -92,8 +92,19 @@ export const useParticipantIds = (
       case 'user_id':
       case 'user_name':
         sortFn = (a, b) => {
-          if (a[sort] < b[sort]) return -1;
-          if (a[sort] > b[sort]) return 1;
+          // joined_at can technically be undefined. so in that
+          // case, sort whichever has a value first. though, it
+          // should only be undefined in prejoin, when there are
+          // no other participants to sort so... really this
+          // shouldn't happen :)
+          let aSort = a[sort];
+          let bSort = b[sort];
+          if (aSort !== undefined || bSort !== undefined) {
+            if (aSort === undefined) return -1;
+            if (bSort === undefined) return 1;
+            if (aSort > bSort) return 1;
+            if (aSort < bSort) return -1;
+          }
           return 0;
         };
         break;

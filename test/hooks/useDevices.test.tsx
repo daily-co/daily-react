@@ -402,6 +402,7 @@ describe('useDevices', () => {
               joined_at: new Date(),
               local: true,
               owner: false,
+              permissions: { canSend: true, hasPresence: true },
               record: false,
               screen: false,
               screen_info: {},
