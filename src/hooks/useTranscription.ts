@@ -1,5 +1,6 @@
 import {
   DailyEventObject,
+  DailyEventObjectAppMessage,
   DailyEventObjectTranscriptionStarted,
   DailyEventObjectTranscriptionStopped,
   DailyTranscriptionDeepgramOptions,
@@ -158,7 +159,7 @@ export const useTranscription = ({
     'app-message',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject) => {
+        (ev: DailyEventObjectAppMessage<Transcription>) => {
           if (ev?.fromId === 'transcription' && ev?.data?.is_final) {
             set(transcriptionState, (prevState) => ({
               ...prevState,
