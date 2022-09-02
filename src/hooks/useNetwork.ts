@@ -15,9 +15,9 @@ interface UseNetworkArgs {
   onNetworkQualityChange?(ev: DailyEventObjectNetworkQualityEvent): void;
 }
 
-const topologyState = atom<DailyNetworkTopology>({
+const topologyState = atom<DailyNetworkTopology | 'none'>({
   key: 'topology',
-  default: 'peer',
+  default: 'none',
 });
 const networkQualityState = atom<DailyNetworkStats['quality']>({
   key: 'networkQuality',

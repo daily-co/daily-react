@@ -37,7 +37,7 @@ describe('useNetwork', () => {
     expect(result.current).toHaveProperty('threshold');
     expect(result.current.threshold).toBe('good');
     expect(result.current).toHaveProperty('topology');
-    expect(result.current.topology).toBe('peer');
+    expect(result.current.topology).toBe('none');
   });
   it('getStats calls getNetworkStats internally', async () => {
     const mockStats: DailyNetworkStats = {
