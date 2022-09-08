@@ -4,7 +4,7 @@ import {
   DailyNetworkStats,
   DailyNetworkTopology,
 } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
@@ -42,6 +42,17 @@ export const useNetwork = ({
   const quality = useRecoilValue(networkQualityState);
   const threshold = useRecoilValue(networkThresholdState);
 
+  const initTopology = useRecoilCallback(
+    ({ set }) =>
+      async () => {
+        if (!daily) return;
+        const topology = await daily.getNetworkTopology();
+        if (!topology || topology?.topology === 'none') return;
+        set(topologyState, topology.topology);
+      },
+    [daily]
+  );
+
   const handleNetworkConnection = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
       (ev: DailyEventObjectNetworkConnectionEvent) => {
@@ -74,8 +85,14 @@ export const useNetwork = ({
     [onNetworkQualityChange]
   );
 
+  useDailyEvent('joined-meeting', initTopology);
   useDailyEvent('network-connection', handleNetworkConnection);
   useDailyEvent('network-quality-change', handleNetworkQualityChange);
+
+  useEffect(() => {
+    if (!daily || topology) return;
+    initTopology();
+  }, [daily, initTopology, topology]);
 
   const getStats = useCallback(async () => {
     const newStats = await daily?.getNetworkStats();

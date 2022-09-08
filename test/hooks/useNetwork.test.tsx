@@ -5,6 +5,7 @@ import DailyIframe, {
   DailyEvent,
   DailyEventObjectNetworkConnectionEvent,
   DailyEventObjectNetworkQualityEvent,
+  DailyEventObjectParticipants,
   DailyNetworkStats,
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
@@ -67,6 +68,37 @@ describe('useNetwork', () => {
       wrapper: createWrapper(daily),
     });
     expect(await result.current.getStats()).toEqual(mockStats.stats);
+  });
+  it.each`
+    topology
+    ${'sfu'}
+    ${'peer'}
+  `('joined-meeting event initializes with $topology', async ({ topology }) => {
+    const daily = DailyIframe.createCallObject();
+    const { result, waitFor } = renderHook(() => useNetwork(), {
+      wrapper: createWrapper(daily),
+    });
+    (daily.getNetworkTopology as jest.Mock).mockImplementation(() =>
+      Promise.resolve({
+        topology,
+      })
+    );
+    const event: DailyEvent = 'joined-meeting';
+    const payload: DailyEventObjectParticipants = {
+      action: 'joined-meeting',
+      // @ts-ignore
+      participants: {},
+    };
+    await waitFor(() => {
+      expect(result.current.topology).toBe('none');
+    });
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(result.current.topology).toBe(topology);
+    });
   });
   it.each`
     topology  | type
