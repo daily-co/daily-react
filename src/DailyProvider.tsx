@@ -28,7 +28,7 @@ type DailyProperties = Pick<
 type Props =
   | DailyProperties
   | {
-      callObject: DailyCall;
+      callObject: DailyCall | null;
     };
 
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
