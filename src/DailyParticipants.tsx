@@ -8,12 +8,11 @@ import {
 import React, { useCallback, useEffect } from 'react';
 import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 
-import type { Paths } from '../types/paths';
-import type { PathValue } from '../types/pathValue';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-import { resolveParticipantPath } from './utils/resolveParticipantPath';
+import type { Paths } from './types/paths';
+import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -24,7 +23,7 @@ export interface ExtendedDailyParticipant extends DailyParticipant {
 
 type PropertyType = {
   id: string;
-  property: Paths<ExtendedDailyParticipant>;
+  properties: Paths<ExtendedDailyParticipant>[];
 };
 
 export const localIdState = atom<string>({
@@ -56,19 +55,15 @@ export const participantState = selectorFamily<
 /**
  * Holds each individual participant's property.
  */
-export const participantPropertyState = selectorFamily<
-  PathValue<ExtendedDailyParticipant, Paths<ExtendedDailyParticipant>> | null,
-  PropertyType
->({
+export const participantPropertyState = selectorFamily<any, PropertyType>({
   key: 'participant-property',
   get:
-    ({ id, property }) =>
+    ({ id, properties }) =>
     ({ get }) => {
       const participants = get(participantsState);
       const participant = participants.find((p) => p.session_id === id) ?? null;
 
-      if (!participant) return null;
-      return resolveParticipantPath(participant, property);
+      return resolveParticipantPaths(participant, properties);
     },
 });
 

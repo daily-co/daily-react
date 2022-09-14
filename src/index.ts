@@ -1,3 +1,4 @@
+export { StatefulDevice } from './DailyDevices';
 export { ExtendedDailyParticipant } from './DailyParticipants';
 export { DailyProvider } from './DailyProvider';
 export { useActiveParticipant } from './hooks/useActiveParticipant';
@@ -5,7 +6,7 @@ export { useAppMessage } from './hooks/useAppMessage';
 export { useAudioTrack } from './hooks/useAudioTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';
-export { StatefulDevice, useDevices } from './hooks/useDevices';
+export { useDevices } from './hooks/useDevices';
 export { useInputSettings } from './hooks/useInputSettings';
 export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useLocalParticipant } from './hooks/useLocalParticipant';

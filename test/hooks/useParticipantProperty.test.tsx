@@ -23,7 +23,8 @@ describe('useParticipantProperty', () => {
   it('returns participant property identified by given session_id and the property field', async () => {
     const daily = DailyIframe.createCallObject();
     const { result, waitFor } = renderHook(
-      () => useParticipantProperty('a', 'tracks.audio.subscribed'),
+      () =>
+        useParticipantProperty('a', ['tracks.audio.subscribed', 'user_name']),
       {
         wrapper: createWrapper(daily),
       }
@@ -58,7 +59,7 @@ describe('useParticipantProperty', () => {
       });
     });
     await waitFor(() => {
-      expect(result.current).toEqual(participant.tracks.audio.subscribed);
+      expect(result.current).toEqual([true, 'Alpha']);
     });
   });
 });

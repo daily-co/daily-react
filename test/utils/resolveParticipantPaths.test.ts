@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import { resolveParticipantPath } from '../../src/utils/resolveParticipantPath';
+import { resolveParticipantPaths } from '../../src/utils/resolveParticipantPaths';
 
 describe('Resolve the participant path', () => {
   const participant = {
@@ -26,35 +26,48 @@ describe('Resolve the participant path', () => {
     },
   };
   it('Accessing a top level property', () => {
-    const result = resolveParticipantPath(
+    const result = resolveParticipantPaths(
       // @ts-ignore
       participant,
-      'user_name'
+      ['user_name']
     );
-    expect(result).toEqual(participant.user_name);
+    expect(result).toEqual(['Alpha']);
   });
   it('Accessing an object', () => {
-    const result = resolveParticipantPath(
+    const result = resolveParticipantPaths(
       // @ts-ignore
       participant,
-      'tracks.audio'
+      ['tracks.audio']
     );
-    expect(result).toEqual(participant.tracks.audio);
+    expect(result).toEqual([
+      {
+        subscribed: true,
+        state: 'playable',
+      },
+    ]);
   });
   it('Accessing a non-existent property', () => {
-    const result = resolveParticipantPath(
+    const result = resolveParticipantPaths(
       // @ts-ignore
       participant,
-      'tracks.audio.persistentTrack'
+      ['tracks.audio.persistentTrack']
     );
-    expect(result).toEqual(undefined);
+    expect(result).toEqual([undefined]);
   });
   it('Accessing a nested value', () => {
-    const result = resolveParticipantPath(
+    const result = resolveParticipantPaths(
       // @ts-ignore
       participant,
-      'tracks.audio.subscribed'
+      ['tracks.audio.subscribed']
     );
-    expect(result).toEqual(participant.tracks.audio.subscribed);
+    expect(result).toEqual([true]);
+  });
+  it('Accessing multiple values', () => {
+    const result = resolveParticipantPaths(
+      // @ts-ignore
+      participant,
+      ['tracks.audio.subscribed', 'user_name']
+    );
+    expect(result).toEqual([true, 'Alpha']);
   });
 });
