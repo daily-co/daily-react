@@ -4,6 +4,7 @@ import DailyIframe, {
   DailyCall,
   DailyEvent,
   DailyEventObjectParticipant,
+  DailyEventObjectParticipantLeft,
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
@@ -80,7 +81,7 @@ describe('useParticipant', () => {
       }
     );
     const event: DailyEvent = 'participant-left';
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipantLeft = {
       action: event,
       // @ts-ignore
       participant: {
