@@ -212,6 +212,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
         data-playable={isPlayable || undefined}
         data-session-id={sessionId}
         data-subscribed={subscribedState}
+        data-video-type={type}
         style={{
           objectFit: fit,
           transform: isMirrored ? 'scale(-1, 1)' : '',
