@@ -64,7 +64,7 @@ export const useNetwork = ({
               break;
           }
         });
-        setTimeout(() => onNetworkConnection?.(ev), 0);
+        onNetworkConnection?.(ev);
       },
     [onNetworkConnection]
   );
@@ -80,7 +80,7 @@ export const useNetwork = ({
             prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
           );
         });
-        setTimeout(() => onNetworkQualityChange?.(ev), 0);
+        onNetworkQualityChange?.(ev);
       },
     [onNetworkQualityChange]
   );

@@ -141,16 +141,16 @@ export const useParticipantIds = (
         evts.forEach((ev) => {
           switch (ev.action) {
             case 'participant-joined':
-              setTimeout(() => onParticipantJoined?.(ev), 0);
+              onParticipantJoined?.(ev);
               break;
             case 'participant-updated':
-              setTimeout(() => onParticipantUpdated?.(ev), 0);
+              onParticipantUpdated?.(ev);
               break;
             case 'active-speaker-change':
-              setTimeout(() => onActiveSpeakerChange?.(ev), 0);
+              onActiveSpeakerChange?.(ev);
               break;
             case 'participant-left':
-              setTimeout(() => onParticipantLeft?.(ev), 0);
+              onParticipantLeft?.(ev);
               break;
           }
         });

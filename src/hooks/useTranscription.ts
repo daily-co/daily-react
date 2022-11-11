@@ -110,7 +110,7 @@ export const useTranscription = ({
             transcriptions: [],
             ...ev,
           });
-          setTimeout(() => onTranscriptionStarted?.(ev), 0);
+          onTranscriptionStarted?.(ev);
         },
       [onTranscriptionStarted]
     )
@@ -125,7 +125,7 @@ export const useTranscription = ({
             updatedBy: ev?.updatedBy,
             isTranscribing: false,
           }));
-          setTimeout(() => onTranscriptionStopped?.(ev), 0);
+          onTranscriptionStopped?.(ev);
         },
       [onTranscriptionStopped]
     )
@@ -140,7 +140,7 @@ export const useTranscription = ({
             error: true,
             isTranscribing: false,
           }));
-          setTimeout(() => onTranscriptionError?.(ev), 0);
+          onTranscriptionError?.(ev);
         },
       [onTranscriptionError]
     )
@@ -159,7 +159,7 @@ export const useTranscription = ({
               isTranscribing: true,
               transcriptions: [...prevState.transcriptions, ev.data],
             }));
-            setTimeout(() => onTranscriptionAppData?.(ev), 0);
+            onTranscriptionAppData?.(ev);
           }
         },
       [onTranscriptionAppData]

@@ -71,7 +71,7 @@ export const useWaitingParticipants = ({
           });
           set(waitingParticipantState(ev.participant.id), ev.participant);
         });
-        setTimeout(() => onWaitingParticipantAdded?.(ev), 0);
+        onWaitingParticipantAdded?.(ev);
       },
     [onWaitingParticipantAdded]
   );
@@ -85,7 +85,7 @@ export const useWaitingParticipants = ({
           );
           reset(waitingParticipantState(ev.participant.id));
         });
-        setTimeout(() => onWaitingParticipantRemoved?.(ev), 0);
+        onWaitingParticipantRemoved?.(ev);
       },
     [onWaitingParticipantRemoved]
   );
@@ -94,7 +94,7 @@ export const useWaitingParticipants = ({
     ({ set }) =>
       (ev: DailyEventObjectWaitingParticipant) => {
         set(waitingParticipantState(ev.participant.id), ev.participant);
-        setTimeout(() => onWaitingParticipantUpdated?.(ev), 0);
+        onWaitingParticipantUpdated?.(ev);
       },
     [onWaitingParticipantUpdated]
   );

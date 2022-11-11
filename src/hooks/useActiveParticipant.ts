@@ -43,7 +43,7 @@ export const useActiveParticipant = ({
     'active-speaker-change',
     useCallback(
       (ev: DailyEventObjectActiveSpeakerChange) => {
-        setTimeout(() => onActiveSpeakerChange?.(ev), 0);
+        onActiveSpeakerChange?.(ev);
       },
       [onActiveSpeakerChange]
     )

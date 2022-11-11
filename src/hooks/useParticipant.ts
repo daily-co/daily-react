@@ -37,10 +37,10 @@ export const useParticipant = (
         filteredEvts.forEach((ev) => {
           switch (ev.action) {
             case 'participant-updated':
-              setTimeout(() => onParticipantUpdated?.(ev), 0);
+              onParticipantUpdated?.(ev);
               break;
             case 'participant-left':
-              setTimeout(() => onParticipantLeft?.(ev), 0);
+              onParticipantLeft?.(ev);
               break;
           }
         });

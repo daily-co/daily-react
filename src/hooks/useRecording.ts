@@ -151,7 +151,7 @@ export const useRecording = ({
             startedBy: ev?.startedBy,
             type: ev?.type,
           });
-          setTimeout(() => onRecordingStarted?.(ev), 0);
+          onRecordingStarted?.(ev);
         },
       [localSessionId, onRecordingStarted]
     )
@@ -166,7 +166,7 @@ export const useRecording = ({
             isLocalParticipantRecorded: false,
             isRecording: false,
           }));
-          setTimeout(() => onRecordingStopped?.(ev), 0);
+          onRecordingStopped?.(ev);
         },
       [onRecordingStopped]
     )
@@ -182,7 +182,7 @@ export const useRecording = ({
             isLocalParticipantRecorded: false,
             isRecording: false,
           }));
-          setTimeout(() => onRecordingError?.(ev), 0);
+          onRecordingError?.(ev);
         },
       [onRecordingError]
     )
