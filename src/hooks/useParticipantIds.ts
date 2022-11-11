@@ -66,7 +66,7 @@ export const useParticipantIds = (
 ) => {
   const allParticipants = useRecoilValue(participantsState);
 
-  const sortedIds = useMemo(() => {
+  const filterFn = useMemo(() => {
     let filterFn = defaultFilter;
     switch (filter) {
       case 'local':
@@ -87,6 +87,10 @@ export const useParticipantIds = (
       default:
         filterFn = filter;
     }
+    return filterFn;
+  }, [filter]);
+
+  const sortFn = useMemo(() => {
     let sortFn: SortParticipantsFunction;
     switch (sort) {
       case 'joined_at':
@@ -114,12 +118,16 @@ export const useParticipantIds = (
         sortFn = sort;
         break;
     }
+    return sortFn;
+  }, [sort]);
+
+  const sortedIds = useMemo(() => {
     return allParticipants
       .filter(filterFn)
       .sort(sortFn)
       .map((p) => p.session_id)
       .filter(Boolean);
-  }, [allParticipants, filter, sort]);
+  }, [allParticipants, filterFn, sortFn]);
 
   useThrottledDailyEvent(
     [
