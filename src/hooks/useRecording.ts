@@ -27,15 +27,15 @@ interface UseRecordingArgs {
 
 interface RecordingState {
   /**
-   * Determines wether an error occurred during the last recording attempt.
+   * Determines whether an error occurred during the last recording attempt.
    */
   error?: boolean;
   /**
-   * Determines wether the local participant is being recorded, based on the recording settings.
+   * Determines whether the local participant is being recorded, based on the recording settings.
    */
   isLocalParticipantRecorded: boolean;
   /**
-   * Determines wether a recording is currently running or not.
+   * Determines whether a recording is currently running or not.
    */
   isRecording: boolean;
   /**
@@ -43,7 +43,7 @@ interface RecordingState {
    */
   layout?: DailyStreamingLayoutConfig;
   /**
-   * Determines wether the recording is running locally.
+   * Determines whether the recording is running locally.
    * See [enable_recording](https://docs.daily.co/reference/rest-api/rooms/config#enable_recording).
    */
   local?: boolean;

@@ -96,7 +96,7 @@ Returns a list of running screen shares and methods to start or stop screen shar
 
 ```tsx
 useScreenShare(): {
-  isScreenSharing: boolean; // Wether the local user is sharing a screen
+  isScreenSharing: boolean; // whether the local user is sharing a screen
   screens: Array<{
     audio: DailyTrackState; // Track state for associated screenAudio
     session_id: string; // Session ID of user
@@ -121,7 +121,7 @@ interface UseRecordingArgs {
   onRecordingUploadCompleted?(ev: DailyEvent): void;
 }
 useRecording(): {
-  isRecording: boolean; // Wether the call is being recorded
+  isRecording: boolean; // whether the call is being recorded
   startRecording(): void; // Accepts same options as daily-js equivalent
   stopRecording(); void;
 }
