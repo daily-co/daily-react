@@ -5,7 +5,7 @@ import DailyIframe, {
   DailyEventObject,
 } from '@daily-co/daily-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, RecoilRootProps } from 'recoil';
 
 import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
@@ -25,12 +25,13 @@ type DailyProperties = Pick<
   | 'videoSource'
 >;
 
-type Props =
+type BaseProps =
   | DailyProperties
   | {
       callObject: DailyCall;
     };
 
+type Props = BaseProps & { recoilRootProps: RecoilRootProps };
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
@@ -144,7 +145,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   );
 
   return (
-    <RecoilRoot>
+    <RecoilRoot {...props.recoilRootProps}>
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
