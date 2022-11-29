@@ -10,6 +10,7 @@ import { atom, selectorFamily, useRecoilCallback } from 'recoil';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
+import { RECOIL_PREFIX } from './lib/constants';
 import type { Paths } from './types/paths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
@@ -29,17 +30,17 @@ type PropertyType = {
  * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
  */
 export const activeIdState = atom<string | null>({
-  key: 'active-id',
+  key: RECOIL_PREFIX + 'active-id',
   default: null,
 });
 
 export const localIdState = atom<string>({
-  key: 'local-id',
+  key: RECOIL_PREFIX + 'local-id',
   default: '',
 });
 
 export const participantsState = atom<ExtendedDailyParticipant[]>({
-  key: 'participants-objects',
+  key: RECOIL_PREFIX + 'participants-objects',
   default: [],
 });
 
@@ -50,7 +51,7 @@ export const participantState = selectorFamily<
   ExtendedDailyParticipant | null,
   string
 >({
-  key: 'participant',
+  key: RECOIL_PREFIX + 'participant',
   get:
     (id) =>
     ({ get }) => {
@@ -63,7 +64,7 @@ export const participantState = selectorFamily<
  * Holds each individual participant's property.
  */
 export const participantPropertyState = selectorFamily<any, PropertyType>({
-  key: 'participant-property',
+  key: RECOIL_PREFIX + 'participant-property',
   get:
     ({ id, properties }) =>
     ({ get }) => {

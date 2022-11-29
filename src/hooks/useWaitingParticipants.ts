@@ -11,6 +11,7 @@ import {
   useRecoilValue,
 } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -21,7 +22,7 @@ interface UseWaitingParticipantsArgs {
 }
 
 const waitingParticipantsState = atom<string[]>({
-  key: 'waiting-participants',
+  key: RECOIL_PREFIX + 'waiting-participants',
   default: [],
 });
 
@@ -29,7 +30,7 @@ export const waitingParticipantState = atomFamily<
   DailyWaitingParticipant,
   string
 >({
-  key: 'waiting-participant',
+  key: RECOIL_PREFIX + 'waiting-participant',
   default: {
     awaitingAccess: {
       level: 'full',
@@ -40,7 +41,7 @@ export const waitingParticipantState = atomFamily<
 });
 
 export const allWaitingParticipantsSelector = selector({
-  key: 'waitingParticipantsSelector',
+  key: RECOIL_PREFIX + 'waitingParticipantsSelector',
   get: ({ get }) => {
     const ids = get(waitingParticipantsState);
     return ids.map((id) => get(waitingParticipantState(id)));

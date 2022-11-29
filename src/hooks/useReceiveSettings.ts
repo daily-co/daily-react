@@ -6,6 +6,7 @@ import {
 import { useCallback } from 'react';
 import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -13,7 +14,7 @@ const participantReceiveSettingsState = atomFamily<
   DailySingleParticipantReceiveSettings,
   string
 >({
-  key: 'participant-receive-settings',
+  key: RECOIL_PREFIX + 'participant-receive-settings',
   default: {},
 });
 
