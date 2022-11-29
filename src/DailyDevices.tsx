@@ -160,7 +160,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           generalMicrophoneState
         );
 
-        const { tracks } = daily.participants().local;
+        const participants = daily.participants();
+        // Guard against potentially uninitialized local participant
+        if (!participants.local) return;
+
+        const { tracks } = participants.local;
 
         const awaitingCamAccess =
           currentCamState === 'pending' && tracks.video.state === 'interrupted';
