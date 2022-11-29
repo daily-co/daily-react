@@ -13,6 +13,7 @@ import {
   useSetRecoilState,
 } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useRoom } from './useRoom';
@@ -65,7 +66,7 @@ interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
 }
 
 const transcriptionState = atom<TranscriptionState>({
-  key: 'transcription',
+  key: RECOIL_PREFIX + 'transcription',
   default: {
     isTranscriptionEnabled: false,
     isTranscribing: false,

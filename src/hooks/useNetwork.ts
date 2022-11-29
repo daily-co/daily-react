@@ -7,6 +7,7 @@ import {
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -16,15 +17,15 @@ interface UseNetworkArgs {
 }
 
 const topologyState = atom<DailyNetworkTopology | 'none'>({
-  key: 'topology',
+  key: RECOIL_PREFIX + 'topology',
   default: 'none',
 });
 const networkQualityState = atom<DailyNetworkStats['quality']>({
-  key: 'networkQuality',
+  key: RECOIL_PREFIX + 'networkQuality',
   default: 100,
 });
 const networkThresholdState = atom<DailyNetworkStats['threshold']>({
-  key: 'networkThreshold',
+  key: RECOIL_PREFIX + 'networkThreshold',
   default: 'good',
 });
 

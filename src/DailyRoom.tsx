@@ -4,9 +4,10 @@ import { atom, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { RECOIL_PREFIX } from './lib/constants';
 
 export const roomState = atom<DailyRoomInfo | null>({
-  key: 'room',
+  key: RECOIL_PREFIX + 'room',
   default: null,
 });
 
