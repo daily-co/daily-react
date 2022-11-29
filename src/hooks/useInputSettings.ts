@@ -6,6 +6,7 @@ import {
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -15,11 +16,11 @@ interface UseInputSettingsArgs {
 }
 
 const inputSettingsState = atom<DailyInputSettings | null>({
-  key: 'input-settings',
+  key: RECOIL_PREFIX + 'input-settings',
   default: null,
 });
 const errorState = atom<string | null>({
-  key: 'input-settings-error',
+  key: RECOIL_PREFIX + 'input-settings-error',
   default: null,
 });
 

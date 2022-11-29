@@ -8,6 +8,7 @@ import {
 import { useCallback } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -24,7 +25,7 @@ interface LiveStreamingState {
 }
 
 const liveStreamingState = atom<LiveStreamingState>({
-  key: 'live-streaming',
+  key: RECOIL_PREFIX + 'live-streaming',
   default: {
     errorMsg: undefined,
     isLiveStreaming: false,

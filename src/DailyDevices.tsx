@@ -9,6 +9,7 @@ import { atom, useRecoilCallback } from 'recoil';
 import { DailyDevicesContext } from './DailyDevicesContext';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { RECOIL_PREFIX } from './lib/constants';
 
 type GeneralState =
   | 'pending'
@@ -30,27 +31,27 @@ export interface StatefulDevice {
 }
 
 export const generalCameraState = atom<GeneralState>({
-  key: 'general-camera-state',
+  key: RECOIL_PREFIX + 'general-camera-state',
   default: 'pending',
 });
 export const generalMicrophoneState = atom<GeneralState>({
-  key: 'general-microphone-state',
+  key: RECOIL_PREFIX + 'general-microphone-state',
   default: 'pending',
 });
 export const cameraDevicesState = atom<StatefulDevice[]>({
-  key: 'camera-devices',
+  key: RECOIL_PREFIX + 'camera-devices',
   default: [],
 });
 export const microphoneDevicesState = atom<StatefulDevice[]>({
-  key: 'microphone-devices',
+  key: RECOIL_PREFIX + 'microphone-devices',
   default: [],
 });
 export const speakerDevicesState = atom<StatefulDevice[]>({
-  key: 'speaker-devices',
+  key: RECOIL_PREFIX + 'speaker-devices',
   default: [],
 });
 export const lastCameraErrorState = atom<DailyCameraErrorObject>({
-  key: 'last-camera-error',
+  key: RECOIL_PREFIX + 'last-camera-error',
   default: null,
 });
 
@@ -160,7 +161,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           generalMicrophoneState
         );
 
-        const { tracks } = daily.participants().local;
+        const participants = daily.participants();
+        // Guard against potentially uninitialized local participant
+        if (!participants.local) return;
+
+        const { tracks } = participants.local;
 
         const awaitingCamAccess =
           currentCamState === 'pending' && tracks.video.state === 'interrupted';

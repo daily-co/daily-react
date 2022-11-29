@@ -13,6 +13,7 @@ import {
   useSetRecoilState,
 } from 'recoil';
 
+import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useLocalSessionId } from './useLocalSessionId';
@@ -68,7 +69,7 @@ interface RecordingState {
 }
 
 const recordingState = atom<RecordingState>({
-  key: 'recording',
+  key: RECOIL_PREFIX + 'recording',
   default: {
     isLocalParticipantRecorded: false,
     isRecording: false,

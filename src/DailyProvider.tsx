@@ -5,7 +5,7 @@ import DailyIframe, {
   DailyEventObject,
 } from '@daily-co/daily-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, RecoilRootProps } from 'recoil';
 
 import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
@@ -25,16 +25,27 @@ type DailyProperties = Pick<
   | 'videoSource'
 >;
 
-type Props =
+type BaseProps =
   | DailyProperties
   | {
       callObject: DailyCall;
     };
 
+type Props = BaseProps & {
+  /**
+   * Allows to override props for [RecoilRoot](https://recoiljs.org/docs/api-reference/core/RecoilRoot/).
+   * In case you use Recoil in your own application, you can pass `override: false` to allow
+   * daily-react to store its state in your application's RecoilRoot.
+   * Default value: {}
+   */
+  recoilRootProps?: Omit<RecoilRootProps, 'children'>;
+};
+
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   children,
+  recoilRootProps = {},
   ...props
 }) => {
   const [callObject, setCallObject] = useState<DailyCall | null>(
@@ -144,7 +155,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   );
 
   return (
-    <RecoilRoot>
+    <RecoilRoot {...recoilRootProps}>
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
