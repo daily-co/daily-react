@@ -40,10 +40,13 @@ export const useAudioLevel = (
       const startProcessing = async () => {
         /**
          * Try to add the module only once.
-         * In case it's not added to the audio context, yet, trying to intialize it will fail.
+         * In case it's not added to the audio context, yet, trying to initialize it will fail.
          * There's only one real reason for `new AudioWorkletNode` to fail and that is
          * when the corresponding module isn't added to the audio context, yet.
          * This makes sure we only add the module once.
+         *
+         * We're inlining the worklet instead of loading it via a URL as not to complicate bundling
+         * this package.
          */
         try {
           node = new AudioWorkletNode(audioContext, 'audiolevel');
