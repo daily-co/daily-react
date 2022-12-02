@@ -1,10 +1,11 @@
-import { DailyEventObject } from '@daily-co/daily-js';
+import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
 import { useActiveParticipant } from '../hooks/useActiveParticipant';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
+import { useParticipantIds } from '../hooks/useParticipantIds';
 import { useScreenShare } from '../hooks/useScreenShare';
 import { useThrottledDailyEvent } from '../hooks/useThrottledDailyEvent';
 import { isTrackOff } from '../utils/isTrackOff';
@@ -34,9 +35,20 @@ export const DailyAudio: React.FC<Props> = memo(
       ignoreLocal: true,
     });
 
+    /**
+     * Only consider remote participants with subscribed or staged audio.
+     */
+    const subscribedIds = useParticipantIds({
+      filter: useCallback(
+        (p: DailyParticipant) => !p.local && Boolean(p.tracks.audio.subscribed),
+        []
+      ),
+    });
+
     const assignSpeaker = useRecoilCallback(
       ({ snapshot }) =>
         async (sessionId: string) => {
+          if (!subscribedIds.includes(sessionId)) return;
           const participants = await snapshot.getPromise(participantsState);
           setSpeakers((prevSpeakers) => {
             // New speaker is already present
@@ -86,7 +98,7 @@ export const DailyAudio: React.FC<Props> = memo(
             return [...prevSpeakers];
           });
         },
-      [activeParticipant?.session_id]
+      [activeParticipant?.session_id, subscribedIds]
     );
 
     /**
