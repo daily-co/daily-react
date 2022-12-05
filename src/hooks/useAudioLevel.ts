@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Returns the audio volume level of a given MediaStream.
- * @param audioTrack The media stream track to be analysed.
+ * Returns the volume level of a given MediaStreamTrack.
+ * @param mediaTrack The MediaStreamTrack to be analysed.
  * @param onVolumeChange The function to execute when the volume changes. Can be used to visualise audio output.
  */
 export const useAudioLevel = (
-  audioTrack: MediaStreamTrack,
+  mediaTrack: MediaStreamTrack,
   onVolumeChange: (volume: number) => void
 ) => {
   const audioCtx = useRef<AudioContext>();
@@ -27,7 +27,7 @@ export const useAudioLevel = (
 
   useEffect(
     function setupStreamAndStartProcessing() {
-      if (!audioTrack) {
+      if (!mediaTrack) {
         onVolumeChange(0);
         return;
       }
@@ -35,7 +35,7 @@ export const useAudioLevel = (
       if (!audioContext) return;
 
       const mediaStreamSource = audioContext.createMediaStreamSource(
-        new MediaStream([audioTrack])
+        new MediaStream([mediaTrack])
       );
       let node: AudioWorkletNode | null;
 
@@ -133,6 +133,6 @@ export const useAudioLevel = (
         mediaStreamSource?.disconnect();
       };
     },
-    [onVolumeChange, audioTrack]
+    [onVolumeChange, mediaTrack]
   );
 };
