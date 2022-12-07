@@ -1,5 +1,5 @@
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
@@ -28,7 +28,9 @@ interface Props {
 
 export const DailyAudio: React.FC<Props> = memo(
   ({ maxSpeakers = 5, onPlayFailed, playLocalScreenAudio = false }) => {
-    const [speakers, setSpeakers] = useState<string[]>([]);
+    const [speakers, setSpeakers] = useState<string[]>(
+      new Array(maxSpeakers).fill('')
+    );
     const { screens } = useScreenShare();
     const localSessionId = useLocalSessionId();
     const activeSpeakerId = useActiveSpeakerId({
@@ -145,14 +147,6 @@ export const DailyAudio: React.FC<Props> = memo(
         },
         [assignSpeaker, localSessionId, removeSpeaker]
       )
-    );
-
-    useEffect(
-      function initSpeakerSlots() {
-        const arr = new Array(maxSpeakers).fill(null);
-        setSpeakers(arr);
-      },
-      [maxSpeakers]
     );
 
     return (
