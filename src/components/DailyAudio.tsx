@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
-import { useActiveParticipant } from '../hooks/useActiveParticipant';
+import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
 import { useScreenShare } from '../hooks/useScreenShare';
@@ -31,7 +31,7 @@ export const DailyAudio: React.FC<Props> = memo(
     const [speakers, setSpeakers] = useState<string[]>([]);
     const { screens } = useScreenShare();
     const localSessionId = useLocalSessionId();
-    const activeParticipant = useActiveParticipant({
+    const activeSpeakerId = useActiveSpeakerId({
       ignoreLocal: true,
     });
 
@@ -76,7 +76,7 @@ export const DailyAudio: React.FC<Props> = memo(
                   // Only consider participants currently assigned to speaker slots
                   prevSpeakers.includes(p.session_id) &&
                   // Don't replace current active participant, to avoid audio drop-outs
-                  p.session_id !== activeParticipant?.session_id
+                  p.session_id !== activeSpeakerId
               )
               .sort((a, b) => {
                 const lastActiveA = a?.last_active ?? new Date('1970-01-01');
@@ -98,7 +98,7 @@ export const DailyAudio: React.FC<Props> = memo(
             return [...prevSpeakers];
           });
         },
-      [activeParticipant?.session_id, subscribedIds]
+      [activeSpeakerId, subscribedIds]
     );
 
     /**
