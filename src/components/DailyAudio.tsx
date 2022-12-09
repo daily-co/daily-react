@@ -87,9 +87,13 @@ export const DailyAudio: React.FC<Props> = memo(
                 if (lastActiveA < lastActiveB) return -1;
                 return 0;
               });
-            // No previous speaker in call anymore. Assign first slot.
+            // No previous speaker in call anymore. Assign first free slot.
             if (!speakerObjects.length) {
-              prevSpeakers[0] = sessionId;
+              // Don't replace the active speaker. Instead find first non-active speaker slot.
+              const replaceIdx = prevSpeakers.findIndex(
+                (id) => id !== activeSpeakerId
+              );
+              prevSpeakers[replaceIdx] = sessionId;
               return [...prevSpeakers];
             }
             // Replace least recent speaker with new speaker
