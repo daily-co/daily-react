@@ -51,16 +51,27 @@ export const DailyAudio: React.FC<Props> = memo(
       ({ snapshot }) =>
         async (sessionId: string) => {
           if (!subscribedIds.includes(sessionId)) return;
-          const participants = await snapshot.getPromise(participantsState);
+
+          // Get subscribed participant list
+          const participants = (
+            await snapshot.getPromise(participantsState)
+          ).filter((p) => subscribedIds.includes(p.session_id));
+
           setSpeakers((prevSpeakers) => {
             // New speaker is already present
             if (prevSpeakers.includes(sessionId)) return prevSpeakers;
-            // Free slot available
-            if (prevSpeakers.some((id) => !id)) {
-              const idx = prevSpeakers.findIndex((id) => !id);
+
+            // Try to find a free slot: either unassigned or unsubscribed
+            const freeSlotCheck = (id: string) =>
+              !id || !subscribedIds.includes(id);
+            if (prevSpeakers.some(freeSlotCheck)) {
+              const idx = prevSpeakers.findIndex(freeSlotCheck);
               prevSpeakers[idx] = sessionId;
               return [...prevSpeakers];
             }
+
+            // From here on we can assume that all assigned audio tracks are subscribed.
+
             // Try to find muted recent speaker
             const mutedIdx = prevSpeakers.findIndex((id) =>
               participants.some(
@@ -71,6 +82,7 @@ export const DailyAudio: React.FC<Props> = memo(
               prevSpeakers[mutedIdx] = sessionId;
               return [...prevSpeakers];
             }
+
             // Find least recent non-active speaker and replace with new speaker
             const speakerObjects = participants
               .filter(
@@ -87,6 +99,7 @@ export const DailyAudio: React.FC<Props> = memo(
                 if (lastActiveA < lastActiveB) return -1;
                 return 0;
               });
+
             // No previous speaker in call anymore. Assign first free slot.
             if (!speakerObjects.length) {
               // Don't replace the active speaker. Instead find first non-active speaker slot.
@@ -96,6 +109,7 @@ export const DailyAudio: React.FC<Props> = memo(
               prevSpeakers[replaceIdx] = sessionId;
               return [...prevSpeakers];
             }
+
             // Replace least recent speaker with new speaker
             const replaceIdx = prevSpeakers.indexOf(
               speakerObjects[0]?.session_id
