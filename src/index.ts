@@ -7,6 +7,7 @@ export { DailyProvider } from './DailyProvider';
 export { useActiveParticipant } from './hooks/useActiveParticipant';
 export { useActiveSpeakerId } from './hooks/useActiveSpeakerId';
 export { useAppMessage } from './hooks/useAppMessage';
+export { useAudioLevel } from './hooks/useAudioLevel';
 export { useAudioTrack } from './hooks/useAudioTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';

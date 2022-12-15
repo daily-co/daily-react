@@ -1,10 +1,11 @@
-import { DailyEventObject } from '@daily-co/daily-js';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import React, { memo, useCallback, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
-import { useActiveParticipant } from '../hooks/useActiveParticipant';
+import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
+import { useParticipantIds } from '../hooks/useParticipantIds';
 import { useScreenShare } from '../hooks/useScreenShare';
 import { useThrottledDailyEvent } from '../hooks/useThrottledDailyEvent';
 import { isTrackOff } from '../utils/isTrackOff';
@@ -27,26 +28,50 @@ interface Props {
 
 export const DailyAudio: React.FC<Props> = memo(
   ({ maxSpeakers = 5, onPlayFailed, playLocalScreenAudio = false }) => {
-    const [speakers, setSpeakers] = useState<string[]>([]);
+    const [speakers, setSpeakers] = useState<string[]>(
+      new Array(maxSpeakers).fill('')
+    );
     const { screens } = useScreenShare();
     const localSessionId = useLocalSessionId();
-    const activeParticipant = useActiveParticipant({
+    const activeSpeakerId = useActiveSpeakerId({
       ignoreLocal: true,
+    });
+
+    /**
+     * Only consider remote participants with subscribed or staged audio.
+     */
+    const subscribedIds = useParticipantIds({
+      filter: useCallback(
+        (p: DailyParticipant) => !p.local && Boolean(p.tracks.audio.subscribed),
+        []
+      ),
     });
 
     const assignSpeaker = useRecoilCallback(
       ({ snapshot }) =>
         async (sessionId: string) => {
-          const participants = await snapshot.getPromise(participantsState);
+          if (!subscribedIds.includes(sessionId)) return;
+
+          // Get subscribed participant list
+          const participants = (
+            await snapshot.getPromise(participantsState)
+          ).filter((p) => subscribedIds.includes(p.session_id));
+
           setSpeakers((prevSpeakers) => {
             // New speaker is already present
             if (prevSpeakers.includes(sessionId)) return prevSpeakers;
-            // Free slot available
-            if (prevSpeakers.some((id) => !id)) {
-              const idx = prevSpeakers.findIndex((id) => !id);
+
+            // Try to find a free slot: either unassigned or unsubscribed
+            const freeSlotCheck = (id: string) =>
+              !id || !subscribedIds.includes(id);
+            if (prevSpeakers.some(freeSlotCheck)) {
+              const idx = prevSpeakers.findIndex(freeSlotCheck);
               prevSpeakers[idx] = sessionId;
               return [...prevSpeakers];
             }
+
+            // From here on we can assume that all assigned audio tracks are subscribed.
+
             // Try to find muted recent speaker
             const mutedIdx = prevSpeakers.findIndex((id) =>
               participants.some(
@@ -57,6 +82,7 @@ export const DailyAudio: React.FC<Props> = memo(
               prevSpeakers[mutedIdx] = sessionId;
               return [...prevSpeakers];
             }
+
             // Find least recent non-active speaker and replace with new speaker
             const speakerObjects = participants
               .filter(
@@ -64,7 +90,7 @@ export const DailyAudio: React.FC<Props> = memo(
                   // Only consider participants currently assigned to speaker slots
                   prevSpeakers.includes(p.session_id) &&
                   // Don't replace current active participant, to avoid audio drop-outs
-                  p.session_id !== activeParticipant?.session_id
+                  p.session_id !== activeSpeakerId
               )
               .sort((a, b) => {
                 const lastActiveA = a?.last_active ?? new Date('1970-01-01');
@@ -73,11 +99,17 @@ export const DailyAudio: React.FC<Props> = memo(
                 if (lastActiveA < lastActiveB) return -1;
                 return 0;
               });
-            // No previous speaker in call anymore. Assign first slot.
+
+            // No previous speaker in call anymore. Assign first free slot.
             if (!speakerObjects.length) {
-              prevSpeakers[0] = sessionId;
+              // Don't replace the active speaker. Instead find first non-active speaker slot.
+              const replaceIdx = prevSpeakers.findIndex(
+                (id) => id !== activeSpeakerId
+              );
+              prevSpeakers[replaceIdx] = sessionId;
               return [...prevSpeakers];
             }
+
             // Replace least recent speaker with new speaker
             const replaceIdx = prevSpeakers.indexOf(
               speakerObjects[0]?.session_id
@@ -86,7 +118,7 @@ export const DailyAudio: React.FC<Props> = memo(
             return [...prevSpeakers];
           });
         },
-      [activeParticipant?.session_id]
+      [activeSpeakerId, subscribedIds]
     );
 
     /**
@@ -133,14 +165,6 @@ export const DailyAudio: React.FC<Props> = memo(
         },
         [assignSpeaker, localSessionId, removeSpeaker]
       )
-    );
-
-    useEffect(
-      function initSpeakerSlots() {
-        const arr = new Array(maxSpeakers).fill(null);
-        setSpeakers(arr);
-      },
-      [maxSpeakers]
     );
 
     return (
