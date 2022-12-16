@@ -1,5 +1,5 @@
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
@@ -167,17 +167,20 @@ export const DailyAudio: React.FC<Props> = memo(
       )
     );
 
-    return (
-      <>
-        {speakers.map((sessionId, idx) => (
-          <DailyAudioTrack
-            key={`speaker-slot-${idx}`}
-            onPlayFailed={onPlayFailed}
-            sessionId={sessionId}
-            type="audio"
-          />
-        ))}
-        {screens
+    const audioTracks = useMemo(() => {
+      return speakers.map((sessionId, idx) => (
+        <DailyAudioTrack
+          key={`speaker-slot-${idx}`}
+          onPlayFailed={onPlayFailed}
+          sessionId={sessionId}
+          type="audio"
+        />
+      ));
+    }, [onPlayFailed, speakers]);
+
+    const screenTracks = useMemo(
+      () =>
+        screens
           .filter((screen) => (playLocalScreenAudio ? true : !screen.local))
           .map((screen) => (
             <DailyAudioTrack
@@ -186,7 +189,14 @@ export const DailyAudio: React.FC<Props> = memo(
               sessionId={screen.session_id}
               type="screenAudio"
             />
-          ))}
+          )),
+      [onPlayFailed, playLocalScreenAudio, screens]
+    );
+
+    return (
+      <>
+        {audioTracks}
+        {screenTracks}
       </>
     );
   }
