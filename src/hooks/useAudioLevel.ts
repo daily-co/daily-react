@@ -12,27 +12,24 @@ export const useAudioLevel = (
 ) => {
   const audioCtx = useRef<AudioContext>();
 
-  useEffect(function setupAudioContext() {
-    const AudioCtx =
-      typeof AudioContext !== 'undefined'
-        ? AudioContext
-        : typeof window.webkitAudioContext !== 'undefined'
-        ? window.webkitAudioContext
-        : null;
-    if (!AudioCtx) return;
-    audioCtx.current = new AudioCtx();
-    return () => {
-      audioCtx.current?.close();
-    };
-  }, []);
-
   useEffect(
     function setupStreamAndStartProcessing() {
-      if (!mediaTrack) {
-        onVolumeChange(0);
-        return;
+      // No mediaTrack. Stop immediately.
+      if (!mediaTrack) return;
+      const AudioCtx =
+        typeof AudioContext !== 'undefined'
+          ? AudioContext
+          : typeof window.webkitAudioContext !== 'undefined'
+          ? window.webkitAudioContext
+          : null;
+      // No AudioContext available in browser. Can't measure audio volume.
+      if (!AudioCtx) return;
+      if (!audioCtx.current) {
+        // No audio context initialized. Initializing now.
+        audioCtx.current = new AudioCtx();
       }
       const audioContext = audioCtx.current;
+      // Audio context could not be initialized. Stopping.
       if (!audioContext) return;
 
       const mediaStreamSource = audioContext.createMediaStreamSource(
