@@ -1,13 +1,8 @@
-import React, {
-  forwardRef,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useMediaTrack } from '../hooks/useMediaTrack';
+import useMergedRef from '../hooks/useMergedRef';
 import { useParticipantProperty } from '../hooks/useParticipantProperty';
 
 interface DailyVideoDimensions {
@@ -68,8 +63,8 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
     const isScreen = type === 'screenVideo';
     const isLocalCam = isLocal && !isScreen;
 
-    const internalRef = useRef<HTMLVideoElement>(null);
-    const videoRef = (ref || internalRef) as RefObject<HTMLVideoElement>;
+    const videoEl = useRef<HTMLVideoElement>(null);
+    const videoRef = useMergedRef<HTMLVideoElement>(videoEl, ref);
 
     const videoState = useMediaTrack(sessionId, type);
     const videoTrack = videoState.persistentTrack;
@@ -105,54 +100,51 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
     /**
      * Handle canplay & picture-in-picture events.
      */
-    useEffect(
-      function setupVideoEvents() {
-        const video = videoRef.current;
-        if (!video) return;
-        const handleCanPlay = () => {
-          if (!video.paused) return;
-          video.play();
-        };
-        const handleEnterPIP = () => {
-          video.style.transform = 'scale(1)';
-        };
-        const handleLeavePIP = () => {
-          video.style.transform = '';
-          setTimeout(() => {
-            if (video.paused) video.play();
-          }, 100);
-        };
-        const handleVisibilityChange = () => {
-          if (document.visibilityState === 'hidden') return;
-          if (!video.paused) return;
-          video.play();
-        };
-        video.addEventListener('canplay', handleCanPlay);
-        video.addEventListener('enterpictureinpicture', handleEnterPIP);
-        video.addEventListener('leavepictureinpicture', handleLeavePIP);
+    useEffect(function setupVideoEvents() {
+      const video = videoEl.current;
+      if (!video) return;
+      const handleCanPlay = () => {
+        if (!video.paused) return;
+        video.play();
+      };
+      const handleEnterPIP = () => {
+        video.style.transform = 'scale(1)';
+      };
+      const handleLeavePIP = () => {
+        video.style.transform = '';
+        setTimeout(() => {
+          if (video.paused) video.play();
+        }, 100);
+      };
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'hidden') return;
+        if (!video.paused) return;
+        video.play();
+      };
+      video.addEventListener('canplay', handleCanPlay);
+      video.addEventListener('enterpictureinpicture', handleEnterPIP);
+      video.addEventListener('leavepictureinpicture', handleLeavePIP);
 
-        // Videos can be paused if media was played in another app on iOS.
-        // Resuming here, when returning back to Daily call.
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => {
-          video.removeEventListener('canplay', handleCanPlay);
-          video.removeEventListener('enterpictureinpicture', handleEnterPIP);
-          video.removeEventListener('leavepictureinpicture', handleLeavePIP);
-          document.removeEventListener(
-            'visibilitychange',
-            handleVisibilityChange
-          );
-        };
-      },
-      [videoRef]
-    );
+      // Videos can be paused if media was played in another app on iOS.
+      // Resuming here, when returning back to Daily call.
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('enterpictureinpicture', handleEnterPIP);
+        video.removeEventListener('leavepictureinpicture', handleLeavePIP);
+        document.removeEventListener(
+          'visibilitychange',
+          handleVisibilityChange
+        );
+      };
+    }, []);
 
     /**
      * Update srcObject.
      */
     useEffect(
       function updateSrcObject() {
-        const video = videoRef.current;
+        const video = videoEl.current;
         if (!video || !videoTrack) return;
         video.srcObject = new MediaStream([videoTrack]);
         video.load();
@@ -162,7 +154,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
           video.load();
         };
       },
-      [videoRef, videoTrack, videoTrack?.id]
+      [videoTrack, videoTrack?.id]
     );
 
     /**
@@ -171,7 +163,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
      */
     useEffect(
       function reportVideoDimensions() {
-        const video = videoRef.current;
+        const video = videoEl.current;
         if (!onResize || !video) return;
 
         let frame: ReturnType<typeof requestAnimationFrame>;
@@ -197,7 +189,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
 
         return () => video?.removeEventListener('resize', handleResize);
       },
-      [onResize, videoRef, videoTrack]
+      [onResize, videoTrack]
     );
 
     return (
