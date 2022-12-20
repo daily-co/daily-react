@@ -34,3 +34,11 @@ export const emitParticipantLeft = (callObject: DailyCall, participant: Partial<
     participant,
   });
 };
+
+export const emitParticipantUpdated = (callObject: DailyCall, participant: Partial<DailyParticipant>) => {
+  // @ts-ignore
+  callObject.emit('participant-updated', {
+    action: 'participant-updated',
+    participant,
+  });
+}
