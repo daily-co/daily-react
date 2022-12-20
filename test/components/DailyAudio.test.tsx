@@ -7,6 +7,12 @@ import React from 'react';
 
 import { DailyAudio } from '../../src/components/DailyAudio';
 import { DailyProvider } from '../../src/DailyProvider';
+import {
+  emitActiveSpeakerChange,
+  emitParticipantLeft,
+  emitStartedCamera,
+  emitTrackStarted,
+} from '../.test-utils/event-emitter';
 
 const localSessionId = faker.datatype.uuid();
 
@@ -22,45 +28,17 @@ const createWrapper =
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
-// Inits DailyParticipants and useParticipantIds
-const emitStartedCamera = (callObject: DailyCall) => {
-  // @ts-ignore
-  callObject.emit('started-camera', {
-    action: 'started-camera',
-  });
-};
-const emitActiveSpeakerChange = (callObject: DailyCall, peerId: string) => {
-  // @ts-ignore
-  callObject.emit('active-speaker-change', {
-    action: 'active-speaker-change',
-    activeSpeaker: {
-      peerId,
-    },
-  });
-};
-const emitTrackStarted = (callObject: DailyCall, peerId: string) => {
-  // @ts-ignore
-  callObject.emit('track-started', {
-    action: 'track-started',
-    participant: {
+const emitAudioTrackStarted = (callObject: DailyCall, peerId: string) =>
+  emitTrackStarted(
+    callObject,
+    {
       local: peerId === localSessionId,
       session_id: peerId,
     },
-    track: {
+    {
       kind: 'audio',
-    },
-  });
-};
-const emitParticipantLeft = (callObject: DailyCall, peerId: string) => {
-  // @ts-ignore
-  callObject.emit('participant-left', {
-    action: 'participant-left',
-    participant: {
-      local: false,
-      session_id: peerId,
-    },
-  });
-};
+    }
+  );
 
 describe('DailyAudio', () => {
   it.each([1, 3, 5])('renders maxSpeakers audio tags (%i)', (maxSpeakers) => {
@@ -193,7 +171,7 @@ describe('DailyAudio', () => {
         </Wrapper>
       );
       act(() => emitStartedCamera(callObject));
-      act(() => emitTrackStarted(callObject, peerId));
+      act(() => emitAudioTrackStarted(callObject, peerId));
       await waitFor(() => {
         expect(
           container.querySelector(
@@ -217,7 +195,7 @@ describe('DailyAudio', () => {
         </Wrapper>
       );
       act(() => emitStartedCamera(callObject));
-      act(() => emitTrackStarted(callObject, localSessionId));
+      act(() => emitAudioTrackStarted(callObject, localSessionId));
       await waitFor(() => {
         expect(
           container.querySelector(
@@ -253,7 +231,7 @@ describe('DailyAudio', () => {
         </Wrapper>
       );
       act(() => emitStartedCamera(callObject));
-      act(() => emitTrackStarted(callObject, peerId));
+      act(() => emitAudioTrackStarted(callObject, peerId));
       await waitFor(() => {
         expect(
           container.querySelector(
@@ -261,7 +239,9 @@ describe('DailyAudio', () => {
           )
         ).not.toBeNull();
       });
-      act(() => emitParticipantLeft(callObject, peerId));
+      act(() =>
+        emitParticipantLeft(callObject, { local: false, session_id: peerId })
+      );
       await waitFor(() => {
         expect(
           container.querySelector(

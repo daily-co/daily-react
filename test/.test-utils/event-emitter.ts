@@ -1,0 +1,36 @@
+import { DailyCall, DailyParticipant } from "@daily-co/daily-js";
+
+
+export const emitStartedCamera = (callObject: DailyCall) => {
+  // @ts-ignore
+  callObject.emit('started-camera', {
+    action: 'started-camera',
+  });
+};
+
+export const emitActiveSpeakerChange = (callObject: DailyCall, peerId: string) => {
+  // @ts-ignore
+  callObject.emit('active-speaker-change', {
+    action: 'active-speaker-change',
+    activeSpeaker: {
+      peerId,
+    },
+  });
+};
+
+export const emitTrackStarted = (callObject: DailyCall, participant: Partial<DailyParticipant>, track: Partial<MediaStreamTrack>) => {
+  // @ts-ignore
+  callObject.emit('track-started', {
+    action: 'track-started',
+    participant,
+    track,
+  });
+};
+
+export const emitParticipantLeft = (callObject: DailyCall, participant: Partial<DailyParticipant>) => {
+  // @ts-ignore
+  callObject.emit('participant-left', {
+    action: 'participant-left',
+    participant,
+  });
+};
