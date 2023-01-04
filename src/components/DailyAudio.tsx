@@ -70,41 +70,45 @@ export const DailyAudio = memo(
       });
 
       const containerRef = useRef<HTMLDivElement>(null);
-      useImperativeHandle(ref, () => ({
-        getActiveSpeakerAudio: () => {
-          return (
-            containerRef.current?.querySelector(
-              `audio[data-session-id="${activeSpeakerId}"][data-audio-type="audio"]`
-            ) ?? null
-          );
-        },
-        getAllAudio: () => {
-          return Array.from(
-            containerRef.current?.querySelectorAll('audio') ?? []
-          );
-        },
-        getAudioBySessionId: (id) => {
-          return (
-            containerRef.current?.querySelector(
-              `audio[data-session-id="${id}"][data-audio-type="audio"]`
-            ) ?? null
-          );
-        },
-        getScreenAudio: () => {
-          return Array.from(
-            containerRef.current?.querySelectorAll(
-              'audio[data-audio-type="screenAudio"]'
-            ) ?? []
-          );
-        },
-        getScreenAudioBySessionId: (id) => {
-          return (
-            containerRef.current?.querySelector(
-              `audio[data-session-id="${id}"][data-audio-type="screenAudio"]`
-            ) ?? null
-          );
-        },
-      }));
+      useImperativeHandle(
+        ref,
+        () => ({
+          getActiveSpeakerAudio: () => {
+            return (
+              containerRef.current?.querySelector(
+                `audio[data-session-id="${activeSpeakerId}"][data-audio-type="audio"]`
+              ) ?? null
+            );
+          },
+          getAllAudio: () => {
+            return Array.from(
+              containerRef.current?.querySelectorAll('audio') ?? []
+            );
+          },
+          getAudioBySessionId: (id) => {
+            return (
+              containerRef.current?.querySelector(
+                `audio[data-session-id="${id}"][data-audio-type="audio"]`
+              ) ?? null
+            );
+          },
+          getScreenAudio: () => {
+            return Array.from(
+              containerRef.current?.querySelectorAll(
+                'audio[data-audio-type="screenAudio"]'
+              ) ?? []
+            );
+          },
+          getScreenAudioBySessionId: (id) => {
+            return (
+              containerRef.current?.querySelector(
+                `audio[data-session-id="${id}"][data-audio-type="screenAudio"]`
+              ) ?? null
+            );
+          },
+        }),
+        [activeSpeakerId]
+      );
 
       /**
        * Only consider remote participants with subscribed or staged audio.
