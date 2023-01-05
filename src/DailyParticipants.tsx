@@ -178,6 +178,13 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                         : p
                     )
                   );
+                  if (ev.participant.local) {
+                    set(localIdState, (prevId) =>
+                      prevId !== ev.participant.session_id
+                        ? ev.participant.session_id
+                        : prevId
+                    );
+                  }
                   break;
                 case 'participant-left':
                   set(participantsState, (prev) =>
