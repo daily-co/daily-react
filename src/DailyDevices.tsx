@@ -12,6 +12,7 @@ import { useDailyEvent } from './hooks/useDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
 
 type GeneralState =
+  | 'idle'
   | 'pending'
   | 'not-supported'
   | 'granted'
@@ -32,11 +33,11 @@ export interface StatefulDevice {
 
 export const generalCameraState = atom<GeneralState>({
   key: RECOIL_PREFIX + 'general-camera-state',
-  default: 'pending',
+  default: 'idle',
 });
 export const generalMicrophoneState = atom<GeneralState>({
   key: RECOIL_PREFIX + 'general-microphone-state',
-  default: 'pending',
+  default: 'idle',
 });
 export const cameraDevicesState = atom<StatefulDevice[]>({
   key: RECOIL_PREFIX + 'camera-devices',
@@ -152,14 +153,9 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
    * Updates general and specific device states, based on blocked status.
    */
   const updateDeviceStates = useRecoilCallback(
-    ({ set, snapshot, transact_UNSTABLE }) =>
+    ({ set, transact_UNSTABLE }) =>
       async () => {
         if (!daily) return;
-
-        const currentCamState = await snapshot.getPromise(generalCameraState);
-        const currentMicState = await snapshot.getPromise(
-          generalMicrophoneState
-        );
 
         const participants = daily.participants();
         // Guard against potentially uninitialized local participant
@@ -168,9 +164,13 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
         const { tracks } = participants.local;
 
         const awaitingCamAccess =
-          currentCamState === 'pending' && tracks.video.state === 'interrupted';
+          tracks.video.state === 'interrupted' && !tracks.video.persistentTrack;
+        const initialCamOff =
+          !tracks.video.persistentTrack && Boolean(tracks.video.off?.byUser);
         const awaitingMicAccess =
-          currentMicState === 'pending' && tracks.audio.state === 'interrupted';
+          tracks.audio.state === 'interrupted' && !tracks.audio.persistentTrack;
+        const initialMicOff =
+          !tracks.audio.persistentTrack && Boolean(tracks.audio.off?.byUser);
 
         if (tracks.audio?.blocked?.byDeviceInUse) {
           transact_UNSTABLE(({ set }) => {
@@ -185,7 +185,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           set(generalMicrophoneState, 'not-found');
         } else if (tracks.audio?.blocked?.byPermissions) {
           set(generalMicrophoneState, 'blocked');
-        } else if (!awaitingMicAccess) {
+        } else if (awaitingMicAccess) {
+          set(generalMicrophoneState, 'pending');
+        } else if (initialMicOff) {
+          set(generalMicrophoneState, 'idle');
+        } else {
           transact_UNSTABLE(({ set }) => {
             set(generalMicrophoneState, 'granted');
             set(microphoneDevicesState, (mics) =>
@@ -209,7 +213,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           set(generalCameraState, 'not-found');
         } else if (tracks.video?.blocked?.byPermissions) {
           set(generalCameraState, 'blocked');
-        } else if (!awaitingCamAccess) {
+        } else if (awaitingCamAccess) {
+          set(generalCameraState, 'pending');
+        } else if (initialCamOff) {
+          set(generalCameraState, 'idle');
+        } else {
           transact_UNSTABLE(({ set }) => {
             set(generalCameraState, 'granted');
             set(cameraDevicesState, (cams) =>
