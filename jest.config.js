@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest/presets/js-with-babel',
   setupFilesAfterEnv: [
-    '@testing-library/jest-dom/extend-expect',
+    "<rootDir>/jest-setup.ts"
   ],
   moduleNameMapper: {
     "^react$": '<rootDir>/../../node_modules/react'
