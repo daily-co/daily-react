@@ -153,9 +153,14 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
    * Updates general and specific device states, based on blocked status.
    */
   const updateDeviceStates = useRecoilCallback(
-    ({ set, transact_UNSTABLE }) =>
+    ({ set, snapshot, transact_UNSTABLE }) =>
       async () => {
         if (!daily) return;
+
+        const currentCamState = await snapshot.getPromise(generalCameraState);
+        const currentMicState = await snapshot.getPromise(
+          generalMicrophoneState
+        );
 
         const participants = daily.participants();
         // Guard against potentially uninitialized local participant
@@ -164,11 +169,15 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
         const { tracks } = participants.local;
 
         const awaitingCamAccess =
-          tracks.video.state === 'interrupted' && !tracks.video.persistentTrack;
+          ['idle', 'pending'].includes(currentCamState) &&
+          tracks.video.state === 'interrupted' &&
+          !tracks.video.persistentTrack;
         const initialCamOff =
           !tracks.video.persistentTrack && Boolean(tracks.video.off?.byUser);
         const awaitingMicAccess =
-          tracks.audio.state === 'interrupted' && !tracks.audio.persistentTrack;
+          ['idle', 'pending'].includes(currentMicState) &&
+          tracks.audio.state === 'interrupted' &&
+          !tracks.audio.persistentTrack;
         const initialMicOff =
           !tracks.audio.persistentTrack && Boolean(tracks.audio.off?.byUser);
 
