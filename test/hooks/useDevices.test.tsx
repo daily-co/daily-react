@@ -37,11 +37,11 @@ describe('useDevices', () => {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
-      expect(result.current.camState).toBe('pending');
+      expect(result.current.camState).toBe('idle');
       expect(result.current.cameras).toEqual([]);
       expect(result.current.hasCamError).toBe(false);
       expect(result.current.hasMicError).toBe(false);
-      expect(result.current.micState).toBe('pending');
+      expect(result.current.micState).toBe('idle');
       expect(result.current.microphones).toEqual([]);
       expect(typeof result.current.refreshDevices).toBe('function');
       expect(typeof result.current.setCamera).toBe('function');
@@ -492,8 +492,8 @@ describe('useDevices', () => {
           daily.emit('participant-updated', payload);
         });
         await waitFor(() => {
-          expect(result.current.camState).toBe('pending');
-          expect(result.current.micState).toBe('pending');
+          expect(result.current.camState).toBe('idle');
+          expect(result.current.micState).toBe('idle');
         });
       });
       it('local updates state (granted)', async () => {
