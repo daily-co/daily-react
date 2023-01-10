@@ -1,4 +1,5 @@
 /// <reference types="@types/jest" />
+/// <reference types="@testing-library/jest-dom" />
 
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 import { act, render, waitFor } from '@testing-library/react';
