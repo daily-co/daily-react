@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useMediaTrack } from '../hooks/useMediaTrack';
@@ -167,30 +161,40 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
      * Add optional event listener for resize event so the parent component
      * can know the video's native aspect ratio.
      */
-    const handleVideoResolutionChange = useCallback(
-      (e: Event) => {
-        if (document.hidden) return;
-        const { videoWidth, videoHeight } = e.target as HTMLVideoElement;
-        if (videoWidth && videoHeight) {
-          onResize?.({
-            aspectRatio: videoWidth / videoHeight,
-            width: videoWidth,
-            height: videoHeight,
+    useEffect(
+      function reportVideoDimensions() {
+        const video = videoEl.current;
+        if (!onResize || !video) return;
+
+        let frame: ReturnType<typeof requestAnimationFrame>;
+        function handleResize() {
+          if (frame) cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(() => {
+            const video = videoEl.current;
+            if (!video || document.hidden) return;
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
+            if (videoWidth && videoHeight) {
+              onResize({
+                aspectRatio: videoWidth / videoHeight,
+                height: videoHeight,
+                width: videoWidth,
+              });
+            }
           });
         }
+
+        handleResize();
+        video.addEventListener('loadedmetadata', handleResize);
+        video.addEventListener('resize', handleResize);
+
+        return () => {
+          if (frame) cancelAnimationFrame(frame);
+          video.removeEventListener('loadedmetadata', handleResize);
+          video.removeEventListener('resize', handleResize);
+        };
       },
       [onResize]
-    );
-
-    const resizeHandlers = useMemo(
-      () =>
-        onResize
-          ? {
-              onLoadedMetadata: handleVideoResolutionChange,
-              onResize: handleVideoResolutionChange,
-            }
-          : {},
-      [onResize, handleVideoResolutionChange]
     );
 
     return (
@@ -212,7 +216,6 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
           ...style,
           ...(isPlayable ? playableStyle : {}),
         }}
-        {...resizeHandlers}
         {...props}
       />
     );
