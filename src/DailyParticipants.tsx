@@ -140,9 +140,10 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
             | 'participant-joined'
             | 'participant-updated'
             | 'participant-left'
+            | 'left-meeting'
           >[]
         ) => {
-          transact_UNSTABLE(({ set }) => {
+          transact_UNSTABLE(({ reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change': {
@@ -193,24 +194,16 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                     )
                   );
                   break;
+                /**
+                 * Reset stored participants, when meeting has ended.
+                 */
+                case 'left-meeting':
+                  reset(localIdState);
+                  reset(participantsState);
+                  break;
               }
             });
           });
-        },
-      []
-    )
-  );
-
-  /**
-   * Reset stored participants, when meeting has ended.
-   */
-  useDailyEvent(
-    'left-meeting',
-    useRecoilCallback(
-      ({ reset }) =>
-        () => {
-          reset(localIdState);
-          reset(participantsState);
         },
       []
     )
