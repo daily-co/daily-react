@@ -173,13 +173,17 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           tracks.video.state === 'interrupted' &&
           !tracks.video.persistentTrack;
         const initialCamOff =
-          !tracks.video.persistentTrack && Boolean(tracks.video.off?.byUser);
+          ['idle', 'pending'].includes(currentCamState) &&
+          !tracks.video.persistentTrack &&
+          Boolean(tracks.video.off?.byUser);
         const awaitingMicAccess =
           ['idle', 'pending'].includes(currentMicState) &&
           tracks.audio.state === 'interrupted' &&
           !tracks.audio.persistentTrack;
         const initialMicOff =
-          !tracks.audio.persistentTrack && Boolean(tracks.audio.off?.byUser);
+          ['idle', 'pending'].includes(currentMicState) &&
+          !tracks.audio.persistentTrack &&
+          Boolean(tracks.audio.off?.byUser);
 
         if (tracks.audio?.blocked?.byDeviceInUse) {
           transact_UNSTABLE(({ set }) => {
