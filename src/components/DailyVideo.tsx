@@ -167,29 +167,34 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
         if (!onResize || !video) return;
 
         let frame: ReturnType<typeof requestAnimationFrame>;
-        const handleResize = () => {
-          if (!video) return;
+        function handleResize() {
           if (frame) cancelAnimationFrame(frame);
           frame = requestAnimationFrame(() => {
-            if (document.hidden) return;
-            const videoWidth = video?.videoWidth;
-            const videoHeight = video?.videoHeight;
+            const video = videoEl.current;
+            if (!video || document.hidden) return;
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
             if (videoWidth && videoHeight) {
-              onResize({
+              onResize?.({
                 aspectRatio: videoWidth / videoHeight,
                 height: videoHeight,
                 width: videoWidth,
               });
             }
           });
-        };
+        }
 
         handleResize();
-        video?.addEventListener('resize', handleResize);
+        video.addEventListener('loadedmetadata', handleResize);
+        video.addEventListener('resize', handleResize);
 
-        return () => video?.removeEventListener('resize', handleResize);
+        return () => {
+          if (frame) cancelAnimationFrame(frame);
+          video.removeEventListener('loadedmetadata', handleResize);
+          video.removeEventListener('resize', handleResize);
+        };
       },
-      [onResize, videoTrack]
+      [onResize]
     );
 
     return (
