@@ -7,11 +7,16 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useLocalSessionId } from '../../src/hooks/useLocalSessionId';
 
-/**
- * Mock DailyRoom.
- * It's not required for useLocalSessionId and causes unwanted state updates.
- */
+jest.mock('../../src/DailyDevices', () => ({
+  ...jest.requireActual('../../src/DailyDevices'),
+  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyRecordings', () => ({
+  ...jest.requireActual('../../src/DailyRecordings'),
+  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+}));
 jest.mock('../../src/DailyRoom', () => ({
+  ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
 

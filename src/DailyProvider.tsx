@@ -11,6 +11,7 @@ import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyParticipants } from './DailyParticipants';
+import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
 
 type DailyProperties = Pick<
@@ -160,7 +161,9 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
             <DailyParticipants>
-              <DailyDevices>{children}</DailyDevices>
+              <DailyRecordings>
+                <DailyDevices>{children}</DailyDevices>
+              </DailyRecordings>
             </DailyParticipants>
           </DailyRoom>
         </DailyEventContext.Provider>
