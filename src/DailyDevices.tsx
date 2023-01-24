@@ -12,6 +12,7 @@ import { useDailyEvent } from './hooks/useDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
 
 type GeneralState =
+  | 'idle'
   | 'pending'
   | 'not-supported'
   | 'granted'
@@ -32,11 +33,11 @@ export interface StatefulDevice {
 
 export const generalCameraState = atom<GeneralState>({
   key: RECOIL_PREFIX + 'general-camera-state',
-  default: 'pending',
+  default: 'idle',
 });
 export const generalMicrophoneState = atom<GeneralState>({
   key: RECOIL_PREFIX + 'general-microphone-state',
-  default: 'pending',
+  default: 'idle',
 });
 export const cameraDevicesState = atom<StatefulDevice[]>({
   key: RECOIL_PREFIX + 'camera-devices',
@@ -168,9 +169,21 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
         const { tracks } = participants.local;
 
         const awaitingCamAccess =
-          currentCamState === 'pending' && tracks.video.state === 'interrupted';
+          ['idle', 'pending'].includes(currentCamState) &&
+          tracks.video.state === 'interrupted' &&
+          !tracks.video.persistentTrack;
+        const initialCamOff =
+          ['idle', 'pending'].includes(currentCamState) &&
+          !tracks.video.persistentTrack &&
+          Boolean(tracks.video.off?.byUser);
         const awaitingMicAccess =
-          currentMicState === 'pending' && tracks.audio.state === 'interrupted';
+          ['idle', 'pending'].includes(currentMicState) &&
+          tracks.audio.state === 'interrupted' &&
+          !tracks.audio.persistentTrack;
+        const initialMicOff =
+          ['idle', 'pending'].includes(currentMicState) &&
+          !tracks.audio.persistentTrack &&
+          Boolean(tracks.audio.off?.byUser);
 
         if (tracks.audio?.blocked?.byDeviceInUse) {
           transact_UNSTABLE(({ set }) => {
@@ -185,7 +198,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           set(generalMicrophoneState, 'not-found');
         } else if (tracks.audio?.blocked?.byPermissions) {
           set(generalMicrophoneState, 'blocked');
-        } else if (!awaitingMicAccess) {
+        } else if (awaitingMicAccess) {
+          set(generalMicrophoneState, 'pending');
+        } else if (initialMicOff) {
+          set(generalMicrophoneState, 'idle');
+        } else {
           transact_UNSTABLE(({ set }) => {
             set(generalMicrophoneState, 'granted');
             set(microphoneDevicesState, (mics) =>
@@ -209,7 +226,11 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           set(generalCameraState, 'not-found');
         } else if (tracks.video?.blocked?.byPermissions) {
           set(generalCameraState, 'blocked');
-        } else if (!awaitingCamAccess) {
+        } else if (awaitingCamAccess) {
+          set(generalCameraState, 'pending');
+        } else if (initialCamOff) {
+          set(generalCameraState, 'idle');
+        } else {
           transact_UNSTABLE(({ set }) => {
             set(generalCameraState, 'granted');
             set(cameraDevicesState, (cams) =>

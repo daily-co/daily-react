@@ -42,3 +42,11 @@ export const emitParticipantUpdated = (callObject: DailyCall, participant: Parti
     participant,
   });
 }
+
+export const emitParticipantJoined = (callObject: DailyCall, participant: Partial<DailyParticipant>) => {
+  // @ts-ignore
+  callObject.emit('participant-joined', {
+    action: 'participant-joined',
+    participant,
+  });
+}
