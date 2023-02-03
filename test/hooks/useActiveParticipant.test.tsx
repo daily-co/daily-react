@@ -11,6 +11,10 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useActiveParticipant } from '../../src/hooks/useActiveParticipant';
 
+jest.mock('../../src/DailyLiveStreaming', () => ({
+  ...jest.requireActual('../../src/DailyLiveStreaming'),
+  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+}));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
   DailyRecordings: (({ children }) => <>{children}</>) as React.FC,

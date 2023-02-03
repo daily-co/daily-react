@@ -14,6 +14,10 @@ jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
   DailyDevices: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyLiveStreaming', () => ({
+  ...jest.requireActual('../../src/DailyLiveStreaming'),
+  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+}));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
   DailyParticipants: (({ children }) => <>{children}</>) as React.FC,

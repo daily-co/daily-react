@@ -10,6 +10,7 @@ import { RecoilRoot, RecoilRootProps } from 'recoil';
 import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
+import { DailyLiveStreaming } from './DailyLiveStreaming';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
@@ -162,7 +163,9 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
           <DailyRoom>
             <DailyParticipants>
               <DailyRecordings>
-                <DailyDevices>{children}</DailyDevices>
+                <DailyLiveStreaming>
+                  <DailyDevices>{children}</DailyDevices>
+                </DailyLiveStreaming>
               </DailyRecordings>
             </DailyParticipants>
           </DailyRoom>
