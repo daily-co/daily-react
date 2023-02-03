@@ -15,11 +15,17 @@ import { StatefulDevice } from '../../src/DailyDevices';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useDevices } from '../../src/hooks/useDevices';
 
-jest.mock('../../src/DailyRoom', () => ({
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
-}));
 jest.mock('../../src/DailyParticipants', () => ({
+  ...jest.requireActual('../../src/DailyParticipants'),
   DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyRecordings', () => ({
+  ...jest.requireActual('../../src/DailyRecordings'),
+  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyRoom', () => ({
+  ...jest.requireActual('../../src/DailyRoom'),
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =
