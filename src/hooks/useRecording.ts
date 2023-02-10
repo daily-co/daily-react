@@ -1,9 +1,8 @@
 import {
+  DailyCall,
   DailyEventObjectNoPayload,
   DailyEventObjectRecordingData,
   DailyEventObjectRecordingStarted,
-  DailyStreamingLayoutConfig,
-  DailyStreamingOptions,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -69,9 +68,9 @@ export const useRecording = ({
    * Starts the recording with the given optional options.
    */
   const startRecording = useCallback(
-    (options?: DailyStreamingOptions) => {
+    (...args: Parameters<DailyCall['startRecording']>) => {
       if (!daily) return;
-      daily.startRecording(options);
+      daily.startRecording(...args);
     },
     [daily]
   );
@@ -79,18 +78,21 @@ export const useRecording = ({
   /**
    * Stops a recording.
    */
-  const stopRecording = useCallback(() => {
-    if (!daily) return;
-    daily.stopRecording();
-  }, [daily]);
+  const stopRecording = useCallback(
+    (...args: Parameters<DailyCall['stopRecording']>) => {
+      if (!daily) return;
+      daily.stopRecording(...args);
+    },
+    [daily]
+  );
 
   /**
    * Updates a running recording's layout configuration.
    */
   const updateRecording = useCallback(
-    (options: { layout?: DailyStreamingLayoutConfig | undefined }) => {
+    (...args: Parameters<DailyCall['updateRecording']>) => {
       if (!daily) return;
-      daily.updateRecording(options);
+      daily.updateRecording(...args);
     },
     [daily]
   );

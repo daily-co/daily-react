@@ -1,4 +1,5 @@
 import {
+  DailyCall,
   DailyEventObject,
   DailyEventObjectAppMessage,
   DailyEventObjectTranscriptionStarted,
@@ -171,9 +172,9 @@ export const useTranscription = ({
    * Starts the transcription with the given optional options.
    */
   const startTranscription = useCallback(
-    (options?: DailyTranscriptionDeepgramOptions) => {
+    (...args: Parameters<DailyCall['startTranscription']>) => {
       if (!daily) return;
-      daily.startTranscription(options);
+      daily.startTranscription(...args);
     },
     [daily]
   );
@@ -181,10 +182,13 @@ export const useTranscription = ({
   /**
    * Stops a transcription.
    */
-  const stopTranscription = useCallback(() => {
-    if (!daily) return;
-    daily.stopTranscription();
-  }, [daily]);
+  const stopTranscription = useCallback(
+    (...args: Parameters<DailyCall['stopTranscription']>) => {
+      if (!daily) return;
+      daily.stopTranscription(...args);
+    },
+    [daily]
+  );
 
   return {
     ...state,

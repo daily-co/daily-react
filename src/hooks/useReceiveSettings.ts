@@ -1,6 +1,6 @@
 import {
+  DailyCall,
   DailyEventObjectReceiveSettingsUpdated,
-  DailyReceiveSettings,
   DailySingleParticipantReceiveSettings,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
@@ -58,11 +58,11 @@ export const useReceiveSettings = ({
   );
 
   const updateReceiveSettings = useCallback(
-    (receiveSettings: DailyReceiveSettings) => {
+    (...args: Parameters<DailyCall['updateReceiveSettings']>) => {
       if (!(daily && daily.meetingState() === 'joined-meeting')) {
         return;
       }
-      daily?.updateReceiveSettings?.(receiveSettings);
+      daily?.updateReceiveSettings?.(...args);
     },
     [daily]
   );

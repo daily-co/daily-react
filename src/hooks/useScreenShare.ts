@@ -1,4 +1,4 @@
-import { DailyScreenCaptureOptions, DailyTrackState } from '@daily-co/daily-js';
+import { DailyCall, DailyTrackState } from '@daily-co/daily-js';
 import { useCallback, useMemo } from 'react';
 
 import { useDaily } from './useDaily';
@@ -28,15 +28,18 @@ export const useScreenShare = ({
   const daily = useDaily();
 
   const startScreenShare = useCallback(
-    (captureOptions?: DailyScreenCaptureOptions) => {
-      daily?.startScreenShare(captureOptions);
+    (...args: Parameters<DailyCall['startScreenShare']>) => {
+      daily?.startScreenShare(...args);
     },
     [daily]
   );
 
-  const stopScreenShare = useCallback(() => {
-    daily?.stopScreenShare();
-  }, [daily]);
+  const stopScreenShare = useCallback(
+    (...args: Parameters<DailyCall['stopScreenShare']>) => {
+      daily?.stopScreenShare(...args);
+    },
+    [daily]
+  );
 
   useDailyEvent(
     'local-screen-share-started',

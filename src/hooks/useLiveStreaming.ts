@@ -1,9 +1,8 @@
 import {
+  DailyCall,
   DailyEventObjectLiveStreamingError,
   DailyEventObjectLiveStreamingStarted,
   DailyEventObjectLiveStreamingStopped,
-  DailyLiveStreamingOptions,
-  DailyStreamingLayoutConfig,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -63,24 +62,25 @@ export const useLiveStreaming = ({
   );
 
   const startLiveStreaming = useCallback(
-    (options: DailyLiveStreamingOptions) => {
+    (...args: Parameters<DailyCall['startLiveStreaming']>) => {
       if (!daily) return;
-      daily.startLiveStreaming(options);
+      daily.startLiveStreaming(...args);
     },
     [daily]
   );
 
-  const stopLiveStreaming = useCallback(() => {
-    if (!daily) return;
-    daily.stopLiveStreaming();
-  }, [daily]);
+  const stopLiveStreaming = useCallback(
+    (...args: Parameters<DailyCall['stopLiveStreaming']>) => {
+      if (!daily) return;
+      daily.stopLiveStreaming(...args);
+    },
+    [daily]
+  );
 
   const updateLiveStreaming = useCallback(
-    ({ layout }: { layout: DailyStreamingLayoutConfig | undefined }) => {
+    (...args: Parameters<DailyCall['updateLiveStreaming']>) => {
       if (!daily) return;
-      daily.updateLiveStreaming({
-        layout,
-      });
+      daily.updateLiveStreaming(...args);
     },
     [daily]
   );
