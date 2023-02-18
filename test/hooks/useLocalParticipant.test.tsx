@@ -8,15 +8,21 @@ import { DailyProvider } from '../../src/DailyProvider';
 import { useLocalParticipant } from '../../src/hooks/useLocalParticipant';
 import * as useParticipantModule from '../../src/hooks/useParticipant';
 
-/**
- * Mock DailyRoom.
- * It's not required for useLocalParticipant and causes unwanted state updates.
- */
-jest.mock('../../src/DailyRoom', () => ({
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
-}));
 jest.mock('../../src/DailyDevices', () => ({
+  ...jest.requireActual('../../src/DailyDevices'),
   DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyLiveStreaming', () => ({
+  ...jest.requireActual('../../src/DailyLiveStreaming'),
+  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyRecordings', () => ({
+  ...jest.requireActual('../../src/DailyRecordings'),
+  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyRoom', () => ({
+  ...jest.requireActual('../../src/DailyRoom'),
+  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =

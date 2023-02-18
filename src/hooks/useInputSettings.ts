@@ -1,4 +1,5 @@
 import {
+  DailyCall,
   DailyEventObjectInputSettingsUpdated,
   DailyEventObjectNonFatalError,
   DailyInputSettings,
@@ -79,8 +80,8 @@ export const useInputSettings = ({
    * Calls daily.updateInputSettings internally.
    */
   const updateInputSettings = useCallback(
-    (inputSettings: DailyInputSettings) => {
-      daily?.updateInputSettings(inputSettings);
+    (...args: Parameters<DailyCall['updateInputSettings']>) => {
+      daily?.updateInputSettings(...args);
     },
     [daily]
   );
