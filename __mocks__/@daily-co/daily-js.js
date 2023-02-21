@@ -36,6 +36,7 @@ const createCallObject = (properties) => {
     getNetworkTopology: jest.fn(),
     getReceiveSettings: jest.fn(),
     iframe: jest.fn(),
+    isDestroyed: jest.fn(() => undefined),
     join: jest.fn(),
     leave: jest.fn(),
     load: jest.fn(),
