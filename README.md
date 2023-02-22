@@ -18,10 +18,10 @@ function App({ roomUrl }) {
 }
 ```
 
-Then in your application you can access Daily React:
+All of your Daily code will be wrapped in this `<DailyProvider>` component. For example, one frequently used hook in the library is `useParticipant`, useful for rendering the video of a specific participant, or to return helpful properties about the participant and their media tracks: 
 
 ```jsx
-import { useParticipant, useParticipantIds } from '@daily-co/daily-react';
+import { useParticipant } from '@daily-co/daily-react';
 
 function ParticipantRow({ id }) {
   const participant = useParticipant(id);
@@ -34,7 +34,12 @@ function ParticipantRow({ id }) {
     </li>
   )
 }
+```
 
+If you don't need those additional fields, you can also use the simpler `useParticipantIds` hook to render any components that require just a participant ID. The `useParticipantIds` hook is also filterable and sortable to create multiple lists of call participants as needed. For example, by default the list will contain the local user *and* remote participants, but you could instead limit the list to only remote participants:
+
+
+```jsx
 function Participants() {
   const participantIds = useParticipantIds({
     filter: 'remote',
@@ -49,7 +54,86 @@ function Participants() {
 }
 ```
 
-Learn more about Daily React by reading our docs at https://docs.daily.co/reference/daily-react.
+## Rendering a single participant's video
+Rendering a single participant's video is very easy with the `<DailyVideo>` component, which only requires a participant ID:
+
+
+```jsx
+import { useParticipant } from '@daily-co/daily-react';
+
+function VideoTile({ id }) {
+  const participant = useParticipant(id);
+
+  return (
+    <DailyVideo key={id} sessionId={id} />
+  )
+}
+```
+
+## Rendering videos for many participants
+Rendering a single video tile is fine, but in the majority of video calls, you'll want to render a video tile for *every* participant. This is accomplished by using the `useParticipantIds` hook in conjunction with the `<DailyVideo>` component like seen above.
+
+```jsx
+import { DailyVideo, useParticipant, useParticipantIds } from '@daily-co/daily-react';
+
+function VideoGrid() {
+  const participantIds = useParticipantIds();
+
+  return (
+    <ul>
+      {participantIds.map((id) => 
+        <DailyVideo key={id} sessionId={id} />
+      )}
+    </ul>
+  )
+}
+```
+
+## Playing call audio
+Instead of managing every participant's tracks individually, `daily-react` makes it easy to get all the audio you need with just one line:
+
+```jsx
+import { DailyAudio } from '@daily-co/daily-react';
+
+function Call() {
+  return (
+    <DailyAudio />
+  )
+}
+```
+
+## Enable screenshare, recording, and transcription
+```jsx
+import { useScreenShare, useRecording, useTranscription } from '@daily-co/daily-react';
+
+function Call() {
+  const share = useScreenShare();
+  const recording = useRecording();
+  const transcription = useTranscription();
+
+  return (
+    <button onClick={() => share.startScreenShare()}>Start screenshare</button>
+    <button onClick={() => recording.startRecording()}>Start recording</button>
+    <button onClick={() => transcription.startTranscription()}>Start transcription</button>
+  )
+}
+```
+
+Each of these features is very flexible, accepting many different configuration options. Be sure to check out the [screenshare](https://docs.daily.co/reference/daily-react/use-screen-share), [recording](https://docs.daily.co/reference/daily-react/use-recording), and [transcription](https://docs.daily.co/reference/daily-react/use-transcription) hook docs for a complete overview.
+
+## Handling Daily events
+```jsx
+import { DailyAudio } from '@daily-co/daily-react';
+
+function Call() {
+  return (
+    <DailyAudio />
+  )
+}
+```
+
+## Learn more
+Check out https://docs.daily.co/reference/daily-react for the full `daily-react` documentation, or https://docs.daily.co/reference/daily-react#available-hooks for the full list of Daily hooks.
 
 ## Installation
 
