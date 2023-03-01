@@ -1,3 +1,4 @@
+cc @Regaddi
 # Test suite name
 
 ## what do they test?
@@ -24,7 +25,7 @@ unit or integration
 [] rtmp / media server
 [] cron
 
-### how to specify what envirnment to use for each service
+### how to specify what environment to use for each service
 
 pass in env var, change code somehwere (may be similar to 'how to run')
 can only certain services be changed (always use staging cron, etc)
