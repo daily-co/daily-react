@@ -40,7 +40,7 @@ interface Props extends React.VideoHTMLAttributes<HTMLVideoElement> {
   /**
    * Defines the track type being used.
    */
-  type: 'video' | 'screenVideo';
+  type: 'video' | 'screenVideo' | 'rmpVideo';
 }
 
 export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
@@ -75,10 +75,8 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
      * - remote cam feed that is subscribed and reported as playable
      */
     const isPlayable = isLocalCam || isScreen || !videoState.isOff;
-    const subscribedState = useParticipantProperty(
-      sessionId,
-      `tracks.${type}.subscribed`
-    );
+    const trackState = useParticipantProperty(sessionId, `tracks.${type}`);
+    const subscribedState = trackState?.subscribed;
 
     /**
      * Determine if video needs to be mirrored.

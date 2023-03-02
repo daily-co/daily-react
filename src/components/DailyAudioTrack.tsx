@@ -17,7 +17,7 @@ interface Props extends React.AudioHTMLAttributes<HTMLAudioElement> {
    */
   onPlayFailed?(e: DailyAudioPlayException): void;
   sessionId: string;
-  type?: 'audio' | 'screenAudio';
+  type?: 'audio' | 'screenAudio' | 'rmpAudio';
 }
 
 export const DailyAudioTrack = memo(

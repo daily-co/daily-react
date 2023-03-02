@@ -10,7 +10,10 @@ import React, {
 } from 'react';
 import { useRecoilCallback } from 'recoil';
 
-import { participantsState } from '../DailyParticipants';
+import {
+  ExtendedDailyParticipant,
+  participantsState,
+} from '../DailyParticipants';
 import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
@@ -46,11 +49,19 @@ export interface DailyAudioHandle {
   /**
    * Returns all rendered audio elements for screenAudio tracks.
    */
+  getRmpAudio(): HTMLAudioElement[];
+  /**
+   * Returns all rendered audio elements for screenAudio tracks.
+   */
   getScreenAudio(): HTMLAudioElement[];
   /**
    * Returns the audio track for the given sessionId.
    */
   getAudioBySessionId(sessionId: string): HTMLAudioElement | null;
+  /**
+   * Returns the screenAudio track for the given sessionId.
+   */
+  getRmpAudioBySessionId(sessionId: string): HTMLAudioElement | null;
   /**
    * Returns the screenAudio track for the given sessionId.
    */
@@ -92,11 +103,25 @@ export const DailyAudio = memo(
               ) ?? null
             );
           },
+          getRmpAudio: () => {
+            return Array.from(
+              containerRef.current?.querySelectorAll(
+                'audio[data-audio-type="rmpAudio"]'
+              ) ?? []
+            );
+          },
           getScreenAudio: () => {
             return Array.from(
               containerRef.current?.querySelectorAll(
                 'audio[data-audio-type="screenAudio"]'
               ) ?? []
+            );
+          },
+          getRmpAudioBySessionId: (id) => {
+            return (
+              containerRef.current?.querySelector(
+                `audio[data-session-id="${id}"][data-audio-type="rmpAudio"]`
+              ) ?? null
             );
           },
           getScreenAudioBySessionId: (id) => {
@@ -267,10 +292,30 @@ export const DailyAudio = memo(
         [onPlayFailed, playLocalScreenAudio, screens]
       );
 
+      const rmpAudioIds = useParticipantIds({
+        filter: useCallback(
+          (p: ExtendedDailyParticipant) => Boolean(p?.tracks?.rmpAudio),
+          []
+        ),
+      });
+      const rmpAudioTracks = useMemo(
+        () =>
+          rmpAudioIds.map((id) => (
+            <DailyAudioTrack
+              key={`${id}-rmp`}
+              onPlayFailed={onPlayFailed}
+              sessionId={id}
+              type="rmpAudio"
+            />
+          )),
+        [onPlayFailed, rmpAudioIds]
+      );
+
       return (
         <div ref={containerRef}>
           {audioTracks}
           {screenTracks}
+          {rmpAudioTracks}
         </div>
       );
     }
