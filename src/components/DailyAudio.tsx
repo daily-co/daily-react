@@ -47,7 +47,7 @@ export interface DailyAudioHandle {
    */
   getActiveSpeakerAudio(): HTMLAudioElement | null;
   /**
-   * Returns all rendered audio elements for screenAudio tracks.
+   * Returns all rendered audio elements for rmpAudio tracks.
    */
   getRmpAudio(): HTMLAudioElement[];
   /**
@@ -59,7 +59,7 @@ export interface DailyAudioHandle {
    */
   getAudioBySessionId(sessionId: string): HTMLAudioElement | null;
   /**
-   * Returns the screenAudio track for the given sessionId.
+   * Returns the rmpAudio track for the given sessionId.
    */
   getRmpAudioBySessionId(sessionId: string): HTMLAudioElement | null;
   /**
