@@ -34,7 +34,7 @@ const createCallObject = (properties) => {
     getMeetingSession: jest.fn(),
     getNetworkStats: jest.fn(),
     getNetworkTopology: jest.fn(),
-    getReceiveSettings: jest.fn(),
+    getReceiveSettings: jest.fn(async () => {}),
     iframe: jest.fn(),
     isDestroyed: jest.fn(() => undefined),
     join: jest.fn(),
