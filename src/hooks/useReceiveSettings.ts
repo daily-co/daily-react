@@ -1,9 +1,10 @@
 import {
   DailyCall,
   DailyEventObjectReceiveSettingsUpdated,
+  DailyReceiveSettings,
   DailySingleParticipantReceiveSettings,
 } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
@@ -37,25 +38,35 @@ export const useReceiveSettings = ({
   const receiveSettings = useRecoilValue(participantReceiveSettingsState(id));
   const daily = useDaily();
 
+  const updateReceiveSettingsState = useRecoilCallback(
+    ({ transact_UNSTABLE }) =>
+      (receiveSettings: DailyReceiveSettings) => {
+        transact_UNSTABLE(({ reset, set }) => {
+          const { ...ids } = receiveSettings;
+          for (let [id, settings] of Object.entries(ids)) {
+            set(participantReceiveSettingsState(id), settings);
+          }
+          if (!(id in ids)) {
+            reset(participantReceiveSettingsState(id));
+          }
+        });
+      },
+    [id]
+  );
   useDailyEvent(
     'receive-settings-updated',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        (ev: DailyEventObjectReceiveSettingsUpdated) => {
-          transact_UNSTABLE(({ reset, set }) => {
-            const { ...ids } = ev.receiveSettings;
-            for (let [id, settings] of Object.entries(ids)) {
-              set(participantReceiveSettingsState(id), settings);
-            }
-            if (!(id in ids)) {
-              reset(participantReceiveSettingsState(id));
-            }
-          });
-          onReceiveSettingsUpdated?.(ev);
-        },
-      [id, onReceiveSettingsUpdated]
+    useCallback(
+      (ev: DailyEventObjectReceiveSettingsUpdated) => {
+        updateReceiveSettingsState(ev.receiveSettings);
+        onReceiveSettingsUpdated?.(ev);
+      },
+      [onReceiveSettingsUpdated, updateReceiveSettingsState]
     )
   );
+  useEffect(() => {
+    if (!daily || daily.isDestroyed()) return;
+    daily.getReceiveSettings().then(updateReceiveSettingsState);
+  }, [daily, updateReceiveSettingsState]);
 
   const updateReceiveSettings = useCallback(
     (...args: Parameters<DailyCall['updateReceiveSettings']>) => {

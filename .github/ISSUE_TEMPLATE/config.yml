@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Daily Support
+    url: https://www.daily.co/company/contact/support/
+    about: Please only file issues in this repository related to Daily React as a library. For any other questions, feedback, or feature requests, please get in touch with our support team.

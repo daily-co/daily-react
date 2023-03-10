@@ -100,9 +100,10 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
     (daily: DailyCall) => {
       if (!daily) return;
       (Object.keys(eventsMap.current) as DailyEvent[]).forEach((event) => {
-        daily
-          .off(event as DailyEvent, handleEvent)
-          .on(event as DailyEvent, handleEvent);
+        daily.off(event as DailyEvent, handleEvent);
+        if (!daily.isDestroyed()) {
+          daily.on(event as DailyEvent, handleEvent);
+        }
       });
     },
     [handleEvent]
@@ -132,7 +133,10 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
            * Make sure only 1 event listener is registered at anytime for handleEvent.
            * Otherwise events sent from daily-js might be handled multiple times.
            */
-          callObject.off(ev, handleEvent).on(ev, handleEvent);
+          callObject.off(ev, handleEvent);
+          if (!callObject.isDestroyed()) {
+            callObject.on(ev, handleEvent);
+          }
         }
       }
       if (!eventsMap.current[ev]?.has(key)) {
