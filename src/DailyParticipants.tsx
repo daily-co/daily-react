@@ -172,6 +172,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   useThrottledDailyEvent(
     [
       'active-speaker-change',
+      'left-meeting',
       'participant-joined',
       'participant-updated',
       'participant-left',

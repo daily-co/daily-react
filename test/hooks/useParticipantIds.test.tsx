@@ -3,6 +3,7 @@
 import DailyIframe, {
   DailyCall,
   DailyEvent,
+  DailyEventObject,
   DailyEventObjectActiveSpeakerChange,
   DailyEventObjectParticipant,
   DailyEventObjectParticipantLeft,
@@ -544,6 +545,45 @@ describe('useParticipantIds', () => {
     await waitFor(() => {
       expect(result.current).toEqual(['local']);
       expect(onParticipantLeft).toBeCalledWith(payload);
+    });
+  });
+  it('left-meeting removes all ids', async () => {
+    const daily = DailyIframe.createCallObject();
+    (daily.participants as jest.Mock).mockImplementation(() => ({
+      local: {
+        local: true,
+        session_id: 'local',
+        user_name: 'Gamma',
+      },
+      a: {
+        local: false,
+        session_id: 'a',
+        user_name: 'Alpha',
+      },
+    }));
+    const { result, waitFor } = renderHook(() => useParticipantIds(), {
+      wrapper: createWrapper(daily),
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual(['local', 'a']);
+    });
+    const event: DailyEvent = 'left-meeting';
+    const payload: DailyEventObject<'left-meeting'> = {
+      action: event,
+    };
+    (daily.participants as jest.Mock).mockImplementation(() => ({
+      local: {
+        local: true,
+        session_id: 'local',
+        user_name: 'Gamma',
+      },
+    }));
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual([]);
     });
   });
 });
