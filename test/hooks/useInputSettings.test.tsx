@@ -63,6 +63,9 @@ describe('useInputSettings', () => {
           },
         },
       },
+      audio: {
+        processor: { type: 'none' },
+      },
     };
     const onInputSettingsUpdated = jest.fn();
     const { result, waitFor } = renderHook(
