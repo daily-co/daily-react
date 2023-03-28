@@ -1,5 +1,6 @@
 import {
   DailyCameraErrorObject,
+  DailyCameraErrorType,
   DailyEventObjectCameraError,
   DailyEventObjectParticipant,
 } from '@daily-co/daily-js';
@@ -51,10 +52,11 @@ export const speakerDevicesState = atom<StatefulDevice[]>({
   key: RECOIL_PREFIX + 'speaker-devices',
   default: [],
 });
-export const lastCameraErrorState = atom<DailyCameraErrorObject>({
-  key: RECOIL_PREFIX + 'last-camera-error',
-  default: null,
-});
+export const lastCameraErrorState =
+  atom<DailyCameraErrorObject<DailyCameraErrorType> | null>({
+    key: RECOIL_PREFIX + 'last-camera-error',
+    default: null,
+  });
 
 export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
   children,

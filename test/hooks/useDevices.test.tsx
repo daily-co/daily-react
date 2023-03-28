@@ -260,6 +260,7 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
+            msg: '',
             type: 'cam-in-use',
           },
         };
@@ -284,6 +285,7 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
+            msg: '',
             type: 'mic-in-use',
           },
         };
@@ -308,6 +310,7 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
+            msg: '',
             type: 'cam-mic-in-use',
           },
         };
@@ -335,6 +338,7 @@ describe('useDevices', () => {
           },
           error: {
             missingMedia: ['audio', 'video'],
+            msg: '',
             type: 'not-found',
           },
         };
@@ -361,8 +365,10 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
-            type: 'permissions',
+            blockedBy: 'user',
             blockedMedia: ['audio', 'video'],
+            msg: '',
+            type: 'permissions',
           },
         };
         act(() => {
@@ -388,8 +394,9 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
-            type: 'constraints',
+            msg: '',
             reason: 'invalid',
+            type: 'constraints',
           },
         };
         act(() => {
@@ -415,8 +422,9 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
-            type: 'constraints',
+            msg: '',
             reason: 'none-specified',
+            type: 'constraints',
           },
         };
         act(() => {
@@ -442,6 +450,7 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
+            msg: '',
             type: 'undefined-mediadevices',
           },
         };
@@ -468,6 +477,7 @@ describe('useDevices', () => {
             errorMsg: '',
           },
           error: {
+            msg: '',
             type: 'unknown',
           },
         };
