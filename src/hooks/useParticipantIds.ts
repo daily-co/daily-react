@@ -9,6 +9,7 @@ import { useCallback, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { participantsState } from '../DailyParticipants';
+import { isTrackOff } from '../utils/isTrackOff';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type FilterParticipantsFunction = (
@@ -82,7 +83,9 @@ export const useParticipantIds = (
         filterFn = (p) => !p.local;
         break;
       case 'screen':
-        filterFn = (p) => p.screen;
+        filterFn = (p) =>
+          !isTrackOff(p.tracks.screenAudio) ||
+          !isTrackOff(p.tracks.screenVideo);
         break;
       default:
         filterFn = filter;
