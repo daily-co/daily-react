@@ -164,7 +164,7 @@ describe('useRecording', () => {
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
-    const options: DailyStreamingOptions = {
+    const options: DailyStreamingOptions<'recording', 'start'> = {
       layout: {
         preset: 'default',
       },
