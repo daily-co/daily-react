@@ -14,6 +14,7 @@ import {
   emitStartedCamera,
   emitTrackStarted,
 } from '../.test-utils/event-emitter';
+import { mockParticipant } from '../.test-utils/mocks';
 
 const localSessionId = faker.datatype.uuid();
 
@@ -64,20 +65,17 @@ describe('DailyAudio', () => {
     it('assigns subscribed speaker to first free slot', async () => {
       const callObject = DailyIframe.createCallObject();
       const peerId = faker.datatype.uuid();
+      const peer = mockParticipant({
+        local: false,
+        session_id: peerId,
+      });
+      peer.tracks.audio.subscribed = true;
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
-        [peerId]: {
-          local: false,
-          session_id: peerId,
-          tracks: {
-            audio: {
-              subscribed: true,
-            },
-          },
-        },
+        }),
+        [peerId]: peer,
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -94,20 +92,17 @@ describe('DailyAudio', () => {
     it('ignores unsubscribed speaker', async () => {
       const callObject = DailyIframe.createCallObject();
       const peerId = faker.datatype.uuid();
+      const peer = mockParticipant({
+        local: false,
+        session_id: peerId,
+      });
+      peer.tracks.audio.subscribed = false;
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
-        [peerId]: {
-          local: false,
-          session_id: peerId,
-          tracks: {
-            audio: {
-              subscribed: false,
-            },
-          },
-        },
+        }),
+        [peerId]: peer,
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -124,10 +119,10 @@ describe('DailyAudio', () => {
     it('ignores local participant', async () => {
       const callObject = DailyIframe.createCallObject();
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
+        }),
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -146,20 +141,17 @@ describe('DailyAudio', () => {
     it('assigns subscribed participant to first free slot', async () => {
       const callObject = DailyIframe.createCallObject();
       const peerId = faker.datatype.uuid();
+      const peer = mockParticipant({
+        local: false,
+        session_id: peerId,
+      });
+      peer.tracks.audio.subscribed = true;
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
-        [peerId]: {
-          local: false,
-          session_id: peerId,
-          tracks: {
-            audio: {
-              subscribed: true,
-            },
-          },
-        },
+        }),
+        [peerId]: peer,
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -176,10 +168,10 @@ describe('DailyAudio', () => {
     it('ignores local participant', async () => {
       const callObject = DailyIframe.createCallObject();
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
+        }),
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -198,20 +190,17 @@ describe('DailyAudio', () => {
     it('unassigns audio', async () => {
       const callObject = DailyIframe.createCallObject();
       const peerId = faker.datatype.uuid();
+      const peer = mockParticipant({
+        local: false,
+        session_id: peerId,
+      });
+      peer.tracks.audio.subscribed = true;
       (callObject.participants as jest.Mock).mockImplementation(() => ({
-        local: {
+        local: mockParticipant({
           local: true,
           session_id: localSessionId,
-        },
-        [peerId]: {
-          local: false,
-          session_id: peerId,
-          tracks: {
-            audio: {
-              subscribed: true,
-            },
-          },
-        },
+        }),
+        [peerId]: peer,
       }));
       const Wrapper = createWrapper(callObject);
       const { container } = render(
@@ -249,23 +238,19 @@ describe('DailyAudio', () => {
       ];
       (callObject.participants as jest.Mock).mockImplementation(() => {
         const participants: Record<string, Partial<DailyParticipant>> = {
-          local: {
+          local: mockParticipant({
             local: true,
             session_id: localSessionId,
-          },
+          }),
         };
         remoteParticipants.forEach((id) => {
-          participants[id] = {
+          const peer = mockParticipant({
             local: false,
             session_id: id,
-            // @ts-ignore
-            tracks: {
-              audio: {
-                state: 'playable',
-                subscribed: true,
-              },
-            },
-          };
+          });
+          peer.tracks.audio.state = 'playable';
+          peer.tracks.audio.subscribed = true;
+          participants[id] = peer;
         });
         return participants;
       });
@@ -285,19 +270,15 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
         expect(queryAudioById(remoteParticipants[1], container)).not.toBeNull();
       });
-      act(() =>
-        emitParticipantUpdated(callObject, {
+      act(() => {
+        const peer = mockParticipant({
           local: false,
           session_id: remoteParticipants[1],
-          // @ts-ignore
-          tracks: {
-            audio: {
-              state: 'sendable',
-              subscribed: false,
-            },
-          },
-        })
-      );
+        });
+        peer.tracks.audio.state = 'sendable';
+        peer.tracks.audio.subscribed = false;
+        emitParticipantUpdated(callObject, peer);
+      });
       act(() => emitActiveSpeakerChange(callObject, remoteParticipants[2]));
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
@@ -321,23 +302,19 @@ describe('DailyAudio', () => {
       ];
       (callObject.participants as jest.Mock).mockImplementation(() => {
         const participants: Record<string, Partial<DailyParticipant>> = {
-          local: {
+          local: mockParticipant({
             local: true,
             session_id: localSessionId,
-          },
+          }),
         };
         remoteParticipants.forEach((id) => {
-          participants[id] = {
+          const peer = mockParticipant({
             local: false,
             session_id: id,
-            // @ts-ignore
-            tracks: {
-              audio: {
-                state: 'playable',
-                subscribed: true,
-              },
-            },
-          };
+          });
+          peer.tracks.audio.state = 'playable';
+          peer.tracks.audio.subscribed = true;
+          participants[id] = peer;
         });
         return participants;
       });
@@ -357,19 +334,15 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
         expect(queryAudioById(remoteParticipants[1], container)).not.toBeNull();
       });
-      act(() =>
-        emitParticipantUpdated(callObject, {
+      act(() => {
+        const peer = mockParticipant({
           local: false,
           session_id: remoteParticipants[1],
-          // @ts-ignore
-          tracks: {
-            audio: {
-              state: 'off',
-              subscribed: true,
-            },
-          },
-        })
-      );
+        });
+        peer.tracks.audio.state = 'off';
+        peer.tracks.audio.subscribed = true;
+        emitParticipantUpdated(callObject, peer);
+      });
       act(() => emitActiveSpeakerChange(callObject, remoteParticipants[2]));
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
@@ -394,23 +367,19 @@ describe('DailyAudio', () => {
       ];
       (callObject.participants as jest.Mock).mockImplementation(() => {
         const participants: Record<string, Partial<DailyParticipant>> = {
-          local: {
+          local: mockParticipant({
             local: true,
             session_id: localSessionId,
-          },
+          }),
         };
         remoteParticipants.forEach((id) => {
-          participants[id] = {
+          const peer = mockParticipant({
             local: false,
             session_id: id,
-            // @ts-ignore
-            tracks: {
-              audio: {
-                state: 'playable',
-                subscribed: true,
-              },
-            },
-          };
+          });
+          peer.tracks.audio.state = 'playable';
+          peer.tracks.audio.subscribed = true;
+          participants[id] = peer;
         });
         return participants;
       });
