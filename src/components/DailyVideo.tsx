@@ -103,9 +103,26 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
     useEffect(function setupVideoEvents() {
       const video = videoEl.current;
       if (!video) return;
+
+      const playVideo = () => {
+        const promise = video.play();
+        if (promise !== undefined) {
+          promise
+            .then(() => {
+              // All good, playback started.
+              video.controls = false;
+            })
+            .catch((error) => {
+              // Auto-play was prevented. Show video controls, so user can play video manually.
+              video.controls = true;
+              console.warn('Failed to play video', error);
+            });
+        }
+      };
+
       const handleCanPlay = () => {
         if (!video.paused) return;
-        video.play();
+        playVideo();
       };
       const handleEnterPIP = () => {
         video.style.transform = 'scale(1)';
@@ -113,13 +130,13 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
       const handleLeavePIP = () => {
         video.style.transform = '';
         setTimeout(() => {
-          if (video.paused) video.play();
+          if (video.paused) playVideo();
         }, 100);
       };
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'hidden') return;
         if (!video.paused) return;
-        video.play();
+        playVideo();
       };
       video.addEventListener('canplay', handleCanPlay);
       video.addEventListener('enterpictureinpicture', handleEnterPIP);
