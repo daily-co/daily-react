@@ -4,7 +4,6 @@ import React, {
   memo,
   useCallback,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -266,20 +265,24 @@ export const DailyAudio = memo(
         )
       );
 
-      const audioTracks = useMemo(() => {
-        return speakers.map((sessionId, idx) => (
-          <DailyAudioTrack
-            key={`speaker-slot-${idx}`}
-            onPlayFailed={onPlayFailed}
-            sessionId={sessionId}
-            type="audio"
-          />
-        ));
-      }, [onPlayFailed, speakers]);
+      const rmpAudioIds = useParticipantIds({
+        filter: useCallback(
+          (p: ExtendedDailyParticipant) => Boolean(p?.tracks?.rmpAudio),
+          []
+        ),
+      });
 
-      const screenTracks = useMemo(
-        () =>
-          screens
+      return (
+        <div ref={containerRef}>
+          {speakers.map((sessionId, idx) => (
+            <DailyAudioTrack
+              key={`speaker-slot-${idx}`}
+              onPlayFailed={onPlayFailed}
+              sessionId={sessionId}
+              type="audio"
+            />
+          ))}
+          {screens
             .filter((screen) => (playLocalScreenAudio ? true : !screen.local))
             .map((screen) => (
               <DailyAudioTrack
@@ -288,34 +291,15 @@ export const DailyAudio = memo(
                 sessionId={screen.session_id}
                 type="screenAudio"
               />
-            )),
-        [onPlayFailed, playLocalScreenAudio, screens]
-      );
-
-      const rmpAudioIds = useParticipantIds({
-        filter: useCallback(
-          (p: ExtendedDailyParticipant) => Boolean(p?.tracks?.rmpAudio),
-          []
-        ),
-      });
-      const rmpAudioTracks = useMemo(
-        () =>
-          rmpAudioIds.map((id) => (
+            ))}
+          {rmpAudioIds.map((id) => (
             <DailyAudioTrack
               key={`${id}-rmp`}
               onPlayFailed={onPlayFailed}
               sessionId={id}
               type="rmpAudio"
             />
-          )),
-        [onPlayFailed, rmpAudioIds]
-      );
-
-      return (
-        <div ref={containerRef}>
-          {audioTracks}
-          {screenTracks}
-          {rmpAudioTracks}
+          ))}
         </div>
       );
     }
