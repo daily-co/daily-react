@@ -1,32 +1,38 @@
-cc @Regaddi
-# Test suite name
+# Daily React Jest tests
 
 ## what do they test?
 
-the service, api, platform... is it a smoke test?  what code does it cover?
+These tests cover the functionality of the components and hooks provided by Daily React.
 
 ## when do they run?
 
-(github ci, on PR, merge, manually kicked off...)
+- Automatically on GitHub CI when working on a PR with the `daily-react` label and changes inside the `daily-react` directory
+- Manually when run locally
 
 ## how to run
 
-CLI commands (from what directory, with needed env vars / setup)
-trigger in github CI with ...(PR, workflow_dispatch) - workflow yml filename
+```bash
+cd north-star
+# Runs all tests
+yarn workspace @daily-co/daily-react test
+# Opens jest in watch mode
+yarn workspace @daily-co/daily-react test --watch
+```
 
 ### type of test
 
-unit or integration
+Component/Unit tests.
 
 ### relies on daily infrastructure
-[] webapp (express server)
-[] database
-[] sfu
-[] rtmp / media server
-[] cron
+
+[ ] webapp (express server)
+[ ] database
+[ ] sfu
+[ ] rtmp / media server
+[ ] cron
+
+No running infrastructure required. All tests run against a mocked version of daily-js.
 
 ### how to specify what environment to use for each service
 
-pass in env var, change code somehwere (may be similar to 'how to run')
-can only certain services be changed (always use staging cron, etc)
-is this only run against staging, etc
+No environment information needed for these tests.
