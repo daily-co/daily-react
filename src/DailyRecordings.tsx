@@ -76,7 +76,7 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
   useEffect(() => {
     const hasRecordingParticipants = recordingParticipantIds.length > 0;
     const isLocalParticipantRecording = recordingParticipantIds.includes(
-      localSessionId ?? 'local'
+      localSessionId || 'local'
     );
     setState((s) => ({
       ...s,
