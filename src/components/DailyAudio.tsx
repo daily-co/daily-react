@@ -4,13 +4,15 @@ import React, {
   memo,
   useCallback,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useRecoilCallback } from 'recoil';
 
-import { participantsState } from '../DailyParticipants';
+import {
+  ExtendedDailyParticipant,
+  participantsState,
+} from '../DailyParticipants';
 import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
@@ -44,6 +46,10 @@ export interface DailyAudioHandle {
    */
   getActiveSpeakerAudio(): HTMLAudioElement | null;
   /**
+   * Returns all rendered audio elements for rmpAudio tracks.
+   */
+  getRmpAudio(): HTMLAudioElement[];
+  /**
    * Returns all rendered audio elements for screenAudio tracks.
    */
   getScreenAudio(): HTMLAudioElement[];
@@ -51,6 +57,10 @@ export interface DailyAudioHandle {
    * Returns the audio track for the given sessionId.
    */
   getAudioBySessionId(sessionId: string): HTMLAudioElement | null;
+  /**
+   * Returns the rmpAudio track for the given sessionId.
+   */
+  getRmpAudioBySessionId(sessionId: string): HTMLAudioElement | null;
   /**
    * Returns the screenAudio track for the given sessionId.
    */
@@ -92,11 +102,25 @@ export const DailyAudio = memo(
               ) ?? null
             );
           },
+          getRmpAudio: () => {
+            return Array.from(
+              containerRef.current?.querySelectorAll(
+                'audio[data-audio-type="rmpAudio"]'
+              ) ?? []
+            );
+          },
           getScreenAudio: () => {
             return Array.from(
               containerRef.current?.querySelectorAll(
                 'audio[data-audio-type="screenAudio"]'
               ) ?? []
+            );
+          },
+          getRmpAudioBySessionId: (id) => {
+            return (
+              containerRef.current?.querySelector(
+                `audio[data-session-id="${id}"][data-audio-type="rmpAudio"]`
+              ) ?? null
             );
           },
           getScreenAudioBySessionId: (id) => {
@@ -241,20 +265,24 @@ export const DailyAudio = memo(
         )
       );
 
-      const audioTracks = useMemo(() => {
-        return speakers.map((sessionId, idx) => (
-          <DailyAudioTrack
-            key={`speaker-slot-${idx}`}
-            onPlayFailed={onPlayFailed}
-            sessionId={sessionId}
-            type="audio"
-          />
-        ));
-      }, [onPlayFailed, speakers]);
+      const rmpAudioIds = useParticipantIds({
+        filter: useCallback(
+          (p: ExtendedDailyParticipant) => Boolean(p?.tracks?.rmpAudio),
+          []
+        ),
+      });
 
-      const screenTracks = useMemo(
-        () =>
-          screens
+      return (
+        <div ref={containerRef}>
+          {speakers.map((sessionId, idx) => (
+            <DailyAudioTrack
+              key={`speaker-slot-${idx}`}
+              onPlayFailed={onPlayFailed}
+              sessionId={sessionId}
+              type="audio"
+            />
+          ))}
+          {screens
             .filter((screen) => (playLocalScreenAudio ? true : !screen.local))
             .map((screen) => (
               <DailyAudioTrack
@@ -263,14 +291,15 @@ export const DailyAudio = memo(
                 sessionId={screen.session_id}
                 type="screenAudio"
               />
-            )),
-        [onPlayFailed, playLocalScreenAudio, screens]
-      );
-
-      return (
-        <div ref={containerRef}>
-          {audioTracks}
-          {screenTracks}
+            ))}
+          {rmpAudioIds.map((id) => (
+            <DailyAudioTrack
+              key={`${id}-rmp`}
+              onPlayFailed={onPlayFailed}
+              sessionId={id}
+              type="rmpAudio"
+            />
+          ))}
         </div>
       );
     }

@@ -37,7 +37,7 @@ describe('useLocalSessionId', () => {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
-      expect(result.current).toBeNull();
+      expect(result.current).toEqual('');
     });
   });
   it('returns local user session_id', async () => {

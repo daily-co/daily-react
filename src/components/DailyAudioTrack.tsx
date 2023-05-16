@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useRef } from 'react';
 
 import { useMediaTrack } from '../hooks/useMediaTrack';
 import useMergedRef from '../hooks/useMergedRef';
@@ -17,7 +17,7 @@ interface Props extends React.AudioHTMLAttributes<HTMLAudioElement> {
    */
   onPlayFailed?(e: DailyAudioPlayException): void;
   sessionId: string;
-  type?: 'audio' | 'screenAudio';
+  type?: 'audio' | 'screenAudio' | 'rmpAudio';
 }
 
 export const DailyAudioTrack = memo(
@@ -61,18 +61,15 @@ export const DailyAudioTrack = memo(
         };
       }, [audio?.persistentTrack, onPlayFailed, sessionId, type]);
 
-      return useMemo(
-        () => (
-          <audio
-            autoPlay
-            playsInline
-            ref={audioRef}
-            {...props}
-            data-session-id={sessionId}
-            data-audio-type={type}
-          />
-        ),
-        [audioRef, props, sessionId, type]
+      return (
+        <audio
+          autoPlay
+          playsInline
+          ref={audioRef}
+          {...props}
+          data-session-id={sessionId}
+          data-audio-type={type}
+        />
       );
     }
   )
