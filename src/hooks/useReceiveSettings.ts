@@ -10,6 +10,7 @@ import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useMeetingState } from './useMeetingState';
 
 const participantReceiveSettingsState = atomFamily<
   DailySingleParticipantReceiveSettings,
@@ -37,6 +38,7 @@ export const useReceiveSettings = ({
   const baseSettings = useRecoilValue(participantReceiveSettingsState('base'));
   const receiveSettings = useRecoilValue(participantReceiveSettingsState(id));
   const daily = useDaily();
+  const meetingState = useMeetingState();
 
   const updateReceiveSettingsState = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
@@ -70,12 +72,12 @@ export const useReceiveSettings = ({
 
   const updateReceiveSettings = useCallback(
     (...args: Parameters<DailyCall['updateReceiveSettings']>) => {
-      if (!(daily && daily.meetingState() === 'joined-meeting')) {
+      if (!(daily && meetingState === 'joined-meeting')) {
         return;
       }
       daily?.updateReceiveSettings?.(...args);
     },
-    [daily]
+    [daily, meetingState]
   );
 
   return {

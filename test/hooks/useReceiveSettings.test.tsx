@@ -11,6 +11,7 @@ import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
+import * as useMeetingStateModule from '../../src/hooks/useMeetingState';
 import { useReceiveSettings } from '../../src/hooks/useReceiveSettings';
 
 jest.mock('../../src/DailyDevices', () => ({
@@ -33,6 +34,10 @@ jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyMeeting', () => ({
+  ...jest.requireActual('../../src/DailyMeeting'),
+  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
+}));
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
@@ -40,6 +45,9 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useReceiveSettings', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('returns base settings and updateReceiveSettings', async () => {
     const daily = DailyIframe.createCallObject();
     const { result } = renderHook(() => useReceiveSettings(), {
@@ -178,9 +186,10 @@ describe('useReceiveSettings', () => {
   });
   it('updateReceiveSettings calls daily.updateReceiveSettings, when meeting state is joined-meeting', async () => {
     const daily = DailyIframe.createCallObject();
-    (daily.meetingState as jest.Mock).mockImplementation(
-      () => 'joined-meeting'
-    );
+    jest
+      .spyOn(useMeetingStateModule, 'useMeetingState')
+      .mockReturnValue('joined-meeting');
+
     const { result, waitFor } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
