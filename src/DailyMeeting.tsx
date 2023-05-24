@@ -6,9 +6,9 @@ import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
 
-export const meetingStateState = atom<DailyMeetingState | null>({
+export const meetingStateState = atom<DailyMeetingState>({
   key: RECOIL_PREFIX + 'meeting-state',
-  default: null, // is this the right default?
+  default: 'new',
 });
 
 export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
@@ -20,7 +20,6 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
     ({ set }) =>
       () => {
         if (!daily) return;
-        console.log('changing meeting state');
         const meetingState = daily.meetingState();
         set(meetingStateState, meetingState);
         return meetingState;

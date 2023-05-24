@@ -94,7 +94,7 @@ const createCallObject = (properties) => {
     updateLiveStreaming: jest.fn(),
     updateParticipant: jest.fn(),
     updateParticipants: jest.fn(),
-    updateReceiveSettings: jest.fn(),
+    updateReceiveSettings: jest.fn(async () => {}),
     updateRecording: jest.fn(),
     waitingParticipants: jest.fn(),
     updateWaitingParticipant: jest.fn(),

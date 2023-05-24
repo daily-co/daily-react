@@ -193,6 +193,7 @@ describe('useReceiveSettings', () => {
     const { result, waitFor } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
+
     const settings: DailyReceiveSettings = {
       base: {
         video: {
@@ -200,9 +201,14 @@ describe('useReceiveSettings', () => {
         },
       },
     };
-    act(() => {
-      result.current.updateReceiveSettings(settings);
+
+    // This needs an await, because updateReceiveSettings mock is async -- the actual function returns a promise.
+    // In other words, we need to make sure it resolves correctly otherwise React will complain about the function
+    // call not being wrapped inside an act()
+    await act(async () => {
+      await result.current.updateReceiveSettings(settings);
     });
+
     await waitFor(() => {
       expect(daily.updateReceiveSettings).toHaveBeenCalledWith(settings);
     });

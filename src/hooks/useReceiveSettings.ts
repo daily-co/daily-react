@@ -65,6 +65,7 @@ export const useReceiveSettings = ({
       [onReceiveSettingsUpdated, updateReceiveSettingsState]
     )
   );
+
   useEffect(() => {
     if (!daily || daily.isDestroyed()) return;
     daily.getReceiveSettings().then(updateReceiveSettingsState);
@@ -72,9 +73,7 @@ export const useReceiveSettings = ({
 
   const updateReceiveSettings = useCallback(
     (...args: Parameters<DailyCall['updateReceiveSettings']>) => {
-      if (!(daily && meetingState === 'joined-meeting')) {
-        return;
-      }
+      if (!daily || meetingState !== 'joined-meeting') return;
       daily?.updateReceiveSettings?.(...args);
     },
     [daily, meetingState]

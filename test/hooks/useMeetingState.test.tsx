@@ -2,8 +2,8 @@
 
 import DailyIframe, {
   DailyCall,
-  // DailyEvent,
-  // DailyEventObjectNoPayload,
+  DailyEvent,
+  DailyEventObjectNoPayload,
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
@@ -19,17 +19,13 @@ jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
   DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyParticipants', () => ({
+  ...jest.requireActual('../../src/DailyParticipants'),
+  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+}));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
   DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
-}));
-jest.mock('../../src/DailyRoom', () => ({
-  ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
-}));
-jest.mock('../../src/DailyMeeting', () => ({
-  ...jest.requireActual('../../src/DailyMeeting'),
-  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =
@@ -38,30 +34,38 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useMeetingState', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it('returns the correct initial meeting state', async () => {
     const daily = DailyIframe.createCallObject();
+    // set up daily.meetingState() mock, because it's undefined
+    (daily.meetingState as jest.Mock).mockImplementation(() => 'new');
     const { result, waitFor } = renderHook(() => useMeetingState(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
-      expect(result.current).toEqual(null);
+      expect(result.current).toEqual('new');
     });
   });
-  it('event updates the meeting state', async () => {
+  it('emitted Daily event "joining-meeting" correctly updates the meeting state', async () => {
     const daily = DailyIframe.createCallObject();
+    (daily.meetingState as jest.Mock).mockImplementation(
+      () => 'joining-meeting'
+    );
     const { result, waitFor } = renderHook(() => useMeetingState(), {
       wrapper: createWrapper(daily),
     });
-
+    const event: DailyEvent = 'joining-meeting';
+    const payload: DailyEventObjectNoPayload = {
+      action: 'joining-meeting',
+    };
     act(() => {
       // @ts-ignore
-      daily.emit('left-meeting', {
-        action: 'left-meeting',
-      });
+      daily.emit(event, payload);
     });
-
     await waitFor(() => {
-      expect(result.current).toEqual('left-meeting');
+      expect(result.current).toEqual('joining-meeting');
     });
   });
 });
