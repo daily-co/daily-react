@@ -67,7 +67,8 @@ describe('useThrottledDailyEvent', () => {
         wrapper: createWrapper(daily),
       }
     );
-    expect(daily.on).toHaveBeenCalledTimes(1);
+    // DailyProvider calls .once to setup call-instance-destroyed listener.
+    expect(daily.on).toHaveBeenCalledTimes(1 + 1);
   });
   it('calls callback once in a given throttle timeframe', async () => {
     jest.useFakeTimers();
