@@ -1,8 +1,8 @@
 import DailyIframe, {
   DailyCall,
-  DailyCallOptions,
   DailyEvent,
   DailyEventObject,
+  DailyFactoryOptions,
 } from '@daily-co/daily-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RecoilRoot, RecoilRootProps } from 'recoil';
@@ -15,20 +15,8 @@ import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
 
-type DailyProperties = Pick<
-  DailyCallOptions,
-  | 'audioSource'
-  | 'dailyConfig'
-  | 'receiveSettings'
-  | 'subscribeToTracksAutomatically'
-  | 'token'
-  | 'url'
-  | 'userName'
-  | 'videoSource'
->;
-
 type BaseProps =
-  | DailyProperties
+  | DailyFactoryOptions
   | {
       callObject: DailyCall;
     };
