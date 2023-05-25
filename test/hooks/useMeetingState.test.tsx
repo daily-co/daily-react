@@ -1,12 +1,15 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall, DailyRoomInfo } from '@daily-co/daily-js';
+import DailyIframe, {
+  DailyCall,
+  DailyEvent,
+  DailyEventObjectNoPayload,
+} from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
-import { useRoom } from '../../src/hooks/useRoom';
+import { useMeetingState } from '../../src/hooks/useMeetingState';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -24,47 +27,45 @@ jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
   DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
 }));
-jest.mock('../../src/DailyMeeting', () => ({
-  ...jest.requireActual('../../src/DailyMeeting'),
-  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
-}));
+
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
-describe('useRoom', () => {
-  it('returns null initially', async () => {
-    const { result, waitFor } = renderHook(() => useRoom(), {
-      wrapper: createWrapper(),
-    });
-    await waitFor(() => {
-      expect(result.current).toBeNull();
-    });
+describe('useMeetingState', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
-  it('returns same object as daily.room() after access-state-updated event', async () => {
+  it('returns the correct initial meeting state', async () => {
     const daily = DailyIframe.createCallObject();
-    const room: DailyRoomInfo = {
-      config: {},
-      domainConfig: {},
-      id: faker.datatype.uuid(),
-      name: faker.random.alphaNumeric(),
-      tokenConfig: {},
-    };
-    (daily.room as jest.Mock<Promise<DailyRoomInfo>>).mockImplementation(() =>
-      Promise.resolve(room)
-    );
-    const { result, waitFor } = renderHook(() => useRoom(), {
+    // set up daily.meetingState() mock, because it's undefined
+    (daily.meetingState as jest.Mock).mockImplementation(() => 'new');
+    const { result, waitFor } = renderHook(() => useMeetingState(), {
       wrapper: createWrapper(daily),
     });
+    await waitFor(() => {
+      expect(result.current).toEqual('new');
+    });
+  });
+  it('emitted Daily event "joining-meeting" correctly updates the meeting state', async () => {
+    const daily = DailyIframe.createCallObject();
+    (daily.meetingState as jest.Mock).mockImplementation(
+      () => 'joining-meeting'
+    );
+    const { result, waitFor } = renderHook(() => useMeetingState(), {
+      wrapper: createWrapper(daily),
+    });
+    const event: DailyEvent = 'joining-meeting';
+    const payload: DailyEventObjectNoPayload = {
+      action: 'joining-meeting',
+    };
     act(() => {
       // @ts-ignore
-      daily.emit('access-state-updated', {
-        action: 'access-state-updated',
-      });
+      daily.emit(event, payload);
     });
     await waitFor(() => {
-      expect(result.current).toEqual(room);
+      expect(result.current).toEqual('joining-meeting');
     });
   });
 });

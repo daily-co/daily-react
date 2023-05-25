@@ -12,6 +12,7 @@ import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyLiveStreaming } from './DailyLiveStreaming';
+import { DailyMeeting } from './DailyMeeting';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
@@ -85,7 +86,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   }, []);
 
   /**
-   * In case events are setup via useDailyEvent before a DailyCall instance is available,
+   * In case events are set up via useDailyEvent before a DailyCall instance is available,
    * we'll register the events whenever daily is set.
    */
   const initEventHandlers = useCallback(
@@ -168,7 +169,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
         if (callObject) {
           /**
            * Make sure only 1 event listener is registered at anytime for handleEvent.
-           * Otherwise events sent from daily-js might be handled multiple times.
+           * Otherwise, events sent from daily-js might be handled multiple times.
            */
           callObject.off(ev, handleEvent);
           if (!callObject.isDestroyed()) {
@@ -202,13 +203,15 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
-            <DailyParticipants>
-              <DailyRecordings>
-                <DailyLiveStreaming>
-                  <DailyDevices>{children}</DailyDevices>
-                </DailyLiveStreaming>
-              </DailyRecordings>
-            </DailyParticipants>
+            <DailyMeeting>
+              <DailyParticipants>
+                <DailyRecordings>
+                  <DailyLiveStreaming>
+                    <DailyDevices>{children}</DailyDevices>
+                  </DailyLiveStreaming>
+                </DailyRecordings>
+              </DailyParticipants>
+            </DailyMeeting>
           </DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>
