@@ -136,12 +136,16 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       return;
     }
 
-    /**
-     * callObject doesn't exist, but should be created.
-     * Important to spread props, because createCallObject alters the passed object (adds layout and dailyJsVersion).
-     */
-    const co = DailyIframe.createCallObject({ ...props });
-    lastUsedProps.current = props;
+    let co = DailyIframe.getCallInstance();
+    if (!co) {
+      /**
+       * callObject doesn't exist, but should be created.
+       * Important to spread props, because createCallObject alters the passed object (adds layout and dailyJsVersion).
+       */
+      co = DailyIframe.createCallObject({ ...props });
+      lastUsedProps.current = props;
+    }
+
     setCallObject(co);
     initEventHandlers(co);
 
