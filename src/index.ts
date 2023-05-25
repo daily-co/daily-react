@@ -22,6 +22,7 @@ export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';
 export { useParticipantIds } from './hooks/useParticipantIds';
 export { useParticipantProperty } from './hooks/useParticipantProperty';
+export { usePermissions } from './hooks/usePermissions';
 export { useReceiveSettings } from './hooks/useReceiveSettings';
 export { useRecording } from './hooks/useRecording';
 export { useRoom } from './hooks/useRoom';
