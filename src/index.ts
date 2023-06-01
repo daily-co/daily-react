@@ -20,6 +20,7 @@ export { useMediaTrack } from './hooks/useMediaTrack';
 export { useMeetingState } from './hooks/useMeetingState';
 export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';
+export { useParticipantCounts } from './hooks/useParticipantCounts';
 export { useParticipantIds } from './hooks/useParticipantIds';
 export { useParticipantProperty } from './hooks/useParticipantProperty';
 export { usePermissions } from './hooks/usePermissions';
