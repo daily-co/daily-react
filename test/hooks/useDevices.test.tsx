@@ -49,6 +49,9 @@ describe('useDevices', () => {
     await waitFor(() => {
       expect(result.current.camState).toBe('idle');
       expect(result.current.cameras).toEqual([]);
+      expect(result.current.currentCam).toBeUndefined();
+      expect(result.current.currentMic).toBeUndefined();
+      expect(result.current.currentSpeaker).toBeUndefined();
       expect(result.current.hasCamError).toBe(false);
       expect(result.current.hasMicError).toBe(false);
       expect(result.current.micState).toBe('idle');
@@ -246,6 +249,60 @@ describe('useDevices', () => {
           'Chaos headset',
           'Chaos headset',
         ]);
+      });
+    });
+    it('returns currently selected devices', async () => {
+      const devices: MediaDeviceInfo[] = [
+        {
+          deviceId: faker.random.alphaNumeric(12),
+          groupId: faker.random.alphaNumeric(12),
+          kind: 'audioinput',
+          label: faker.random.words(),
+          toJSON: jest.fn(),
+        },
+        {
+          deviceId: faker.random.alphaNumeric(12),
+          groupId: faker.random.alphaNumeric(12),
+          kind: 'audiooutput',
+          label: faker.random.words(),
+          toJSON: jest.fn(),
+        },
+        {
+          deviceId: faker.random.alphaNumeric(12),
+          groupId: faker.random.alphaNumeric(12),
+          kind: 'videoinput',
+          label: faker.random.words(),
+          toJSON: jest.fn(),
+        },
+      ];
+      const daily = DailyIframe.createCallObject();
+      (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
+        devices,
+      }));
+      (daily.getInputDevices as jest.Mock).mockImplementation(() => ({
+        camera: devices[2],
+        mic: devices[0],
+        speaker: devices[1],
+      }));
+      const { result, waitFor } = renderHook(() => useDevices(), {
+        wrapper: createWrapper(daily),
+      });
+      act(() => {
+        result.current.refreshDevices();
+      });
+      await waitFor(() => {
+        expect(result.current.currentCam).toBeDefined();
+        expect(result.current.currentCam?.device.deviceId).toEqual(
+          devices[2].deviceId
+        );
+        expect(result.current.currentMic).toBeDefined();
+        expect(result.current.currentMic?.device.deviceId).toEqual(
+          devices[0].deviceId
+        );
+        expect(result.current.currentSpeaker).toBeDefined();
+        expect(result.current.currentSpeaker?.device.deviceId).toEqual(
+          devices[1].deviceId
+        );
       });
     });
     describe('camera-error', () => {
