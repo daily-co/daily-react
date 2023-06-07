@@ -1,9 +1,10 @@
 import DailyIframe, {
   DailyCall,
-  DailyCallOptions,
   DailyEvent,
   DailyEventObject,
+  DailyFactoryOptions,
 } from '@daily-co/daily-js';
+import deepEqual from 'fast-deep-equal';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RecoilRoot, RecoilRootProps } from 'recoil';
 
@@ -11,24 +12,13 @@ import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyLiveStreaming } from './DailyLiveStreaming';
+import { DailyMeeting } from './DailyMeeting';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
 
-type DailyProperties = Pick<
-  DailyCallOptions,
-  | 'audioSource'
-  | 'dailyConfig'
-  | 'receiveSettings'
-  | 'subscribeToTracksAutomatically'
-  | 'token'
-  | 'url'
-  | 'userName'
-  | 'videoSource'
->;
-
 type BaseProps =
-  | DailyProperties
+  | DailyFactoryOptions
   | {
       callObject: DailyCall;
     };
@@ -50,8 +40,10 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   recoilRootProps = {},
   ...props
 }) => {
+  const externalCallObject = 'callObject' in props ? props.callObject : null;
+
   const [callObject, setCallObject] = useState<DailyCall | null>(
-    'callObject' in props ? props.callObject : null
+    externalCallObject
   );
   const eventsMap = useRef<EventsMap>({});
 
@@ -59,13 +51,14 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
    * Update callObject reference, in case externally created instance has changed.
    */
   useEffect(() => {
-    if (!('callObject' in props)) return;
+    if (!externalCallObject) return;
+
     const callFrameIdChanged =
       // TODO: Replace _callFrameId check with something "official".
       // @ts-ignore
-      callObject?._callFrameId !== props?.callObject?._callFrameId;
-    const callObjectNullified = !props.callObject;
-    const callObjectCreated = !callObject && props.callObject;
+      callObject?._callFrameId !== externalCallObject?._callFrameId;
+    const callObjectNullified = !externalCallObject;
+    const callObjectCreated = !callObject && externalCallObject;
 
     if (callObjectNullified) {
       /**
@@ -77,9 +70,9 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       /**
        * Passed callObject has been created or changed.
        */
-      setCallObject(props.callObject);
+      setCallObject(externalCallObject);
     }
-  }, [callObject, props]);
+  }, [callObject, externalCallObject]);
 
   /**
    * Generic event handler to loop through registered event callbacks.
@@ -93,7 +86,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   }, []);
 
   /**
-   * In case events are setup via useDailyEvent before a DailyCall instance is available,
+   * In case events are set up via useDailyEvent before a DailyCall instance is available,
    * we'll register the events whenever daily is set.
    */
   const initEventHandlers = useCallback(
@@ -109,16 +102,65 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
     [handleEvent]
   );
 
+  /**
+   * Holds last used props when callObject instance was created.
+   */
+  const lastUsedProps = useRef<DailyFactoryOptions>();
   useEffect(() => {
-    if (callObject) return;
+    /**
+     * Store externally created callObject and init event handlers.
+     */
     if ('callObject' in props) {
       setCallObject(props.callObject);
       initEventHandlers(props.callObject);
       return;
     }
-    const co = DailyIframe.createCallObject(props);
+
+    async function destroyCallObject(co: DailyCall) {
+      await co.destroy();
+    }
+
+    /**
+     * callObject exists.
+     */
+    if (callObject) {
+      /**
+       * Props have changed. Destroy current instance, so a new one can be created.
+       */
+      if (!deepEqual(lastUsedProps.current, props)) {
+        destroyCallObject(callObject);
+      }
+      /**
+       * Return early.
+       */
+      return;
+    }
+
+    let co = DailyIframe.getCallInstance();
+    if (!co) {
+      /**
+       * callObject doesn't exist, but should be created.
+       * Important to spread props, because createCallObject alters the passed object (adds layout and dailyJsVersion).
+       */
+      co = DailyIframe.createCallObject({ ...props });
+      lastUsedProps.current = props;
+    }
+
     setCallObject(co);
     initEventHandlers(co);
+
+    /**
+     * Once instance is destroyed, nullify callObject, so a new one is created.
+     */
+    co.once('call-instance-destroyed', () => {
+      setCallObject(null);
+    });
+
+    /**
+     * No cleanup phase here, because callObject.destroy() returns a Promise.
+     * We can't have asynchronous cleanups in a useEffect.
+     * To avoid infinite render loops we compare the props when creating call object instances.
+     */
   }, [callObject, initEventHandlers, props]);
 
   /**
@@ -131,7 +173,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
         if (callObject) {
           /**
            * Make sure only 1 event listener is registered at anytime for handleEvent.
-           * Otherwise events sent from daily-js might be handled multiple times.
+           * Otherwise, events sent from daily-js might be handled multiple times.
            */
           callObject.off(ev, handleEvent);
           if (!callObject.isDestroyed()) {
@@ -165,13 +207,15 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
-            <DailyParticipants>
-              <DailyRecordings>
-                <DailyLiveStreaming>
-                  <DailyDevices>{children}</DailyDevices>
-                </DailyLiveStreaming>
-              </DailyRecordings>
-            </DailyParticipants>
+            <DailyMeeting>
+              <DailyParticipants>
+                <DailyRecordings>
+                  <DailyLiveStreaming>
+                    <DailyDevices>{children}</DailyDevices>
+                  </DailyLiveStreaming>
+                </DailyRecordings>
+              </DailyParticipants>
+            </DailyMeeting>
           </DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>

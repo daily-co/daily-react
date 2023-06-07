@@ -54,6 +54,10 @@ const createCallObject = (properties) => {
         session_id: 'local'
       }
     })),
+    participantCounts: jest.fn(() => ({
+      hidden: 0,
+      present: 0,
+    })),
     preAuth: jest.fn(),
     properties,
     requestAccess: jest.fn(),
@@ -94,7 +98,7 @@ const createCallObject = (properties) => {
     updateLiveStreaming: jest.fn(),
     updateParticipant: jest.fn(),
     updateParticipants: jest.fn(),
-    updateReceiveSettings: jest.fn(),
+    updateReceiveSettings: jest.fn(async () => {}),
     updateRecording: jest.fn(),
     waitingParticipants: jest.fn(),
     updateWaitingParticipant: jest.fn(),

@@ -27,6 +27,10 @@ jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyMeeting', () => ({
+  ...jest.requireActual('../../src/DailyMeeting'),
+  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
+}));
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
@@ -64,7 +68,8 @@ describe('useDailyEvent', () => {
         wrapper: createWrapper(daily),
       }
     );
-    expect(daily.on).toHaveBeenCalledTimes(1);
+    // DailyProvider calls .once to setup call-instance-destroyed listener.
+    expect(daily.on).toHaveBeenCalledTimes(1 + 1);
   });
   // TODO: Find better/faster way to simulate re-render loop
   it.skip('logs an error if callback is an unstable reference', async () => {

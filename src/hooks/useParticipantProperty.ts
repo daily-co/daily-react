@@ -12,7 +12,7 @@ type UseParticipantPropertyReturnType<
   T extends ExtendedDailyParticipant,
   P extends Paths<T> | Paths<T>[]
 > = P extends Paths<T>[]
-  ? { [K in keyof P]: K extends NumericKeys ? PathValue<T, P[K]> : never }
+  ? { [K in keyof P]: K extends NumericKeys ? PathValue<T, P[K]> : unknown }
   : P extends Paths<T>
   ? PathValue<T, P>
   : never;

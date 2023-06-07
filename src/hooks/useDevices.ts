@@ -89,6 +89,18 @@ export const useDevices = () => {
      */
     camState,
     /**
+     * Holds the currently selected camera.
+     */
+    currentCam: camDevices.find((cam) => cam.selected),
+    /**
+     * Holds the currently selected microphone.
+     */
+    currentMic: micDevices.find((mic) => mic.selected),
+    /**
+     * Holds the currently selected speaker.
+     */
+    currentSpeaker: speakerDevices.find((speaker) => speaker.selected),
+    /**
      * Indicates that there's an issue with camera devices.
      */
     hasCamError: errorStates.includes(camState),
