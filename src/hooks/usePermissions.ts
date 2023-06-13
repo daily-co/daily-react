@@ -1,6 +1,11 @@
 import { useLocalSessionId } from './useLocalSessionId';
 import { useParticipantProperty } from './useParticipantProperty';
 
+/**
+ * Returns parsed permissions for a given participant.
+ * In case no `sessionId` is passed, the hook returns permissions for the local participant.
+ * @param sessionId The participant's session_id (optional)
+ */
 export const usePermissions = (sessionId?: string) => {
   const localSessionId = useLocalSessionId();
   const permissions = useParticipantProperty(
