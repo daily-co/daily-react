@@ -162,4 +162,89 @@ describe('usePermissions', () => {
       });
     });
   });
+  describe('Remote participant permissions', () => {
+    it('returns true, when hasPresence is true', async () => {
+      const daily = DailyIframe.createCallObject();
+      const mockRemoteParticipant = mockParticipant({
+        local: false,
+        permissions: {
+          canSend: true,
+          hasPresence: true,
+        },
+      });
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: false,
+          },
+        }),
+        [mockRemoteParticipant.session_id]: mockRemoteParticipant,
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.hasPresence).toEqual(true);
+      });
+    });
+    it('returns false, when hasPresence is false', async () => {
+      const daily = DailyIframe.createCallObject();
+      const mockRemoteParticipant = mockParticipant({
+        local: false,
+        permissions: {
+          canSend: true,
+          hasPresence: false,
+        },
+      });
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: false,
+          },
+        }),
+        [mockRemoteParticipant.session_id]: mockRemoteParticipant,
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.hasPresence).toEqual(false);
+      });
+    });
+    it('returns individual mapping of remote participant', async () => {
+      const daily = DailyIframe.createCallObject();
+      const mockRemoteParticipant = mockParticipant({
+        local: false,
+        permissions: {
+          canSend: new Set(['audio', 'customAudio', 'screenAudio']),
+          hasPresence: true,
+        },
+      });
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: true,
+          },
+        }),
+        [mockRemoteParticipant.session_id]: mockRemoteParticipant,
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.canSendAudio).toEqual(true);
+        expect(result.current.canSendVideo).toEqual(false);
+        expect(result.current.canSendCustomAudio).toEqual(true);
+        expect(result.current.canSendCustomVideo).toEqual(false);
+        expect(result.current.canSendScreenAudio).toEqual(true);
+        expect(result.current.canSendScreenVideo).toEqual(false);
+      });
+    });
+  });
 });

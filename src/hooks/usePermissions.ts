@@ -1,9 +1,9 @@
 import { useLocalSessionId } from './useLocalSessionId';
 import { useParticipantProperty } from './useParticipantProperty';
 
-export const usePermissions = () => {
+export const usePermissions = (sessionId?: string) => {
   const localSessionId = useLocalSessionId();
-  const permissions = useParticipantProperty(localSessionId, 'permissions');
+  const permissions = useParticipantProperty(sessionId ?? localSessionId, 'permissions');
 
   const canSendAudio =
     typeof permissions?.canSend === 'boolean'
