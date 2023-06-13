@@ -182,9 +182,12 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
-        wrapper: createWrapper(daily),
-      });
+      const { result, waitFor } = renderHook(
+        () => usePermissions(mockRemoteParticipant.session_id),
+        {
+          wrapper: createWrapper(daily),
+        }
+      );
       await waitFor(() => {
         expect(result.current.hasPresence).toEqual(true);
       });
@@ -208,9 +211,12 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
-        wrapper: createWrapper(daily),
-      });
+      const { result, waitFor } = renderHook(
+        () => usePermissions(mockRemoteParticipant.session_id),
+        {
+          wrapper: createWrapper(daily),
+        }
+      );
       await waitFor(() => {
         expect(result.current.hasPresence).toEqual(false);
       });
@@ -234,9 +240,12 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(mockRemoteParticipant.session_id), {
-        wrapper: createWrapper(daily),
-      });
+      const { result, waitFor } = renderHook(
+        () => usePermissions(mockRemoteParticipant.session_id),
+        {
+          wrapper: createWrapper(daily),
+        }
+      );
       await waitFor(() => {
         expect(result.current.canSendAudio).toEqual(true);
         expect(result.current.canSendVideo).toEqual(false);
