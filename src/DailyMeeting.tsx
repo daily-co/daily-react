@@ -1,4 +1,8 @@
-import { DailyMeetingState } from '@daily-co/daily-js';
+import {
+  DailyEventObjectMeetingSessionStateUpdated,
+  DailyMeetingSessionState,
+  DailyMeetingState,
+} from '@daily-co/daily-js';
 import React from 'react';
 import { atom, useRecoilCallback } from 'recoil';
 
@@ -11,11 +15,22 @@ export const meetingStateState = atom<DailyMeetingState>({
   default: 'new',
 });
 
+export const meetingSessionDataState = atom<DailyMeetingSessionState>({
+  key: 'meeting-session-data',
+  default: {
+    data: undefined,
+    topology: 'none',
+  },
+});
+
 export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const daily = useDaily();
 
+  /**
+   * Updates meeting state.
+   */
   const updateMeetingState = useRecoilCallback(
     ({ set }) =>
       () => {
@@ -33,6 +48,51 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   useDailyEvent('joined-meeting', updateMeetingState);
   useDailyEvent('left-meeting', updateMeetingState);
   useDailyEvent('error', updateMeetingState);
+
+  /**
+   * Updates meeting session state.
+   */
+  const initMeetingSessionState = useRecoilCallback(
+    ({ set }) =>
+      () => {
+        if (!daily) return;
+        set(meetingSessionDataState, daily.meetingSessionState());
+      },
+    [daily]
+  );
+
+  /**
+   * Initialize state when joined meeting or setting up the hook.
+   */
+  useDailyEvent('joined-meeting', initMeetingSessionState);
+
+  /**
+   * Update Recoil state whenever meeting session state is updated.
+   */
+  useDailyEvent(
+    'meeting-session-state-updated',
+    useRecoilCallback(
+      ({ set }) =>
+        (ev: DailyEventObjectMeetingSessionStateUpdated) => {
+          set(meetingSessionDataState, ev.meetingSessionState);
+        },
+      []
+    )
+  );
+
+  /**
+   * Reset Recoil state when meeting ends.
+   */
+  useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(meetingSessionDataState);
+        },
+      []
+    )
+  );
 
   return <>{children}</>;
 };
