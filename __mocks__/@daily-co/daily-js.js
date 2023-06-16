@@ -44,6 +44,10 @@ const createCallObject = (properties) => {
     loadCss: jest.fn(),
     localAudio: jest.fn(),
     localVideo: jest.fn(),
+    meetingSessionState: jest.fn(() => ({
+      data: undefined,
+      topology: 'none',
+    })),
     meetingState: jest.fn(),
     emit: jest.fn(emitter.emit),
     off: jest.fn(emitter.off),
