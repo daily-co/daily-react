@@ -38,6 +38,7 @@ describe('usePermissions', () => {
     const permissions = {
       canSend: false,
       hasPresence: true,
+      canAdmin: false,
     };
     const daily = DailyIframe.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -62,6 +63,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: true,
+            canAdmin: false,
           },
         }),
       }));
@@ -85,6 +87,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: false,
             hasPresence: true,
+            canAdmin: false,
           },
         }),
       }));
@@ -108,6 +111,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: new Set(['audio', 'customAudio', 'screenAudio']),
             hasPresence: true,
+            canAdmin: false,
           },
         }),
       }));
@@ -133,6 +137,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: true,
+            canAdmin: false,
           },
         }),
       }));
@@ -151,6 +156,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: false,
+            canAdmin: false,
           },
         }),
       }));
@@ -162,6 +168,71 @@ describe('usePermissions', () => {
       });
     });
   });
+  describe('canAdmin', () => {
+    it('returns all true, when canAdmin is true', async () => {
+      const daily = DailyIframe.createCallObject();
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: true,
+            canAdmin: true,
+          },
+        }),
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.canAdminParticipants).toEqual(true);
+        expect(result.current.canAdminStreaming).toEqual(true);
+        expect(result.current.canAdminTranscription).toEqual(true);
+      });
+    });
+    it('returns all false, when canAdmin is false', async () => {
+      const daily = DailyIframe.createCallObject();
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: true,
+            canAdmin: false,
+          },
+        }),
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.canAdminParticipants).toEqual(false);
+        expect(result.current.canAdminStreaming).toEqual(false);
+        expect(result.current.canAdminTranscription).toEqual(false);
+      });
+    });
+    it('returns individual mapping', async () => {
+      const daily = DailyIframe.createCallObject();
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: true,
+            canAdmin: new Set(['streaming', 'transcription']),
+          },
+        }),
+      }));
+      const { result, waitFor } = renderHook(() => usePermissions(), {
+        wrapper: createWrapper(daily),
+      });
+      await waitFor(() => {
+        expect(result.current.canAdminParticipants).toEqual(false);
+        expect(result.current.canAdminStreaming).toEqual(true);
+        expect(result.current.canAdminTranscription).toEqual(true);
+      });
+    });
+  });
   describe('Remote participant permissions', () => {
     it('returns true, when hasPresence is true', async () => {
       const daily = DailyIframe.createCallObject();
@@ -170,6 +241,7 @@ describe('usePermissions', () => {
         permissions: {
           canSend: true,
           hasPresence: true,
+          canAdmin: false,
         },
       });
       (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -178,6 +250,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: false,
+            canAdmin: false,
           },
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
@@ -199,6 +272,7 @@ describe('usePermissions', () => {
         permissions: {
           canSend: true,
           hasPresence: false,
+          canAdmin: false,
         },
       });
       (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -207,6 +281,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: false,
+            canAdmin: false,
           },
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
@@ -221,13 +296,14 @@ describe('usePermissions', () => {
         expect(result.current.hasPresence).toEqual(false);
       });
     });
-    it('returns individual mapping of remote participant', async () => {
+    it('returns individual canSend mapping of remote participant', async () => {
       const daily = DailyIframe.createCallObject();
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
           canSend: new Set(['audio', 'customAudio', 'screenAudio']),
           hasPresence: true,
+          canAdmin: false,
         },
       });
       (daily.participants as jest.Mock).mockImplementation(() => ({
@@ -236,6 +312,7 @@ describe('usePermissions', () => {
           permissions: {
             canSend: true,
             hasPresence: true,
+            canAdmin: false,
           },
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
@@ -253,6 +330,39 @@ describe('usePermissions', () => {
         expect(result.current.canSendCustomVideo).toEqual(false);
         expect(result.current.canSendScreenAudio).toEqual(true);
         expect(result.current.canSendScreenVideo).toEqual(false);
+      });
+    });
+    it('returns individual canAdmin mapping of remote participant', async () => {
+      const daily = DailyIframe.createCallObject();
+      const mockRemoteParticipant = mockParticipant({
+        local: false,
+        permissions: {
+          canSend: true,
+          hasPresence: true,
+          canAdmin: new Set(['streaming', 'transcription']),
+        },
+      });
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canSend: true,
+            hasPresence: true,
+            canAdmin: false,
+          },
+        }),
+        [mockRemoteParticipant.session_id]: mockRemoteParticipant,
+      }));
+      const { result, waitFor } = renderHook(
+        () => usePermissions(mockRemoteParticipant.session_id),
+        {
+          wrapper: createWrapper(daily),
+        }
+      );
+      await waitFor(() => {
+        expect(result.current.canAdminParticipants).toEqual(false);
+        expect(result.current.canAdminStreaming).toEqual(true);
+        expect(result.current.canAdminTranscription).toEqual(true);
       });
     });
   });
