@@ -28,6 +28,7 @@ export { usePermissions } from './hooks/usePermissions';
 export { useReceiveSettings } from './hooks/useReceiveSettings';
 export { useRecording } from './hooks/useRecording';
 export { useRoom } from './hooks/useRoom';
+export { useRoomExp } from './hooks/useRoomExp';
 export { useScreenAudioTrack } from './hooks/useScreenAudioTrack';
 export { ScreenShare, useScreenShare } from './hooks/useScreenShare';
 export { useScreenVideoTrack } from './hooks/useScreenVideoTrack';
