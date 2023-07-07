@@ -42,8 +42,8 @@ export const useRoomExp = ({ onCountdown }: Props = {}) => {
     if (ejectAtExp && expUTCTimeStamp) {
       const expDate = new Date(expUTCTimeStamp * 1000);
       if (
-        (newEjectDate.getTime() > 0 && expDate < newEjectDate) ||
-        !newEjectDate.getTime()
+        !newEjectDate.getTime() ||
+        (newEjectDate.getTime() > 0 && expDate < newEjectDate)
       )
         newEjectDate = expDate;
     }
