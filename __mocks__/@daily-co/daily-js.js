@@ -72,6 +72,7 @@ const createCallObject = (properties) => {
     setActiveSpeakerMode: jest.fn(),
     setBandwidth: jest.fn(),
     setDailyLang: jest.fn(),
+    setProxyUrl: jest.fn(),
     setInputDevices: jest.fn(),
     setInputDevicesAsync: jest.fn(),
     setLocalAudio: jest.fn(),
