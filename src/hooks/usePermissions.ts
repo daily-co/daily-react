@@ -37,8 +37,23 @@ export const usePermissions = (sessionId?: string) => {
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
       : permissions?.canSend.has('screenVideo');
+  const canAdminParticipants =
+    typeof permissions?.canAdmin === 'boolean'
+      ? permissions?.canAdmin
+      : permissions?.canAdmin.has('participants');
+  const canAdminStreaming =
+    typeof permissions?.canAdmin === 'boolean'
+      ? permissions?.canAdmin
+      : permissions?.canAdmin.has('streaming');
+  const canAdminTranscription =
+    typeof permissions?.canAdmin === 'boolean'
+      ? permissions?.canAdmin
+      : permissions?.canAdmin.has('transcription');
 
   return {
+    canAdminParticipants,
+    canAdminStreaming,
+    canAdminTranscription,
     canSendAudio,
     canSendCustomAudio,
     canSendCustomVideo,
