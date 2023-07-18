@@ -35,6 +35,7 @@ type SortParticipants =
   | 'user_id'
   | 'user_name'
   | SortParticipantsFunction;
+type IdType = 'user' | 'session';
 
 const defaultFilter: FilterParticipants = Boolean;
 const defaultSort: SortParticipants = () => 0;
@@ -46,10 +47,11 @@ interface UseParticipantIdsArgs {
   onParticipantLeft?(ev: DailyEventObjectParticipantLeft): void;
   onParticipantUpdated?(ev: DailyEventObjectParticipant): void;
   sort?: SortParticipants;
+  idType?: IdType;
 }
 
 /**
- * Returns a list of participant ids (= session_id).
+ * Returns a list of participant ids (default = session_id).
  * The list can optionally be filtered and sorted, using the filter and sort options.
  */
 export const useParticipantIds = (
@@ -60,6 +62,7 @@ export const useParticipantIds = (
     onParticipantLeft,
     onParticipantUpdated,
     sort = defaultSort,
+    idType = 'session',
   }: UseParticipantIdsArgs = {
     filter: defaultFilter,
     sort: defaultSort,
@@ -124,13 +127,14 @@ export const useParticipantIds = (
     return sortFn;
   }, [sort]);
 
+  const idKey = idType === 'user' ? 'user_id' : 'session_id';
   const sortedIds = useMemo(() => {
     return allParticipants
       .filter(filterFn)
       .sort(sortFn)
-      .map((p) => p.session_id)
+      .map((p) => p[idKey])
       .filter(Boolean);
-  }, [allParticipants, filterFn, sortFn]);
+  }, [allParticipants, filterFn, sortFn, idKey]);
 
   useThrottledDailyEvent(
     [
