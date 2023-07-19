@@ -6,7 +6,7 @@ import {
   DailyParticipantsObject,
   DailyWaitingParticipant,
 } from '@daily-co/daily-js';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   atom,
   atomFamily,
@@ -47,25 +47,28 @@ export const localIdState = atom<string>({
   default: '',
 });
 
-export const participantsState = atom<ExtendedDailyParticipant[]>({
-  key: RECOIL_PREFIX + 'participants-objects',
+export const participantIdsState = atom<string[]>({
+  key: RECOIL_PREFIX + 'participant-ids',
   default: [],
 });
 
-/**
- * Holds each individual participant's state object.
- */
-export const participantState = selectorFamily<
+export const participantState = atomFamily<
   ExtendedDailyParticipant | null,
   string
 >({
-  key: RECOIL_PREFIX + 'participant',
-  get:
-    (id) =>
-    ({ get }) => {
-      const participants = get(participantsState);
-      return participants.find((p) => p.session_id === id) ?? null;
-    },
+  key: RECOIL_PREFIX + 'participant-state',
+  default: null,
+});
+
+export const participantsState = selector<ExtendedDailyParticipant[]>({
+  key: RECOIL_PREFIX + 'participants',
+  get: ({ get }) => {
+    const ids = get(participantIdsState);
+    const participants = ids
+      .map((id) => get(participantState(id)))
+      .filter(Boolean) as ExtendedDailyParticipant[];
+    return participants;
+  },
 });
 
 /**
@@ -76,8 +79,7 @@ export const participantPropertyState = selectorFamily<any, PropertyType>({
   get:
     ({ id, properties }) =>
     ({ get }) => {
-      const participants = get(participantsState);
-      const participant = participants.find((p) => p.session_id === id) ?? null;
+      const participant = get(participantState(id));
 
       return resolveParticipantPaths(participant, properties);
     },
@@ -123,13 +125,20 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const daily = useDaily();
+  const [initialized, setInitialized] = useState(false);
 
   const initParticipants = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
       (participants: DailyParticipantsObject) => {
         transact_UNSTABLE(({ set }) => {
           set(localIdState, participants.local.session_id);
-          set(participantsState, Object.values(participants));
+          const participantsArray = Object.values(participants);
+          const ids = participantsArray.map((p) => p.session_id);
+          set(participantIdsState, ids);
+          participantsArray.forEach((p) => {
+            set(participantState(p.session_id), p);
+          });
+          setInitialized(true);
         });
       },
     []
@@ -139,7 +148,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
    * Retries every 100ms to initialize the state, until daily is ready.
    */
   useEffect(() => {
-    if (!daily) return;
+    if (!daily || initialized) return;
     const interval = setInterval(() => {
       const participants = daily.participants();
       if (!('local' in participants)) return;
@@ -149,7 +158,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     return () => {
       clearInterval(interval);
     };
-  }, [daily, initParticipants]);
+  }, [daily, initialized, initParticipants]);
   const handleInitEvent = useCallback(() => {
     if (!daily) return;
     const participants = daily?.participants();
@@ -188,42 +197,37 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
             | 'left-meeting'
           >[]
         ) => {
-          transact_UNSTABLE(({ reset, set }) => {
+          transact_UNSTABLE(({ get, reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change': {
                   const sessionId = ev.activeSpeaker.peerId;
                   set(activeIdState, sessionId);
-                  set(participantsState, (prev) =>
-                    [...prev].map((p) =>
-                      p.session_id === sessionId
-                        ? {
-                            ...p,
-                            last_active: new Date(),
-                          }
-                        : p
-                    )
-                  );
+                  set(participantState(sessionId), (prev) => {
+                    if (!prev) return null;
+                    return {
+                      ...prev,
+                      last_active: new Date(),
+                    };
+                  });
                   break;
                 }
                 case 'participant-joined':
-                  set(participantsState, (prev) =>
-                    [...prev, ev.participant].filter(
-                      (participant, idx, arr) =>
-                        arr.findIndex(
-                          (p) => p.session_id === participant.session_id
-                        ) == idx
-                    )
+                  set(participantIdsState, (prevIds) =>
+                    prevIds.includes(ev.participant.session_id)
+                      ? prevIds
+                      : [...prevIds, ev.participant.session_id]
+                  );
+                  set(
+                    participantState(ev.participant.session_id),
+                    ev.participant
                   );
                   break;
                 case 'participant-updated':
-                  set(participantsState, (prev) =>
-                    [...prev].map((p) =>
-                      p.session_id === ev.participant.session_id
-                        ? { ...ev.participant, last_active: p.last_active }
-                        : p
-                    )
-                  );
+                  set(participantState(ev.participant.session_id), (prev) => ({
+                    ...prev,
+                    ...ev.participant,
+                  }));
                   if (ev.participant.local) {
                     set(localIdState, (prevId) =>
                       prevId !== ev.participant.session_id
@@ -233,19 +237,27 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                   }
                   break;
                 case 'participant-left':
-                  set(participantsState, (prev) =>
-                    [...prev].filter(
-                      (p) => ev.participant.session_id !== p.session_id
-                    )
+                  set(participantIdsState, (prevIds) =>
+                    prevIds.includes(ev.participant.session_id)
+                      ? [
+                          ...prevIds.filter(
+                            (id) => id !== ev.participant.session_id
+                          ),
+                        ]
+                      : prevIds
                   );
+                  reset(participantState(ev.participant.session_id));
                   break;
                 /**
                  * Reset stored participants, when meeting has ended.
                  */
-                case 'left-meeting':
+                case 'left-meeting': {
                   reset(localIdState);
-                  reset(participantsState);
+                  const ids = get(participantIdsState);
+                  ids.forEach((id) => reset(participantState(id)));
+                  reset(participantIdsState);
                   break;
+                }
               }
             });
           });
