@@ -9,6 +9,7 @@ import { DailyAudio } from '../../src/components/DailyAudio';
 import { DailyProvider } from '../../src/DailyProvider';
 import {
   emitActiveSpeakerChange,
+  emitJoinedMeeting,
   emitParticipantLeft,
   emitParticipantUpdated,
   emitStartedCamera,
@@ -365,38 +366,37 @@ describe('DailyAudio', () => {
         faker.datatype.uuid(),
         faker.datatype.uuid(),
       ];
-      (callObject.participants as jest.Mock).mockImplementation(() => {
-        const participants: Record<string, Partial<DailyParticipant>> = {
-          local: mockParticipant({
-            local: true,
-            session_id: localSessionId,
-          }),
-        };
-        remoteParticipants.forEach((id) => {
-          const peer = mockParticipant({
-            local: false,
-            session_id: id,
-          });
-          peer.tracks.audio.state = 'playable';
-          peer.tracks.audio.subscribed = true;
-          participants[id] = peer;
+      const participants: Record<string, Partial<DailyParticipant>> = {
+        local: mockParticipant({
+          local: true,
+          session_id: localSessionId,
+        }),
+      };
+      remoteParticipants.forEach((id) => {
+        const peer = mockParticipant({
+          local: false,
+          session_id: id,
         });
-        return participants;
+        peer.tracks.audio.state = 'playable';
+        peer.tracks.audio.subscribed = true;
+        participants[id] = peer;
       });
+      (callObject.participants as jest.Mock).mockImplementation(
+        () => participants
+      );
       const Wrapper = createWrapper(callObject);
       const { container } = render(
         <Wrapper>
           <DailyAudio maxSpeakers={3} />
         </Wrapper>
       );
-      jest.useFakeTimers();
+      act(() => emitJoinedMeeting(callObject, participants));
       act(() => emitStartedCamera(callObject));
       act(() => emitActiveSpeakerChange(callObject, remoteParticipants[0]));
-      await waitFor(() =>
-        expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull()
-      );
+      await waitFor(() => {
+        expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
+      });
       act(() => {
-        jest.advanceTimersByTime(5000);
         emitActiveSpeakerChange(callObject, remoteParticipants[1]);
       });
       await waitFor(() => {
@@ -404,7 +404,6 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[1], container)).not.toBeNull();
       });
       act(() => {
-        jest.advanceTimersByTime(5000);
         emitActiveSpeakerChange(callObject, remoteParticipants[2]);
       });
       await waitFor(() => {
@@ -413,7 +412,6 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[2], container)).not.toBeNull();
       });
       act(() => {
-        jest.advanceTimersByTime(5000);
         emitActiveSpeakerChange(callObject, remoteParticipants[3]);
       });
       await waitFor(() => {
@@ -422,7 +420,6 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[2], container)).not.toBeNull();
         expect(queryAudioById(remoteParticipants[3], container)).not.toBeNull();
       });
-      jest.useRealTimers();
     });
   });
 });
