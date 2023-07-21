@@ -5,6 +5,7 @@ const createCallObject = (properties) => {
 
   return {
     ...emitter,
+    abortTestWebsocketConnectivity: jest.fn(),
     accessState: jest.fn(),
     activeSpeakerMode: jest.fn(),
     addFakeParticipant: jest.fn(),
@@ -100,6 +101,7 @@ const createCallObject = (properties) => {
     stopScreenShare: jest.fn(),
     stopTranscription: jest.fn(),
     subscribeToTracksAutomatically: jest.fn(),
+    testWebsocketConnectivity: jest.fn(),
     theme: jest.fn(),
     updateInputSettings: jest.fn(),
     updateLiveStreaming: jest.fn(),
