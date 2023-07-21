@@ -50,3 +50,18 @@ export const emitParticipantJoined = (callObject: DailyCall, participant: Partia
     participant,
   });
 }
+
+export const emitJoinedMeeting = (callObject: DailyCall, participants: Record<string, Partial<DailyParticipant>>) => {
+  // @ts-ignore
+  callObject.emit('joined-meeting', {
+    action: 'joined-meeting',
+    participants,
+  });
+}
+
+export const emitLeftMeeting = (callObject: DailyCall) => {
+  // @ts-ignore
+  callObject.emit('left-meeting', {
+    action: 'left-meeting',
+  });
+}

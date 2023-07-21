@@ -65,6 +65,7 @@ export const useParticipantIds = (
     sort: defaultSort,
   }
 ) => {
+  // TODO: Optimize render performance for useParticipantIds
   const allParticipants = useRecoilValue(participantsState);
 
   const filterFn = useMemo(() => {
