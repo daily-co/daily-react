@@ -5,10 +5,17 @@ import {
   DailyEventObjectParticipantLeft,
   DailyParticipant,
 } from '@daily-co/daily-js';
-import { useCallback, useMemo } from 'react';
-import { useRecoilValue } from 'recoil';
+import deepEqual from 'fast-deep-equal';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useRecoilCallback,
+  useRecoilTransactionObserver_UNSTABLE,
+} from 'recoil';
 
-import { participantsState } from '../DailyParticipants';
+import {
+  ExtendedDailyParticipant,
+  participantsState,
+} from '../DailyParticipants';
 import { isTrackOff } from '../utils/isTrackOff';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
@@ -65,8 +72,14 @@ export const useParticipantIds = (
     sort: defaultSort,
   }
 ) => {
-  // TODO: Optimize render performance for useParticipantIds
-  const allParticipants = useRecoilValue(participantsState);
+  /**
+   * Every instance of useParticipantIds holds its own state of session IDs.
+   * We don't subscribe to the participantsState directly, because this would
+   * cause re-renders anytime one of the participant objects changes, e.g.
+   * when a participant toggles their cam or mic.
+   * We only want to trigger a re-render here when the list of ids changes.
+   */
+  const [sortedIds, setSortedIds] = useState<string[]>([]);
 
   const filterFn = useMemo(() => {
     let filterFn = defaultFilter;
@@ -125,13 +138,62 @@ export const useParticipantIds = (
     return sortFn;
   }, [sort]);
 
-  const sortedIds = useMemo(() => {
-    return allParticipants
-      .filter(filterFn)
-      .sort(sortFn)
-      .map((p) => p.session_id)
-      .filter(Boolean);
-  }, [allParticipants, filterFn, sortFn]);
+  /**
+   * Applies memoized filter and sorting to the passed array of participant objects.
+   */
+  const filterAndSortParticipants = useCallback(
+    (participants: ExtendedDailyParticipant[]) => {
+      return participants
+        .filter(filterFn)
+        .sort(sortFn)
+        .map((p) => p.session_id)
+        .filter(Boolean);
+    },
+    [filterFn, sortFn]
+  );
+
+  /**
+   * Updates storedIds state, in case the passed list of ids differs to what's currently in state.
+   */
+  const maybeUpdateIds = useCallback((ids: string[]) => {
+    setSortedIds((prevIds) => {
+      if (deepEqual(prevIds, ids)) return prevIds;
+      return ids;
+    });
+  }, []);
+
+  /**
+   * Used to initialize the storedIds state, when the component mounts,
+   * or its filter or sort prop changed.
+   */
+  const initIds = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        const ids = filterAndSortParticipants(
+          await snapshot.getPromise(participantsState)
+        );
+        maybeUpdateIds(ids);
+      },
+    [filterAndSortParticipants, maybeUpdateIds]
+  );
+
+  /**
+   * Effect to initialize state when mounted.
+   */
+  useEffect(() => {
+    initIds();
+  }, [initIds]);
+
+  /**
+   * Asynchronously subscribes to updates to the participantsState, without causing re-renders.
+   * Anytime filtering and sorting the participant objects in the recoil state returns a different list,
+   * we'll update this hook instance's state.
+   */
+  useRecoilTransactionObserver_UNSTABLE(async ({ snapshot }) => {
+    const participants = await snapshot.getPromise(participantsState);
+    const newSortedIds = filterAndSortParticipants(participants);
+    maybeUpdateIds(newSortedIds);
+  });
 
   useThrottledDailyEvent(
     [
