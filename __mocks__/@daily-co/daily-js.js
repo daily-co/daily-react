@@ -19,6 +19,10 @@ const createCallObject = (properties) => {
     exitFullscreen: jest.fn(),
     geo: jest.fn(),
     getActiveSpeaker: jest.fn(),
+    getCpuLoadStats: jest.fn(async () => ({
+      cpuLoadState: 'low',
+      cpuLoadStateReason: 'none'
+    })),
     getDailyLang: jest.fn(),
     getInputDevices: jest.fn(async () => ({
       camera: {},
