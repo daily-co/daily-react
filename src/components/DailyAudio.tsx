@@ -1,4 +1,4 @@
-import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import React, {
   forwardRef,
   memo,
@@ -134,34 +134,27 @@ export const DailyAudio = memo(
         [activeSpeakerId]
       );
 
-      /**
-       * Only consider remote participants with subscribed or staged audio.
-       */
-      const subscribedIds = useParticipantIds({
-        filter: useCallback(
-          (p: DailyParticipant) =>
-            !p.local && Boolean(p.tracks.audio.subscribed),
-          []
-        ),
-      });
-
       const assignSpeaker = useRecoilCallback(
         ({ snapshot }) =>
           async (sessionId: string) => {
-            if (!subscribedIds.includes(sessionId)) return;
-
-            // Get subscribed participant list
-            const participants = (
+            /**
+             * Only consider remote participants with subscribed or staged audio.
+             */
+            const subscribedParticipants = (
               await snapshot.getPromise(participantsState)
-            ).filter((p) => subscribedIds.includes(p.session_id));
+            ).filter((p) => !p.local && Boolean(p.tracks.audio.subscribed));
+
+            const isSubscribed = (id: string) =>
+              subscribedParticipants.some((p) => p.session_id === id);
+
+            if (!isSubscribed(sessionId)) return;
 
             setSpeakers((prevSpeakers) => {
               // New speaker is already present
               if (prevSpeakers.includes(sessionId)) return prevSpeakers;
 
               // Try to find a free slot: either unassigned or unsubscribed
-              const freeSlotCheck = (id: string) =>
-                !id || !subscribedIds.includes(id);
+              const freeSlotCheck = (id: string) => !id || !isSubscribed(id);
               if (prevSpeakers.some(freeSlotCheck)) {
                 const idx = prevSpeakers.findIndex(freeSlotCheck);
                 prevSpeakers[idx] = sessionId;
@@ -172,7 +165,7 @@ export const DailyAudio = memo(
 
               // Try to find muted recent speaker
               const mutedIdx = prevSpeakers.findIndex((id) =>
-                participants.some(
+                subscribedParticipants.some(
                   (p) => p.session_id === id && isTrackOff(p.tracks.audio)
                 )
               );
@@ -182,7 +175,7 @@ export const DailyAudio = memo(
               }
 
               // Find least recent non-active speaker and replace with new speaker
-              const speakerObjects = participants
+              const speakerObjects = subscribedParticipants
                 .filter(
                   (p) =>
                     // Only consider participants currently assigned to speaker slots
@@ -216,7 +209,7 @@ export const DailyAudio = memo(
               return [...prevSpeakers];
             });
           },
-        [activeSpeakerId, subscribedIds]
+        [activeSpeakerId]
       );
 
       /**
