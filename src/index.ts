@@ -9,6 +9,7 @@ export { useActiveSpeakerId } from './hooks/useActiveSpeakerId';
 export { useAppMessage } from './hooks/useAppMessage';
 export { useAudioLevel } from './hooks/useAudioLevel';
 export { useAudioTrack } from './hooks/useAudioTrack';
+export { useCPULoad } from './hooks/useCPULoad';
 export { useDaily } from './hooks/useDaily';
 export { useDailyEvent } from './hooks/useDailyEvent';
 export { useDevices } from './hooks/useDevices';
