@@ -47,6 +47,11 @@ export const localIdState = atom<string>({
   default: '',
 });
 
+export const localJoinDateState = atom<Date | null>({
+  key: RECOIL_PREFIX + 'local-joined-date',
+  default: null,
+});
+
 export const participantIdsState = atom<string[]>({
   key: RECOIL_PREFIX + 'participant-ids',
   default: [],
@@ -167,7 +172,17 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   }, [daily, initParticipants]);
   useDailyEvent('started-camera', handleInitEvent);
   useDailyEvent('access-state-updated', handleInitEvent);
-  useDailyEvent('joining-meeting', handleInitEvent);
+  useDailyEvent(
+    'joining-meeting',
+    useRecoilCallback(
+      ({ set }) =>
+        () => {
+          set(localJoinDateState, new Date());
+          handleInitEvent();
+        },
+      [handleInitEvent]
+    )
+  );
   useDailyEvent(
     'joined-meeting',
     useCallback(
