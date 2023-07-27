@@ -8,6 +8,7 @@ import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { useMeetingState } from './useMeetingState';
 
 interface CPULoad {
   state: DailyCpuLoadStats['cpuLoadState'];
@@ -33,6 +34,7 @@ interface Props {
 export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
   const cpu = useRecoilValue(CPULoadState);
   const daily = useDaily();
+  const meetingState = useMeetingState();
 
   const updateCPULoadState = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -46,7 +48,8 @@ export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
 
   useEffect(() => {
     let mounted = true;
-    if (!daily || daily.isDestroyed()) return;
+    if (!daily || daily.isDestroyed() || meetingState !== 'joined-meeting')
+      return;
     daily.getCpuLoadStats().then((stats) => {
       if (!mounted) return;
       updateCPULoadState({
@@ -57,7 +60,7 @@ export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
     return () => {
       mounted = false;
     };
-  }, [daily, updateCPULoadState]);
+  }, [daily, meetingState, updateCPULoadState]);
 
   useDailyEvent(
     'cpu-load-change',
