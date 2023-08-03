@@ -4,7 +4,6 @@ import DailyIframe, {
   DailyEventObject,
   DailyFactoryOptions,
 } from '@daily-co/daily-js';
-import deepEqual from 'fast-deep-equal';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RecoilRoot, RecoilRootProps } from 'recoil';
 
@@ -16,6 +15,7 @@ import { DailyMeeting } from './DailyMeeting';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
+import { deepEqual } from './lib/deepEqual';
 
 type BaseProps =
   | DailyFactoryOptions

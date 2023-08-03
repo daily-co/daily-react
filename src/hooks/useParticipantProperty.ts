@@ -1,4 +1,3 @@
-import deepEqual from 'fast-deep-equal';
 import { useCallback, useEffect, useState } from 'react';
 import {
   selectorFamily,
@@ -11,6 +10,7 @@ import {
   participantState,
 } from '../DailyParticipants';
 import { RECOIL_PREFIX } from '../lib/constants';
+import { deepEqual } from '../lib/deepEqual';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
