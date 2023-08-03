@@ -118,6 +118,29 @@ describe('deepEqual', () => {
     });
   });
 
+  describe('Map', () => {
+    it.each`
+      a                 | b                      | expected
+      ${new Set()}      | ${new Set()}           | ${true}
+      ${new Set(['a'])} | ${new Set(['b'])}      | ${false}
+      ${new Set(['a'])} | ${new Set(['a', 'b'])} | ${false}
+      ${new Set(['a'])} | ${['a']}               | ${false}
+    `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
+      expect(deepEqual(a, b)).toBe(expected);
+    });
+  });
+
+  describe('Map', () => {
+    it.each`
+      a                      | b                                | expected
+      ${new Map()}           | ${new Map()}                     | ${true}
+      ${new Map([['a', 1]])} | ${new Map([['b', 1]])}           | ${false}
+      ${new Map([['a', 1]])} | ${new Map([['a', 1], ['b', 1]])} | ${false}
+    `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
+      expect(deepEqual(a, b)).toBe(expected);
+    });
+  });
+
   describe('Functions', () => {
     const funcA = () => 'test';
     const funcB = () => 'test';

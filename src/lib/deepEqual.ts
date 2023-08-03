@@ -30,6 +30,16 @@ export function deepEqual(a: any, b: any): boolean {
     return a.source === b.source && a.flags === b.flags;
   }
 
+  // Handle special case for Set
+  if (a instanceof Set && b instanceof Set) {
+    return deepEqual([...a], [...b]);
+  }
+
+  // Handle special case for Map
+  if (a instanceof Map && b instanceof Map) {
+    return deepEqual(Object.fromEntries(a), Object.fromEntries(b));
+  }
+
   // If a or b are not objects or null, they can't be deeply equal
   if (
     typeof a !== 'object' ||
