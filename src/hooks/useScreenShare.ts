@@ -1,6 +1,15 @@
 import { DailyCall, DailyTrackState } from '@daily-co/daily-js';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  useRecoilCallback,
+  useRecoilTransactionObserver_UNSTABLE,
+} from 'recoil';
 
+import {
+  ExtendedDailyParticipant,
+  participantState,
+} from '../DailyParticipants';
+import { deepEqual } from '../lib/deepEqual';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useParticipantIds } from './useParticipantIds';
@@ -59,29 +68,66 @@ export const useScreenShare = ({
   const screenIds = useParticipantIds({
     filter: 'screen',
   });
-  const screens = useMemo(
-    () =>
-      screenIds
-        .map((id) => {
-          const participants = Object.values(daily?.participants?.() ?? {});
-          const p = participants.find((p) => p.session_id === id);
-          if (!p) return;
-          return {
-            local: p.local,
-            screenAudio: p.tracks.screenAudio,
-            screenVideo: p.tracks.screenVideo,
-            screenId: `${id}-screen`,
-            session_id: id,
-          };
-        })
-        /**
-         * We'll need a type predicate to fully convince TypeScript that this array
-         * can't contain undefined. Find a good quick intro about type predicates at:
-         * https://fettblog.eu/typescript-type-predicates/
-         */
-        .filter((p): p is ScreenShare => !!p),
-    [daily, screenIds]
+  const [screens, setScreens] = useState<ScreenShare[]>([]);
+
+  /**
+   * Updates screens state, in case the passed list of screens differs to what's currently in state.
+   */
+  const maybeUpdateScreens = useCallback((screens: ScreenShare[]) => {
+    setScreens((prevScreens) => {
+      if (deepEqual(screens, prevScreens)) return prevScreens;
+      return screens;
+    });
+  }, []);
+
+  /**
+   * Convenience method to convert a list of session ids to ScreenShare objects.
+   */
+  const convertScreenIdsToScreens = useRecoilCallback(
+    ({ snapshot }) =>
+      async (screenIds: string[]) => {
+        const participants = await Promise.all(
+          screenIds.map(async (id) => {
+            return await snapshot.getPromise(participantState(id));
+          })
+        );
+        const screens = participants
+          .filter((p): p is ExtendedDailyParticipant => Boolean(p))
+          .map<ScreenShare>((p) => {
+            return {
+              local: p.local,
+              screenAudio: p.tracks.screenAudio,
+              screenVideo: p.tracks.screenVideo,
+              screenId: `${p.session_id}-screen`,
+              session_id: p.session_id,
+            };
+          })
+          .filter(Boolean);
+        return screens;
+      },
+    []
   );
+
+  /**
+   * Initializes screens using screenIds.
+   */
+  const initScreens = useCallback(async () => {
+    maybeUpdateScreens(await convertScreenIdsToScreens(screenIds));
+  }, [convertScreenIdsToScreens, maybeUpdateScreens, screenIds]);
+
+  /**
+   * Effect to initialize state when mounted.
+   */
+  useEffect(() => {
+    initScreens();
+  }, [initScreens]);
+
+  /**
+   * Asynchronously subscribes to recoil updates, without causing re-renders.
+   */
+  useRecoilTransactionObserver_UNSTABLE(async () => {
+    maybeUpdateScreens(await convertScreenIdsToScreens(screenIds));
+  });
 
   return {
     isSharingScreen: screens.some((s) => s.local),
