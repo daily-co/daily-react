@@ -15,6 +15,7 @@ import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
 import { resolveParticipantPaths } from '../utils/resolveParticipantPaths';
+import { useDaily } from './useDaily';
 
 type PropertyType = {
   id: string;
@@ -55,7 +56,22 @@ export const useParticipantProperty = <
   participantId: string,
   propertyPaths: P
 ): UseParticipantPropertyReturnType<T, P> => {
-  const [properties, setProperties] = useState<any[]>([]);
+  const daily = useDaily();
+  let initialValues: any[] = [];
+  if (daily && !daily.isDestroyed()) {
+    const participant = Object.values(daily.participants()).find(
+      (p) => p.session_id === participantId
+    );
+    if (participant) {
+      initialValues = resolveParticipantPaths(
+        participant as T,
+        (Array.isArray(propertyPaths)
+          ? propertyPaths
+          : [propertyPaths]) as Paths<T>[]
+      );
+    }
+  }
+  const [properties, setProperties] = useState<any[]>(initialValues);
 
   /**
    * Updates properties state, in case the passed list of values differs to what's currently in state.
