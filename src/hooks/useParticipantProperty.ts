@@ -10,7 +10,7 @@ import {
   participantState,
 } from '../DailyParticipants';
 import { RECOIL_PREFIX } from '../lib/constants';
-import { deepEqual } from '../lib/deepEqual';
+import { customDeepEqual } from '../lib/customDeepEqual';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
@@ -78,7 +78,7 @@ export const useParticipantProperty = <
    */
   const maybeUpdateProperties = useCallback((properties: any[]) => {
     setProperties((prevProperties) => {
-      if (deepEqual(properties, prevProperties)) return prevProperties;
+      if (customDeepEqual(properties, prevProperties)) return prevProperties;
       return properties;
     });
   }, []);

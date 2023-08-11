@@ -15,7 +15,7 @@ import { DailyMeeting } from './DailyMeeting';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
-import { deepEqual } from './lib/deepEqual';
+import { customDeepEqual } from './lib/customDeepEqual';
 
 type BaseProps =
   | DailyFactoryOptions
@@ -127,7 +127,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       /**
        * Props have changed. Destroy current instance, so a new one can be created.
        */
-      if (!deepEqual(lastUsedProps.current, props)) {
+      if (!customDeepEqual(lastUsedProps.current, props)) {
         destroyCallObject(callObject);
       }
       /**

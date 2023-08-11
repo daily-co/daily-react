@@ -2,7 +2,7 @@
 
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
 
-import { deepEqual } from '../../src/lib/deepEqual';
+import { customDeepEqual } from '../../src/lib/customDeepEqual';
 
 describe('deepEqual', () => {
   describe('Primitives and simple types', () => {
@@ -15,7 +15,7 @@ describe('deepEqual', () => {
       ${undefined} | ${undefined} | ${true}
       ${42}        | ${'42'}      | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -28,7 +28,7 @@ describe('deepEqual', () => {
       ${[1, [2, 3]]} | ${[1, 2, 3]}   | ${false}
       ${[]}          | ${[]}          | ${true}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -41,11 +41,12 @@ describe('deepEqual', () => {
       ${{ key1: 'value' }}                                     | ${{ key2: 'value' }}                                     | ${false}
       ${{}}                                                    | ${{}}                                                    | ${true}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
   describe('MediaStream', () => {
+    // @ts-ignore
     const streamA = new MediaStream();
     afterEach(() => {
       streamA.getTracks().forEach((track) => {
@@ -54,23 +55,24 @@ describe('deepEqual', () => {
       });
     });
     it('returns true when streams are equal', () => {
-      expect(deepEqual(streamA, streamA)).toBe(true);
+      expect(customDeepEqual(streamA, streamA)).toBe(true);
     });
     it('returns true when equal stream has the same tracks', () => {
       const track = new FakeMediaStreamTrack({ kind: 'audio' });
       streamA.addTrack(track);
-      expect(deepEqual(streamA, streamA)).toBe(true);
+      expect(customDeepEqual(streamA, streamA)).toBe(true);
     });
     it('returns false when streams are not equal', () => {
+      // @ts-ignore
       const streamB = new MediaStream();
-      expect(deepEqual(streamA, streamB)).toBe(false);
+      expect(customDeepEqual(streamA, streamB)).toBe(false);
     });
     it('returns false when amount of tracks differs', () => {
       const track = new FakeMediaStreamTrack({ kind: 'audio' });
       // @ts-ignore
       const streamC = new MediaStream([], streamA.id);
       streamA.addTrack(track);
-      expect(deepEqual(streamA, streamC)).toBe(false);
+      expect(customDeepEqual(streamA, streamC)).toBe(false);
     });
     it('returns false when track id differs', () => {
       const track1 = new FakeMediaStreamTrack({ kind: 'audio' });
@@ -80,7 +82,7 @@ describe('deepEqual', () => {
       const streamC = new MediaStream([], streamA.id);
       streamA.addTrack(track1);
       streamC.addTrack(track2);
-      expect(deepEqual(streamA, streamC)).toBe(false);
+      expect(customDeepEqual(streamA, streamC)).toBe(false);
     });
   });
 
@@ -92,7 +94,7 @@ describe('deepEqual', () => {
       ${new FakeMediaStreamTrack({ id: '1', kind: 'audio', readyState: 'live' })} | ${new FakeMediaStreamTrack({ id: '1', kind: 'video', readyState: 'live' })}  | ${false}
       ${new FakeMediaStreamTrack({ id: '1', kind: 'audio', readyState: 'live' })} | ${new FakeMediaStreamTrack({ id: '1', kind: 'audio', readyState: 'ended' })} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -103,7 +105,7 @@ describe('deepEqual', () => {
       ${new Date('2023-01-01')} | ${new Date('2022-01-01')} | ${false}
       ${new Date('2023-01-01')} | ${'2023-01-01'}           | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -114,19 +116,20 @@ describe('deepEqual', () => {
       ${/test/g}  | ${/test/gi}  | ${false}
       ${/test/g}  | ${'/test/g'} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
-  describe('Map', () => {
+  describe('Set', () => {
     it.each`
-      a                 | b                      | expected
-      ${new Set()}      | ${new Set()}           | ${true}
-      ${new Set(['a'])} | ${new Set(['b'])}      | ${false}
-      ${new Set(['a'])} | ${new Set(['a', 'b'])} | ${false}
-      ${new Set(['a'])} | ${['a']}               | ${false}
+      a                                                            | b                                                            | expected
+      ${new Set()}                                                 | ${new Set()}                                                 | ${true}
+      ${new Set(['a'])}                                            | ${new Set(['b'])}                                            | ${false}
+      ${new Set(['a'])}                                            | ${new Set(['a', 'b'])}                                       | ${false}
+      ${new Set(['a'])}                                            | ${['a']}                                                     | ${false}
+      ${new Set(['audio', 'video', 'screenVideo', 'screenAudio'])} | ${new Set(['audio', 'video', 'screenVideo', 'screenAudio'])} | ${true}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -137,7 +140,7 @@ describe('deepEqual', () => {
       ${new Map([['a', 1]])} | ${new Map([['b', 1]])}           | ${false}
       ${new Map([['a', 1]])} | ${new Map([['a', 1], ['b', 1]])} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -149,7 +152,7 @@ describe('deepEqual', () => {
       ${funcA} | ${funcA} | ${true}
       ${funcA} | ${funcB} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 
@@ -179,7 +182,7 @@ describe('deepEqual', () => {
       ${complexObjA} | ${complexObjB} | ${true}
       ${complexObjA} | ${complexObjC} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
-      expect(deepEqual(a, b)).toBe(expected);
+      expect(customDeepEqual(a, b)).toBe(expected);
     });
   });
 });

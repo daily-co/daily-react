@@ -9,7 +9,7 @@ import {
   ExtendedDailyParticipant,
   participantState,
 } from '../DailyParticipants';
-import { deepEqual } from '../lib/deepEqual';
+import { customDeepEqual } from '../lib/customDeepEqual';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useParticipantIds } from './useParticipantIds';
@@ -75,7 +75,7 @@ export const useScreenShare = ({
    */
   const maybeUpdateScreens = useCallback((screens: ScreenShare[]) => {
     setScreens((prevScreens) => {
-      if (deepEqual(screens, prevScreens)) return prevScreens;
+      if (customDeepEqual(screens, prevScreens)) return prevScreens;
       return screens;
     });
   }, []);

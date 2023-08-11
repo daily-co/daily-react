@@ -1,8 +1,9 @@
+import deepEqual from 'fast-deep-equal/es6';
 /**
  * Compares two variables for deep equality.
  * Gracefully handles equality checks on MediaStreamTracks by comparing their ids.
  */
-export function deepEqual(a: any, b: any): boolean {
+export function customDeepEqual(a: any, b: any): boolean {
   if (a === b) return true;
 
   // Handle special case for MediaStream
@@ -11,7 +12,7 @@ export function deepEqual(a: any, b: any): boolean {
       a.id === b.id &&
       a.active === b.active &&
       a.getTracks().length === b.getTracks().length &&
-      a.getTracks().every((track, idx) => deepEqual(track, b.getTracks()[idx]))
+      a.getTracks().every((track, idx) => customDeepEqual(track, b.getTracks()[idx]))
     );
   }
 
@@ -30,14 +31,14 @@ export function deepEqual(a: any, b: any): boolean {
     return a.source === b.source && a.flags === b.flags;
   }
 
-  // Handle special case for Set
+  // Handle special case for Set - use fast-deep-equal for this
   if (a instanceof Set && b instanceof Set) {
-    return deepEqual([...a], [...b]);
+    return deepEqual(a, b);
   }
 
-  // Handle special case for Map
+  // Handle special case for Map - use fast-deep-equal for this
   if (a instanceof Map && b instanceof Map) {
-    return deepEqual(Object.fromEntries(a), Object.fromEntries(b));
+    return deepEqual(a, b);
   }
 
   // If a or b are not objects or null, they can't be deeply equal
@@ -66,7 +67,7 @@ export function deepEqual(a: any, b: any): boolean {
       (key in a && !(key in b)) ||
       (key in b && !(key in a)) ||
       // Both keys exist in both object -> run nested equality check
-      !deepEqual(a[key], b[key])
+      !customDeepEqual(a[key], b[key])
     )
       return false;
   }
