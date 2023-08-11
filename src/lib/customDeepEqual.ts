@@ -12,7 +12,9 @@ export function customDeepEqual(a: any, b: any): boolean {
       a.id === b.id &&
       a.active === b.active &&
       a.getTracks().length === b.getTracks().length &&
-      a.getTracks().every((track, idx) => customDeepEqual(track, b.getTracks()[idx]))
+      a
+        .getTracks()
+        .every((track, idx) => customDeepEqual(track, b.getTracks()[idx]))
     );
   }
 
