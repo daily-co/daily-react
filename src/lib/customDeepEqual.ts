@@ -1,4 +1,3 @@
-import deepEqual from 'fast-deep-equal/es6';
 /**
  * Compares two variables for deep equality.
  * Gracefully handles equality checks on MediaStreamTracks by comparing their ids.
@@ -33,14 +32,36 @@ export function customDeepEqual(a: any, b: any): boolean {
     return a.source === b.source && a.flags === b.flags;
   }
 
-  // Handle special case for Set - use fast-deep-equal for this
+  // Handle special case for Set
   if (a instanceof Set && b instanceof Set) {
-    return deepEqual(a, b);
+    if (a.size !== b.size) {
+      return false;
+    }
+
+    for (const value of a.values()) {
+      if (!b.has(value)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  // Handle special case for Map - use fast-deep-equal for this
+  // Handle special case for Map
   if (a instanceof Map && b instanceof Map) {
-    return deepEqual(a, b);
+    if (a.size !== b.size) {
+      return false;
+    }
+    for (const [key, value] of a.entries()) {
+      if (!b.has(key)) {
+        return false;
+      }
+      if (!customDeepEqual(value, b.get(key))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   // If a or b are not objects or null, they can't be deeply equal
