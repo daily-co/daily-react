@@ -4,7 +4,7 @@ import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
 
 import { customDeepEqual } from '../../src/lib/customDeepEqual';
 
-describe('deepEqual', () => {
+describe('customDeepEqual', () => {
   describe('Primitives and simple types', () => {
     it.each`
       a            | b            | expected
