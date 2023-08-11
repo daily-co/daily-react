@@ -46,7 +46,6 @@ describe('customDeepEqual', () => {
   });
 
   describe('MediaStream', () => {
-    // @ts-ignore
     const streamA = new MediaStream();
     afterEach(() => {
       streamA.getTracks().forEach((track) => {
@@ -63,7 +62,6 @@ describe('customDeepEqual', () => {
       expect(customDeepEqual(streamA, streamA)).toBe(true);
     });
     it('returns false when streams are not equal', () => {
-      // @ts-ignore
       const streamB = new MediaStream();
       expect(customDeepEqual(streamA, streamB)).toBe(false);
     });
