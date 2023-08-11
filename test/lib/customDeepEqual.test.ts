@@ -129,6 +129,7 @@ describe('customDeepEqual', () => {
       ${new Set(['a'])}                                            | ${['a']}                                                     | ${false}
       ${new Set(['audio', 'video', 'screenVideo', 'screenAudio'])} | ${new Set(['audio', 'video', 'screenVideo', 'screenAudio'])} | ${true}
       ${new Set([])}                                               | ${new Set(['audio'])}                                        | ${false}
+      ${new Set([])}                                               | ${new Set([])}                                               | ${true}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
       expect(customDeepEqual(a, b)).toBe(expected);
     });
