@@ -1,10 +1,24 @@
 import '@testing-library/jest-dom';
+import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
+import faker from 'faker';
 
 class MediaStream {
+  active: boolean;
+  id: string;
   tracks: MediaStreamTrack[] = [];
 
-  constructor(tracks: MediaStreamTrack[]) {
+  constructor(tracks: MediaStreamTrack[] = [], id?: string) {
     this.tracks = tracks;
+    this.id = id ?? faker.datatype.uuid();
+    this.active = true;
+  }
+
+  addTrack(track: MediaStreamTrack) {
+    this.tracks.push(track);
+  }
+
+  removeTrack(track: MediaStreamTrack) {
+    this.tracks = this.tracks.filter(t => t.id !== track.id);
   }
 
   getAudioTracks() {
@@ -18,11 +32,20 @@ class MediaStream {
   getTracks() {
     return this.tracks;
   }
+
+  stop() {
+    this.active = false;
+  }
 }
 
 Object.defineProperty(window, 'MediaStream', {
   value: MediaStream,
 });
+
+Object.defineProperty(window, 'MediaStreamTrack', {
+  writable: true,
+  value: FakeMediaStreamTrack,
+})
 
 Object.defineProperty(HTMLVideoElement.prototype, 'load', {
   value: () => {},

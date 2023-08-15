@@ -7,20 +7,12 @@ import {
   DailyWaitingParticipant,
 } from '@daily-co/daily-js';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  atom,
-  atomFamily,
-  selector,
-  selectorFamily,
-  useRecoilCallback,
-} from 'recoil';
+import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
-import type { Paths } from './types/paths';
-import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -28,11 +20,6 @@ import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 export interface ExtendedDailyParticipant extends DailyParticipant {
   last_active?: Date;
 }
-
-type PropertyType = {
-  id: string;
-  properties: Paths<ExtendedDailyParticipant>[];
-};
 
 /**
  * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
@@ -45,6 +32,11 @@ export const activeIdState = atom<string | null>({
 export const localIdState = atom<string>({
   key: RECOIL_PREFIX + 'local-id',
   default: '',
+});
+
+export const localJoinDateState = atom<Date | null>({
+  key: RECOIL_PREFIX + 'local-joined-date',
+  default: null,
 });
 
 export const participantIdsState = atom<string[]>({
@@ -69,20 +61,6 @@ export const participantsState = selector<ExtendedDailyParticipant[]>({
       .filter(Boolean) as ExtendedDailyParticipant[];
     return participants;
   },
-});
-
-/**
- * Holds each individual participant's property.
- */
-export const participantPropertyState = selectorFamily<any, PropertyType>({
-  key: RECOIL_PREFIX + 'participant-property',
-  get:
-    ({ id, properties }) =>
-    ({ get }) => {
-      const participant = get(participantState(id));
-
-      return resolveParticipantPaths(participant, properties);
-    },
 });
 
 /**
@@ -167,7 +145,17 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   }, [daily, initParticipants]);
   useDailyEvent('started-camera', handleInitEvent);
   useDailyEvent('access-state-updated', handleInitEvent);
-  useDailyEvent('joining-meeting', handleInitEvent);
+  useDailyEvent(
+    'joining-meeting',
+    useRecoilCallback(
+      ({ set }) =>
+        () => {
+          set(localJoinDateState, new Date());
+          handleInitEvent();
+        },
+      [handleInitEvent]
+    )
+  );
   useDailyEvent(
     'joined-meeting',
     useCallback(
