@@ -1,6 +1,5 @@
 import {
   DailyCall,
-  DailyEventObjectRecordingStarted,
   DailyParticipant,
 } from '@daily-co/daily-js';
 
@@ -78,17 +77,6 @@ export const emitJoinedMeeting = (
   callObject.emit('joined-meeting', {
     action: 'joined-meeting',
     participants,
-  });
-};
-
-export const emitRecordingStarted = (
-  callObject: DailyCall,
-  payload: Partial<DailyEventObjectRecordingStarted>
-) => {
-  // @ts-ignore
-  callObject.emit('recording-started', {
-    action: 'recording-started',
-    ...payload,
   });
 };
 
