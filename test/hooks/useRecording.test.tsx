@@ -3,7 +3,6 @@
 import DailyIframe, {
   DailyCall,
   DailyEvent,
-  DailyEventObjectNoPayload,
   DailyEventObjectRecordingData,
   DailyEventObjectRecordingError,
   DailyEventObjectRecordingStarted,
@@ -17,6 +16,10 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRecording } from '../../src/hooks/useRecording';
+import {
+  emitLeftMeeting,
+  emitRecordingStarted,
+} from '../.test-utils/event-emitter';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -69,30 +72,32 @@ describe('useRecording', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const event: DailyEvent = 'recording-started';
-    const payload: DailyEventObjectRecordingStarted = {
-      action: 'recording-started',
-      layout: {
-        preset: 'default',
-      },
-      local: false,
-      recordingId: faker.datatype.uuid(),
-      startedBy: faker.datatype.uuid(),
-      type: 'cloud-beta',
-    };
     act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
+      emitRecordingStarted(daily, {
+        action: 'recording-started',
+        layout: {
+          preset: 'default',
+        },
+        local: false,
+        recordingId: 'e6ac37ea-4583-11ee-be56-0242ac120002',
+        startedBy: '0ea19dc7-049d-4e43-b8a1-4c6ee3c86088',
+        type: 'cloud-beta',
+      });
     });
+
     await waitFor(() => {
-      expect(onRecordingStarted).toHaveBeenCalledWith(payload);
+      expect(onRecordingStarted).toHaveBeenCalled();
       expect(result.current.isLocalParticipantRecorded).toBe(true);
       expect(result.current.isRecording).toBe(true);
-      expect(result.current.layout).toEqual(payload.layout);
-      expect(result.current.local).toEqual(payload.local);
-      expect(result.current.recordingId).toEqual(payload.recordingId);
-      expect(result.current.startedBy).toEqual(payload.startedBy);
-      expect(result.current.type).toEqual(payload.type);
+      expect(result.current.local).toEqual(false);
+      expect(result.current.layout).toEqual({ preset: 'default' });
+      expect(result.current.type).toEqual('cloud-beta');
+      expect(result.current.recordingId).toEqual(
+        'e6ac37ea-4583-11ee-be56-0242ac120002'
+      );
+      expect(result.current.startedBy).toEqual(
+        '0ea19dc7-049d-4e43-b8a1-4c6ee3c86088'
+      );
     });
   });
   it('recording-stopped calls onRecordingStopped and updates state', async () => {
@@ -274,17 +279,43 @@ describe('useRecording', () => {
   });
   it('left-meeting event resets state', async () => {
     const daily = DailyIframe.createCallObject();
-    const { result, waitFor } = renderHook(() => useRecording(), {
-      wrapper: createWrapper(daily),
-    });
-    const event: DailyEvent = 'left-meeting';
-    const payload: DailyEventObjectNoPayload = {
-      action: 'left-meeting',
-    };
+    const onRecordingStarted = jest.fn();
+    const { result, waitFor } = renderHook(
+      () => useRecording({ onRecordingStarted }),
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
     act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
+      emitRecordingStarted(daily, {
+        action: 'recording-started',
+        layout: {
+          preset: 'default',
+        },
+        local: false,
+        recordingId: '0024874f-34b5-4b42-ab6d-fd160da96c0b',
+        startedBy: '55572888-0f18-4e0f-bf24-3018275b5fb0',
+        type: 'cloud-beta',
+      });
     });
+
+    await waitFor(() => {
+      expect(onRecordingStarted).toHaveBeenCalled();
+      expect(result.current.isLocalParticipantRecorded).toBe(true);
+      expect(result.current.isRecording).toBe(true);
+      expect(result.current.local).toEqual(false);
+      expect(result.current.layout).toEqual({ preset: 'default' });
+      expect(result.current.type).toEqual('cloud-beta');
+      expect(result.current.recordingId).toEqual(
+        '0024874f-34b5-4b42-ab6d-fd160da96c0b'
+      );
+      expect(result.current.startedBy).toEqual(
+        '55572888-0f18-4e0f-bf24-3018275b5fb0'
+      );
+    });
+
+    // then leave the meeting
+    act(() => emitLeftMeeting(daily));
     await waitFor(() => {
       expect(result.current.isRecording).toBe(false);
       expect(result.current.isLocalParticipantRecorded).toBe(false);
