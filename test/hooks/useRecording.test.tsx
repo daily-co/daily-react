@@ -3,6 +3,7 @@
 import DailyIframe, {
   DailyCall,
   DailyEvent,
+  DailyEventObjectNoPayload,
   DailyEventObjectRecordingData,
   DailyEventObjectRecordingError,
   DailyEventObjectRecordingStarted,
@@ -269,6 +270,24 @@ describe('useRecording', () => {
       expect(result.current.isRecording).toBe(true);
       expect(result.current.local).toBe(false);
       expect(result.current.type).toBe('local');
+    });
+  });
+  it('left-meeting event resets state', async () => {
+    const daily = DailyIframe.createCallObject();
+    const { result, waitFor } = renderHook(() => useRecording(), {
+      wrapper: createWrapper(daily),
+    });
+    const event: DailyEvent = 'left-meeting';
+    const payload: DailyEventObjectNoPayload = {
+      action: 'left-meeting',
+    };
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(result.current.isRecording).toBe(false);
+      expect(result.current.isLocalParticipantRecorded).toBe(false);
     });
   });
 });

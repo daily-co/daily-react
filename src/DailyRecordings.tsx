@@ -164,6 +164,15 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
       []
     )
   );
-
+  useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(recordingState);
+        },
+      []
+    )
+  );
   return <>{children}</>;
 };
