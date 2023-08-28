@@ -16,6 +16,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRecording } from '../../src/hooks/useRecording';
+import { emitLeftMeeting } from '../.test-utils/event-emitter';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -79,10 +80,12 @@ describe('useRecording', () => {
       startedBy: faker.datatype.uuid(),
       type: 'cloud-beta',
     };
+
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
     });
+
     await waitFor(() => {
       expect(onRecordingStarted).toHaveBeenCalledWith(payload);
       expect(result.current.isLocalParticipantRecorded).toBe(true);
@@ -269,6 +272,50 @@ describe('useRecording', () => {
       expect(result.current.isRecording).toBe(true);
       expect(result.current.local).toBe(false);
       expect(result.current.type).toBe('local');
+    });
+  });
+  it('left-meeting event resets state', async () => {
+    const daily = DailyIframe.createCallObject();
+    const onRecordingStarted = jest.fn();
+    const { result, waitFor } = renderHook(
+      () => useRecording({ onRecordingStarted }),
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    const event: DailyEvent = 'recording-started';
+    const payload: DailyEventObjectRecordingStarted = {
+      action: 'recording-started',
+      layout: {
+        preset: 'default',
+      },
+      local: false,
+      recordingId: faker.datatype.uuid(),
+      startedBy: faker.datatype.uuid(),
+      type: 'cloud-beta',
+    };
+
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+
+    await waitFor(() => {
+      expect(onRecordingStarted).toHaveBeenCalledWith(payload);
+      expect(result.current.isLocalParticipantRecorded).toBe(true);
+      expect(result.current.isRecording).toBe(true);
+      expect(result.current.layout).toEqual(payload.layout);
+      expect(result.current.local).toEqual(payload.local);
+      expect(result.current.recordingId).toEqual(payload.recordingId);
+      expect(result.current.startedBy).toEqual(payload.startedBy);
+      expect(result.current.type).toEqual(payload.type);
+    });
+
+    // then leave the meeting
+    act(() => emitLeftMeeting(daily));
+    await waitFor(() => {
+      expect(result.current.isRecording).toBe(false);
+      expect(result.current.isLocalParticipantRecorded).toBe(false);
     });
   });
 });
