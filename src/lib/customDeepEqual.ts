@@ -81,14 +81,10 @@ export function customDeepEqual(a: any, b: any): boolean {
   // If the number of keys are different, the objects are not equal
   if (keysA.length !== keysB.length) return false;
 
-  // Construct unique set of all keys in both a and b
-  const keysSet = new Set([...keysA, ...keysB]);
-
-  for (let key of keysSet) {
+  for (let key of keysA) {
     if (
-      // If key exists in one, but not the other -> not equal
-      (key in a && !(key in b)) ||
-      (key in b && !(key in a)) ||
+      // If key exists in a, but not in b -> not equal
+      !(key in b) ||
       // Both keys exist in both object -> run nested equality check
       !customDeepEqual(a[key], b[key])
     )

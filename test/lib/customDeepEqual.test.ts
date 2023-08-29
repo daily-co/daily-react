@@ -137,6 +137,8 @@ describe('customDeepEqual', () => {
     it.each`
       a                      | b                                | expected
       ${new Map()}           | ${new Map()}                     | ${true}
+      ${new Map([['a', 1]])} | ${new Map([['a', 1]])}           | ${true}
+      ${new Map([['a', 1]])} | ${new Map([['a', 2]])}           | ${false}
       ${new Map([['a', 1]])} | ${new Map([['b', 1]])}           | ${false}
       ${new Map([['a', 1]])} | ${new Map([['a', 1], ['b', 1]])} | ${false}
     `('returns $expected for a: $a and b: $b', ({ a, b, expected }) => {
