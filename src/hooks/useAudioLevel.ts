@@ -7,7 +7,7 @@ import { inlineAudioWorklet } from '../lib/inlineAudioWorklet';
  * @param onVolumeChange The function to execute when the volume changes. Can be used to visualise audio output.
  */
 export const useAudioLevel = (
-  mediaTrack: MediaStreamTrack,
+  mediaTrack: MediaStreamTrack | undefined,
   onVolumeChange: (volume: number) => void
 ) => {
   const audioCtx = useRef<AudioContext>();
