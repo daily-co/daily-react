@@ -2,8 +2,6 @@ import {
   DailyCall,
   DailyEventObject,
   DailyEventObjectAppMessage,
-  DailyEventObjectTranscriptionStarted,
-  DailyEventObjectTranscriptionStopped,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
 import { useCallback, useEffect } from 'react';
@@ -20,10 +18,10 @@ import { useDailyEvent } from './useDailyEvent';
 import { useRoom } from './useRoom';
 
 interface UseTranscriptionArgs {
-  onTranscriptionStarted?(ev: DailyEventObjectTranscriptionStarted): void;
-  onTranscriptionStopped?(ev: DailyEventObjectTranscriptionStopped): void;
-  onTranscriptionError?(ev: DailyEventObject): void;
-  onTranscriptionAppData?(ev: DailyEventObject): void;
+  onTranscriptionStarted?(ev: DailyEventObject<'transcription-started'>): void;
+  onTranscriptionStopped?(ev: DailyEventObject<'transcription-stopped'>): void;
+  onTranscriptionError?(ev: DailyEventObject<'transcription-error'>): void;
+  onTranscriptionAppData?(ev: DailyEventObjectAppMessage<Transcription>): void;
 }
 
 export interface Transcription {
@@ -103,7 +101,7 @@ export const useTranscription = ({
     'transcription-started',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectTranscriptionStarted) => {
+        (ev: DailyEventObject<'transcription-started'>) => {
           set(transcriptionState, {
             isTranscriptionEnabled: true,
             error: false,
@@ -121,7 +119,7 @@ export const useTranscription = ({
     'transcription-stopped',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectTranscriptionStopped) => {
+        (ev: DailyEventObject<'transcription-stopped'>) => {
           set(transcriptionState, (prevState) => ({
             ...prevState,
             updatedBy: ev?.updatedBy,
@@ -136,7 +134,7 @@ export const useTranscription = ({
     'transcription-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject) => {
+        (ev: DailyEventObject<'transcription-error'>) => {
           set(transcriptionState, (prevState) => ({
             ...prevState,
             error: true,

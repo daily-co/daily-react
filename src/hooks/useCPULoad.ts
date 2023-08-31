@@ -1,7 +1,4 @@
-import {
-  DailyCpuLoadStats,
-  DailyEventObjectCpuLoadEvent,
-} from '@daily-co/daily-js';
+import { DailyCpuLoadStats, DailyEventObject } from '@daily-co/daily-js';
 import deepEqual from 'fast-deep-equal';
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
@@ -24,7 +21,7 @@ const CPULoadState = atom<CPULoad>({
 });
 
 interface Props {
-  onCPULoadChange?(ev: DailyEventObjectCpuLoadEvent): void;
+  onCPULoadChange?(ev: DailyEventObject<'cpu-load-change'>): void;
 }
 
 /**
@@ -65,7 +62,7 @@ export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
   useDailyEvent(
     'cpu-load-change',
     useCallback(
-      (ev: DailyEventObjectCpuLoadEvent) => {
+      (ev: DailyEventObject<'cpu-load-change'>) => {
         updateCPULoadState({
           state: ev.cpuLoadState,
           reason: ev.cpuLoadStateReason,

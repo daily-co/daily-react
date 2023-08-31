@@ -1,4 +1,4 @@
-import { DailyEventObjectWaitingParticipant } from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -7,9 +7,15 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseWaitingParticipantsArgs {
-  onWaitingParticipantAdded?(ev: DailyEventObjectWaitingParticipant): void;
-  onWaitingParticipantUpdated?(ev: DailyEventObjectWaitingParticipant): void;
-  onWaitingParticipantRemoved?(ev: DailyEventObjectWaitingParticipant): void;
+  onWaitingParticipantAdded?(
+    ev: DailyEventObject<'waiting-participant-added'>
+  ): void;
+  onWaitingParticipantUpdated?(
+    ev: DailyEventObject<'waiting-participant-updated'>
+  ): void;
+  onWaitingParticipantRemoved?(
+    ev: DailyEventObject<'waiting-participant-removed'>
+  ): void;
 }
 
 /**
@@ -25,21 +31,21 @@ export const useWaitingParticipants = ({
   const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
 
   const handleAdded = useCallback(
-    (ev: DailyEventObjectWaitingParticipant) => {
+    (ev: DailyEventObject<'waiting-participant-added'>) => {
       onWaitingParticipantAdded?.(ev);
     },
     [onWaitingParticipantAdded]
   );
 
   const handleRemoved = useCallback(
-    (ev: DailyEventObjectWaitingParticipant) => {
+    (ev: DailyEventObject<'waiting-participant-removed'>) => {
       onWaitingParticipantRemoved?.(ev);
     },
     [onWaitingParticipantRemoved]
   );
 
   const handleUpdated = useCallback(
-    (ev: DailyEventObjectWaitingParticipant) => {
+    (ev: DailyEventObject<'waiting-participant-updated'>) => {
       onWaitingParticipantUpdated?.(ev);
     },
     [onWaitingParticipantUpdated]

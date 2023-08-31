@@ -1,6 +1,6 @@
 import {
   DailyCall,
-  DailyEventObjectReceiveSettingsUpdated,
+  DailyEventObject,
   DailyReceiveSettings,
   DailySingleParticipantReceiveSettings,
 } from '@daily-co/daily-js';
@@ -22,7 +22,9 @@ const participantReceiveSettingsState = atomFamily<
 
 interface UseReceiveSettingsArgs {
   id?: string;
-  onReceiveSettingsUpdated?(ev: DailyEventObjectReceiveSettingsUpdated): void;
+  onReceiveSettingsUpdated?(
+    ev: DailyEventObject<'receive-settings-updated'>
+  ): void;
 }
 
 /**
@@ -58,7 +60,7 @@ export const useReceiveSettings = ({
   useDailyEvent(
     'receive-settings-updated',
     useCallback(
-      (ev: DailyEventObjectReceiveSettingsUpdated) => {
+      (ev: DailyEventObject<'receive-settings-updated'>) => {
         updateReceiveSettingsState(ev.receiveSettings);
         onReceiveSettingsUpdated?.(ev);
       },
