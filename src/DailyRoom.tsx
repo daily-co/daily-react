@@ -33,5 +33,16 @@ export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
 
   useDailyEvent('access-state-updated', updateRoom);
 
+  useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(roomState);
+        },
+      []
+    )
+  );
+
   return <>{children}</>;
 };

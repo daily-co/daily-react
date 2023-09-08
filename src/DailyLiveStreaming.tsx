@@ -70,5 +70,16 @@ export const DailyLiveStreaming: React.FC<React.PropsWithChildren<unknown>> = ({
     )
   );
 
+  useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(liveStreamingState);
+        },
+      []
+    )
+  );
+
   return <>{children}</>;
 };

@@ -169,6 +169,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   useThrottledDailyEvent(
     [
       'active-speaker-change',
+      'call-instance-destroyed',
       'left-meeting',
       'participant-joined',
       'participant-updated',
@@ -183,6 +184,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
             | 'participant-updated'
             | 'participant-left'
             | 'left-meeting'
+            | 'call-instance-destroyed'
           >[]
         ) => {
           transact_UNSTABLE(({ get, reset, set }) => {
@@ -239,6 +241,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                 /**
                  * Reset stored participants, when meeting has ended.
                  */
+                case 'call-instance-destroyed':
                 case 'left-meeting': {
                   reset(localIdState);
                   const ids = get(participantIdsState);
