@@ -14,6 +14,7 @@ import {
   participantsState,
 } from '../DailyParticipants';
 import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
+import { useDaily } from '../hooks/useDaily';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
 import { useScreenShare } from '../hooks/useScreenShare';
@@ -22,6 +23,11 @@ import { isTrackOff } from '../utils/isTrackOff';
 import { DailyAudioPlayException, DailyAudioTrack } from './DailyAudioTrack';
 
 interface Props {
+  /**
+   * When enabled and the call is configured for manual track subscriptions,
+   * DailyAudio will automatically subscribe to the active speaker's audio track.
+   */
+  autoSubscribeActiveSpeaker?: boolean;
   /**
    * Maximum amount of parallel speakers. Default: 5.
    */
@@ -69,7 +75,16 @@ export interface DailyAudioHandle {
 
 export const DailyAudio = memo(
   forwardRef<DailyAudioHandle, Props>(
-    ({ maxSpeakers = 5, onPlayFailed, playLocalScreenAudio = false }, ref) => {
+    (
+      {
+        autoSubscribeActiveSpeaker = false,
+        maxSpeakers = 5,
+        onPlayFailed,
+        playLocalScreenAudio = false,
+      },
+      ref
+    ) => {
+      const daily = useDaily();
       const [speakers, setSpeakers] = useState<string[]>(
         new Array(maxSpeakers).fill('')
       );
@@ -147,7 +162,22 @@ export const DailyAudio = memo(
             const isSubscribed = (id: string) =>
               subscribedParticipants.some((p) => p.session_id === id);
 
-            if (!isSubscribed(sessionId)) return;
+            if (!isSubscribed(sessionId)) {
+              if (
+                daily &&
+                !daily.isDestroyed() &&
+                autoSubscribeActiveSpeaker &&
+                !daily.subscribeToTracksAutomatically
+              ) {
+                daily.updateParticipant(sessionId, {
+                  setSubscribedTracks: {
+                    audio: true,
+                  },
+                });
+              } else {
+                return;
+              }
+            }
 
             setSpeakers((prevSpeakers) => {
               // New speaker is already present
@@ -209,7 +239,7 @@ export const DailyAudio = memo(
               return [...prevSpeakers];
             });
           },
-        [activeSpeakerId]
+        [activeSpeakerId, autoSubscribeActiveSpeaker, daily]
       );
 
       /**
