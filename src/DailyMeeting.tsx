@@ -94,5 +94,19 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
     )
   );
 
+  /**
+   * Reset Recoil state when call instance is destroyed.
+   */
+  useDailyEvent(
+    'call-instance-destroyed',
+    useRecoilCallback(
+      ({ reset }) =>
+        () => {
+          reset(meetingStateState);
+        },
+      []
+    )
+  );
+
   return <>{children}</>;
 };

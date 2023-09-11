@@ -1,9 +1,9 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
 import throttle from 'lodash.throttle';
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
-import { getUnique } from './useDailyEvent';
+import { getUnique, useDailyEvent } from './useDailyEvent';
 
 type EventCallback = (events: DailyEventObject[]) => void;
 
@@ -36,6 +36,13 @@ export const useThrottledDailyEvent = (
   }, [ev]);
 
   const throttledEvents = useRef<DailyEventObject[]>([]);
+
+  useDailyEvent(
+    'call-instance-destroyed',
+    useCallback(() => {
+      throttledEvents.current = [];
+    }, [])
+  );
 
   const emitEvents = useMemo(
     () =>
