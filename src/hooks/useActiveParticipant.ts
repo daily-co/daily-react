@@ -1,4 +1,4 @@
-import { DailyEventObjectActiveSpeakerChange } from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -15,7 +15,7 @@ interface UseActiveParticipantArgs {
   /**
    * Optional event callback for [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event listener.
    */
-  onActiveSpeakerChange?(ev: DailyEventObjectActiveSpeakerChange): void;
+  onActiveSpeakerChange?(ev: DailyEventObject<'active-speaker-change'>): void;
 }
 
 /**
@@ -42,7 +42,7 @@ export const useActiveParticipant = ({
   useDailyEvent(
     'active-speaker-change',
     useCallback(
-      (ev: DailyEventObjectActiveSpeakerChange) => {
+      (ev: DailyEventObject<'active-speaker-change'>) => {
         onActiveSpeakerChange?.(ev);
       },
       [onActiveSpeakerChange]

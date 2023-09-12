@@ -1,8 +1,4 @@
-import {
-  DailyEventObject,
-  DailyEventObjectParticipant,
-  DailyEventObjectParticipantLeft,
-} from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -10,8 +6,8 @@ import { participantState } from '../DailyParticipants';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 interface UseParticipantArgs {
-  onParticipantLeft?(ev: DailyEventObjectParticipantLeft): void;
-  onParticipantUpdated?(ev: DailyEventObjectParticipant): void;
+  onParticipantLeft?(ev: DailyEventObject<'participant-left'>): void;
+  onParticipantUpdated?(ev: DailyEventObject<'participant-updated'>): void;
 }
 
 /**

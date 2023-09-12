@@ -1,9 +1,4 @@
-import {
-  DailyCall,
-  DailyEventObjectLiveStreamingError,
-  DailyEventObjectLiveStreamingStarted,
-  DailyEventObjectLiveStreamingStopped,
-} from '@daily-co/daily-js';
+import { DailyCall, DailyEventObject } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -12,9 +7,10 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseLiveStreamingArgs {
-  onLiveStreamingStarted?(ev: DailyEventObjectLiveStreamingStarted): void;
-  onLiveStreamingStopped?(ev: DailyEventObjectLiveStreamingStopped): void;
-  onLiveStreamingError?(ev: DailyEventObjectLiveStreamingError): void;
+  onLiveStreamingStarted?(ev: DailyEventObject<'live-streaming-started'>): void;
+  onLiveStreamingStopped?(ev: DailyEventObject<'live-streaming-stopped'>): void;
+  onLiveStreamingUpdated?(ev: DailyEventObject<'live-streaming-updated'>): void;
+  onLiveStreamingError?(ev: DailyEventObject<'live-streaming-error'>): void;
 }
 
 /**
@@ -27,6 +23,7 @@ export const useLiveStreaming = ({
   onLiveStreamingError,
   onLiveStreamingStarted,
   onLiveStreamingStopped,
+  onLiveStreamingUpdated,
 }: UseLiveStreamingArgs = {}) => {
   const daily = useDaily();
   const state = useRecoilValue(liveStreamingState);
@@ -34,7 +31,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-started',
     useCallback(
-      (ev: DailyEventObjectLiveStreamingStarted) => {
+      (ev: DailyEventObject<'live-streaming-started'>) => {
         onLiveStreamingStarted?.(ev);
       },
       [onLiveStreamingStarted]
@@ -44,7 +41,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-stopped',
     useCallback(
-      (ev: DailyEventObjectLiveStreamingStopped) => {
+      (ev: DailyEventObject<'live-streaming-stopped'>) => {
         onLiveStreamingStopped?.(ev);
       },
       [onLiveStreamingStopped]
@@ -52,9 +49,19 @@ export const useLiveStreaming = ({
   );
 
   useDailyEvent(
+    'live-streaming-updated',
+    useCallback(
+      (ev: DailyEventObject<'live-streaming-updated'>) => {
+        onLiveStreamingUpdated?.(ev);
+      },
+      [onLiveStreamingUpdated]
+    )
+  );
+
+  useDailyEvent(
     'live-streaming-error',
     useCallback(
-      (ev: DailyEventObjectLiveStreamingError) => {
+      (ev: DailyEventObject<'live-streaming-error'>) => {
         onLiveStreamingError?.(ev);
       },
       [onLiveStreamingError]

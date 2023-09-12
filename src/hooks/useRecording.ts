@@ -1,9 +1,4 @@
-import {
-  DailyCall,
-  DailyEventObjectNoPayload,
-  DailyEventObjectRecordingData,
-  DailyEventObjectRecordingStarted,
-} from '@daily-co/daily-js';
+import { DailyCall, DailyEventObject } from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -12,10 +7,10 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseRecordingArgs {
-  onRecordingData?(ev: DailyEventObjectRecordingData): void;
-  onRecordingError?(ev: DailyEventObjectNoPayload): void;
-  onRecordingStarted?(ev: DailyEventObjectRecordingStarted): void;
-  onRecordingStopped?(ev: DailyEventObjectNoPayload): void;
+  onRecordingData?(ev: DailyEventObject<'recording-data'>): void;
+  onRecordingError?(ev: DailyEventObject<'recording-error'>): void;
+  onRecordingStarted?(ev: DailyEventObject<'recording-started'>): void;
+  onRecordingStopped?(ev: DailyEventObject<'recording-stopped'>): void;
 }
 
 export const useRecording = ({
@@ -30,7 +25,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-started',
     useCallback(
-      (ev: DailyEventObjectRecordingStarted) => {
+      (ev: DailyEventObject<'recording-started'>) => {
         onRecordingStarted?.(ev);
       },
       [onRecordingStarted]
@@ -39,7 +34,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-stopped',
     useCallback(
-      (ev: DailyEventObjectNoPayload) => {
+      (ev: DailyEventObject<'recording-stopped'>) => {
         onRecordingStopped?.(ev);
       },
       [onRecordingStopped]
@@ -48,7 +43,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-error',
     useCallback(
-      (ev: DailyEventObjectNoPayload) => {
+      (ev: DailyEventObject<'recording-error'>) => {
         onRecordingError?.(ev);
       },
       [onRecordingError]
@@ -57,7 +52,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-data',
     useCallback(
-      (ev: DailyEventObjectRecordingData) => {
+      (ev: DailyEventObject<'recording-data'>) => {
         onRecordingData?.(ev);
       },
       [onRecordingData]

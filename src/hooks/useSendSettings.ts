@@ -1,6 +1,6 @@
 import {
   DailyCall,
-  DailyEventObjectSendSettingsUpdated,
+  DailyEventObject,
   DailySendSettings,
 } from '@daily-co/daily-js';
 import { useCallback, useEffect } from 'react';
@@ -16,7 +16,7 @@ const sendSettingsState = atom<DailySendSettings | null>({
 });
 
 interface Props {
-  onSendSettingsUpdated?(ev: DailyEventObjectSendSettingsUpdated): void;
+  onSendSettingsUpdated?(ev: DailyEventObject<'send-settings-updated'>): void;
 }
 
 /**
@@ -30,7 +30,7 @@ export const useSendSettings = ({ onSendSettingsUpdated }: Props = {}) => {
     'send-settings-updated',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectSendSettingsUpdated) => {
+        (ev: DailyEventObject<'send-settings-updated'>) => {
           set(sendSettingsState, ev.sendSettings);
           onSendSettingsUpdated?.(ev);
         },

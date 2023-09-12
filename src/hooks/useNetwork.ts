@@ -1,6 +1,5 @@
 import {
-  DailyEventObjectNetworkConnectionEvent,
-  DailyEventObjectNetworkQualityEvent,
+  DailyEventObject,
   DailyNetworkStats,
   DailyNetworkTopology,
 } from '@daily-co/daily-js';
@@ -12,8 +11,8 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseNetworkArgs {
-  onNetworkConnection?(ev: DailyEventObjectNetworkConnectionEvent): void;
-  onNetworkQualityChange?(ev: DailyEventObjectNetworkQualityEvent): void;
+  onNetworkConnection?(ev: DailyEventObject<'network-connection'>): void;
+  onNetworkQualityChange?(ev: DailyEventObject<'network-quality-change'>): void;
 }
 
 const topologyState = atom<DailyNetworkTopology | 'none'>({
@@ -56,7 +55,7 @@ export const useNetwork = ({
 
   const handleNetworkConnection = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
-      (ev: DailyEventObjectNetworkConnectionEvent) => {
+      (ev: DailyEventObject<'network-connection'>) => {
         transact_UNSTABLE(({ set }) => {
           switch (ev.event) {
             case 'connected':
@@ -72,7 +71,7 @@ export const useNetwork = ({
 
   const handleNetworkQualityChange = useRecoilCallback(
     ({ transact_UNSTABLE }) =>
-      (ev: DailyEventObjectNetworkQualityEvent) => {
+      (ev: DailyEventObject<'network-quality-change'>) => {
         transact_UNSTABLE(({ set }) => {
           set(networkQualityState, (prevQuality) =>
             prevQuality !== ev.quality ? ev.quality : prevQuality

@@ -170,7 +170,27 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
 
         const { tracks } = participants.local;
 
+        let camPermissionState: PermissionState = 'prompt';
+        let micPermissionState: PermissionState = 'prompt';
+        if (navigator.permissions) {
+          try {
+            const camPermission = await navigator.permissions.query({
+              // @ts-ignore
+              name: 'camera',
+            });
+            camPermissionState = camPermission.state;
+            const micPermission = await navigator.permissions.query({
+              // @ts-ignore
+              name: 'microphone',
+            });
+            micPermissionState = micPermission.state;
+          } catch {
+            // Permissions query not available
+          }
+        }
+
         const awaitingCamAccess =
+          camPermissionState === 'prompt' &&
           ['idle', 'pending'].includes(currentCamState) &&
           tracks.video.state === 'interrupted' &&
           !tracks.video.persistentTrack;
@@ -179,6 +199,7 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           !tracks.video.persistentTrack &&
           Boolean(tracks.video.off?.byUser);
         const awaitingMicAccess =
+          micPermissionState === 'prompt' &&
           ['idle', 'pending'].includes(currentMicState) &&
           tracks.audio.state === 'interrupted' &&
           !tracks.audio.persistentTrack;
@@ -198,7 +219,10 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           });
         } else if (tracks.audio?.blocked?.byDeviceMissing) {
           set(generalMicrophoneState, 'not-found');
-        } else if (tracks.audio?.blocked?.byPermissions) {
+        } else if (
+          tracks.audio?.blocked?.byPermissions ||
+          micPermissionState === 'denied'
+        ) {
           set(generalMicrophoneState, 'blocked');
         } else if (awaitingMicAccess) {
           set(generalMicrophoneState, 'pending');
@@ -226,7 +250,10 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           });
         } else if (tracks.video?.blocked?.byDeviceMissing) {
           set(generalCameraState, 'not-found');
-        } else if (tracks.video?.blocked?.byPermissions) {
+        } else if (
+          tracks.video?.blocked?.byPermissions ||
+          camPermissionState === 'denied'
+        ) {
           set(generalCameraState, 'blocked');
         } else if (awaitingCamAccess) {
           set(generalCameraState, 'pending');

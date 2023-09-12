@@ -1,10 +1,4 @@
-import {
-  DailyEventObject,
-  DailyEventObjectActiveSpeakerChange,
-  DailyEventObjectParticipant,
-  DailyEventObjectParticipantLeft,
-  DailyParticipant,
-} from '@daily-co/daily-js';
+import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
 import deepEqual from 'fast-deep-equal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -48,10 +42,10 @@ const defaultSort: SortParticipants = () => 0;
 
 interface UseParticipantIdsArgs {
   filter?: FilterParticipants;
-  onActiveSpeakerChange?(ev: DailyEventObjectActiveSpeakerChange): void;
-  onParticipantJoined?(ev: DailyEventObjectParticipant): void;
-  onParticipantLeft?(ev: DailyEventObjectParticipantLeft): void;
-  onParticipantUpdated?(ev: DailyEventObjectParticipant): void;
+  onActiveSpeakerChange?(ev: DailyEventObject<'active-speaker-change'>): void;
+  onParticipantJoined?(ev: DailyEventObject<'participant-joined'>): void;
+  onParticipantLeft?(ev: DailyEventObject<'participant-left'>): void;
+  onParticipantUpdated?(ev: DailyEventObject<'participant-updated'>): void;
   sort?: SortParticipants;
 }
 

@@ -1,7 +1,6 @@
 import {
   DailyCall,
-  DailyEventObjectInputSettingsUpdated,
-  DailyEventObjectNonFatalError,
+  DailyEventObject,
   DailyInputSettings,
 } from '@daily-co/daily-js';
 import { useCallback, useEffect } from 'react';
@@ -12,8 +11,8 @@ import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 interface UseInputSettingsArgs {
-  onError?(ev: DailyEventObjectNonFatalError): void;
-  onInputSettingsUpdated?(ev: DailyEventObjectInputSettingsUpdated): void;
+  onError?(ev: DailyEventObject<'nonfatal-error'>): void;
+  onInputSettingsUpdated?(ev: DailyEventObject<'input-settings-updated'>): void;
 }
 
 const inputSettingsState = atom<DailyInputSettings | null>({
@@ -52,7 +51,7 @@ export const useInputSettings = ({
   useDailyEvent(
     'input-settings-updated',
     useCallback(
-      (ev: DailyEventObjectInputSettingsUpdated) => {
+      (ev: DailyEventObject<'input-settings-updated'>) => {
         updateInputSettingsState(ev.inputSettings);
         onInputSettingsUpdated?.(ev);
       },
@@ -67,7 +66,7 @@ export const useInputSettings = ({
     'nonfatal-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectNonFatalError) => {
+        (ev: DailyEventObject<'nonfatal-error'>) => {
           if (ev.type !== 'input-settings-error') return;
           set(errorState, ev.errorMsg);
           onError?.(ev);

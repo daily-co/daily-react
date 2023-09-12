@@ -1,7 +1,4 @@
-import {
-  DailyEventObjectParticipantCounts,
-  DailyParticipantCounts,
-} from '@daily-co/daily-js';
+import { DailyEventObject, DailyParticipantCounts } from '@daily-co/daily-js';
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
@@ -18,7 +15,9 @@ const participantCountsState = atom<DailyParticipantCounts>({
 });
 
 interface Props {
-  onParticipantCountsUpdated?(ev: DailyEventObjectParticipantCounts): void;
+  onParticipantCountsUpdated?(
+    ev: DailyEventObject<'participant-counts-updated'>
+  ): void;
 }
 
 /**
@@ -41,7 +40,7 @@ export const useParticipantCounts = ({
   useDailyEvent(
     'participant-counts-updated',
     useCallback(
-      (ev: DailyEventObjectParticipantCounts) => {
+      (ev: DailyEventObject<'participant-counts-updated'>) => {
         updateCounts(ev.participantCounts);
         onParticipantCountsUpdated?.(ev);
       },
