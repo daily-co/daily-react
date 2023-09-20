@@ -33,6 +33,7 @@ export const participantPropertyState = selectorFamily<any, PropertyType>({
       const participant = get(participantState(id));
       return resolveParticipantPaths(participant, properties);
     },
+  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
 });
 
 type UseParticipantPropertyReturnType<

@@ -50,6 +50,7 @@ export const participantState = atomFamily<
 >({
   key: RECOIL_PREFIX + 'participant-state',
   default: null,
+  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
 });
 
 export const participantsState = selector<ExtendedDailyParticipant[]>({
@@ -61,6 +62,7 @@ export const participantsState = selector<ExtendedDailyParticipant[]>({
       .filter(Boolean) as ExtendedDailyParticipant[];
     return participants;
   },
+  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
 });
 
 /**
