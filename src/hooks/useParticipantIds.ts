@@ -163,7 +163,7 @@ export const useParticipantIds = ({
    */
   const maybeUpdateCustomIds = useRecoilCallback(
     ({ snapshot }) =>
-      () => {
+      async () => {
         if (
           // Ignore if both filter and sort are not functions.
           typeof filter !== 'function' &&
@@ -171,11 +171,16 @@ export const useParticipantIds = ({
         )
           return;
 
-        const participants: ExtendedDailyParticipant[] =
+        const participants: ExtendedDailyParticipant[] = await Promise.all(
           preFilteredSortedIds.map(
-            (id) => snapshot.getLoadable(participantState(id)).contents
-          );
+            async (id) =>
+              (await snapshot.getPromise(
+                participantState(id)
+              )) as ExtendedDailyParticipant
+          )
+        );
         const newCustomIds = participants
+          .filter(Boolean)
           .filter(typeof filter === 'function' ? filter : () => true)
           .sort(typeof sort === 'function' ? sort : () => 0)
           .map((p) => p.session_id)
