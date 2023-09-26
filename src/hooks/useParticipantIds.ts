@@ -180,12 +180,21 @@ export const useParticipantIds = ({
           )
         );
         const newCustomIds = participants
+          // Make sure we don't accidentally try to filter/sort `null` participants
+          // This can happen when a participant's id is already present in store
+          // but the participant object is not stored, yet.
           .filter(Boolean)
+          // Run custom filter, if it's a function. Otherwise don't filter any participants.
           .filter(typeof filter === 'function' ? filter : () => true)
+          // Run custom sort, if it's a function. Otherwise don't sort.
           .sort(typeof sort === 'function' ? sort : () => 0)
+          // Map back to session_id.
           .map((p) => p.session_id)
+          // Filter any potential null/undefined ids.
+          // This shouldn't really happen, but better safe than sorry.
           .filter(Boolean);
 
+        // Finally compare the new list of ids with the current one.
         if (customDeepEqual(customIds, newCustomIds)) return;
 
         setCustomIds(newCustomIds);
@@ -194,7 +203,7 @@ export const useParticipantIds = ({
   );
 
   /**
-   * Initiliaze state.
+   * Initialize state.
    */
   useEffect(() => {
     maybeUpdateCustomIds();
