@@ -5,7 +5,9 @@ import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { DailyEventContext } from '../DailyEventContext';
 import { getUnique, useDailyEvent } from './useDailyEvent';
 
-type EventCallback = (events: DailyEventObject[]) => void;
+type EventCallback<T extends DailyEvent[]> = (
+  events: { [Index in keyof T]: DailyEventObject<T[Index]> }[number]
+) => void;
 
 /**
  * Sets up a throttled daily event listener using [on](https://docs.daily.co/reference/daily-js/instance-methods/on) method.
@@ -20,9 +22,9 @@ type EventCallback = (events: DailyEventObject[]) => void;
  * @param callback A memoized callback reference to run when throttled events are emitted.
  * @param throttleTimeout The minimum waiting time until the callback is called again. Default: 100
  */
-export const useThrottledDailyEvent = (
-  ev: DailyEvent | DailyEvent[],
-  callback: EventCallback,
+export const useThrottledDailyEvent = <T extends DailyEvent>(
+  ev: T | T[],
+  callback: EventCallback<T extends DailyEvent ? [T] : T>,
   throttleTimeout = 100
 ) => {
   const { off, on } = useContext(DailyEventContext);
