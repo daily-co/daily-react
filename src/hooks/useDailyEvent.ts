@@ -18,7 +18,7 @@ export const getUnique = () => uniqueCounter++;
  * @param ev The DailyEvent to register.
  * @param callback A memoized callback reference to run when the event is emitted.
  */
-export const useDailyEvent<T extends DailyEvent> = (ev: T, callback: EventCallback<T>) => {
+export const useDailyEvent = <T extends DailyEvent>(ev: T, callback: EventCallback<T>) => {
   const { off, on } = useContext(DailyEventContext);
   const [isBlocked, setIsBlocked] = useState(false);
   const reassignCount = useRef<number>(0);
