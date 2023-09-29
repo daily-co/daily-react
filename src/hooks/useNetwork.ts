@@ -53,41 +53,43 @@ export const useNetwork = ({
     [daily]
   );
 
-  const handleNetworkConnection = useRecoilCallback(
-    ({ transact_UNSTABLE }) =>
-      (ev: DailyEventObject<'network-connection'>) => {
-        transact_UNSTABLE(({ set }) => {
-          switch (ev.event) {
-            case 'connected':
-              if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
-              if (ev.type === 'sfu') set(topologyState, 'sfu');
-              break;
-          }
-        });
-        onNetworkConnection?.(ev);
-      },
-    [onNetworkConnection]
-  );
-
-  const handleNetworkQualityChange = useRecoilCallback(
-    ({ transact_UNSTABLE }) =>
-      (ev: DailyEventObject<'network-quality-change'>) => {
-        transact_UNSTABLE(({ set }) => {
-          set(networkQualityState, (prevQuality) =>
-            prevQuality !== ev.quality ? ev.quality : prevQuality
-          );
-          set(networkThresholdState, (prevThreshold) =>
-            prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
-          );
-        });
-        onNetworkQualityChange?.(ev);
-      },
-    [onNetworkQualityChange]
-  );
-
   useDailyEvent('joined-meeting', initTopology);
-  useDailyEvent('network-connection', handleNetworkConnection);
-  useDailyEvent('network-quality-change', handleNetworkQualityChange);
+  useDailyEvent(
+    'network-connection',
+    useRecoilCallback(
+      ({ transact_UNSTABLE }) =>
+        (ev) => {
+          transact_UNSTABLE(({ set }) => {
+            switch (ev.event) {
+              case 'connected':
+                if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
+                if (ev.type === 'sfu') set(topologyState, 'sfu');
+                break;
+            }
+          });
+          onNetworkConnection?.(ev);
+        },
+      [onNetworkConnection]
+    )
+  );
+  useDailyEvent(
+    'network-quality-change',
+    useRecoilCallback(
+      ({ transact_UNSTABLE }) =>
+        (ev) => {
+          transact_UNSTABLE(({ set }) => {
+            set(networkQualityState, (prevQuality) =>
+              prevQuality !== ev.quality ? ev.quality : prevQuality
+            );
+            set(networkThresholdState, (prevThreshold) =>
+              prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
+            );
+          });
+          onNetworkQualityChange?.(ev);
+        },
+      [onNetworkQualityChange]
+    )
+  );
 
   useEffect(() => {
     if (!daily || topology) return;

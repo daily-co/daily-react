@@ -40,7 +40,7 @@ export const useParticipantCounts = ({
   useDailyEvent(
     'participant-counts-updated',
     useCallback(
-      (ev: DailyEventObject<'participant-counts-updated'>) => {
+      (ev) => {
         updateCounts(ev.participantCounts);
         onParticipantCountsUpdated?.(ev);
       },

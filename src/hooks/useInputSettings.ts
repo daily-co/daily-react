@@ -51,7 +51,7 @@ export const useInputSettings = ({
   useDailyEvent(
     'input-settings-updated',
     useCallback(
-      (ev: DailyEventObject<'input-settings-updated'>) => {
+      (ev) => {
         updateInputSettingsState(ev.inputSettings);
         onInputSettingsUpdated?.(ev);
       },
@@ -66,7 +66,7 @@ export const useInputSettings = ({
     'nonfatal-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject<'nonfatal-error'>) => {
+        (ev) => {
           if (ev.type !== 'input-settings-error') return;
           set(errorState, ev.errorMsg);
           onError?.(ev);

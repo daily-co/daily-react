@@ -1,6 +1,5 @@
 import {
   DailyEventObject,
-  DailyEventObjectParticipants,
   DailyEventObjectWaitingParticipant,
   DailyParticipant,
   DailyParticipantsObject,
@@ -161,7 +160,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
   useDailyEvent(
     'joined-meeting',
     useCallback(
-      (ev: DailyEventObjectParticipants) => {
+      (ev) => {
         initParticipants(ev.participants);
       },
       [initParticipants]

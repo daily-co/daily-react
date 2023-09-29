@@ -3,9 +3,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
 
-type EventCallback<T extends DailyEvent> = (
-  event?: DailyEventObject<T>
-) => void;
+type EventCallback<T extends DailyEvent> = (event: DailyEventObject<T>) => void;
 
 let uniqueCounter = 0;
 export const getUnique = () => uniqueCounter++;

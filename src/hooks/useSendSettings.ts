@@ -30,7 +30,7 @@ export const useSendSettings = ({ onSendSettingsUpdated }: Props = {}) => {
     'send-settings-updated',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject<'send-settings-updated'>) => {
+        (ev) => {
           set(sendSettingsState, ev.sendSettings);
           onSendSettingsUpdated?.(ev);
         },

@@ -1,8 +1,6 @@
 import {
   DailyCameraErrorObject,
   DailyCameraErrorType,
-  DailyEventObjectCameraError,
-  DailyEventObjectParticipant,
 } from '@daily-co/daily-js';
 import React, { useCallback } from 'react';
 import { atom, useRecoilCallback } from 'recoil';
@@ -277,7 +275,7 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
   useDailyEvent(
     'participant-updated',
     useCallback(
-      (ev: DailyEventObjectParticipant) => {
+      (ev) => {
         if (!ev.participant.local) return;
         updateDeviceStates();
       },
@@ -292,7 +290,7 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
     'camera-error',
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
-        (ev: DailyEventObjectCameraError) => {
+        (ev) => {
           transact_UNSTABLE(({ set }) => {
             set(lastCameraErrorState, ev.error);
             switch (ev.error?.type) {

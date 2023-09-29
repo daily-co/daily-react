@@ -60,7 +60,7 @@ export const useReceiveSettings = ({
   useDailyEvent(
     'receive-settings-updated',
     useCallback(
-      (ev: DailyEventObject<'receive-settings-updated'>) => {
+      (ev) => {
         updateReceiveSettingsState(ev.receiveSettings);
         onReceiveSettingsUpdated?.(ev);
       },

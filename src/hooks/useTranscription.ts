@@ -101,7 +101,7 @@ export const useTranscription = ({
     'transcription-started',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject<'transcription-started'>) => {
+        (ev) => {
           set(transcriptionState, {
             isTranscriptionEnabled: true,
             error: false,
@@ -119,7 +119,7 @@ export const useTranscription = ({
     'transcription-stopped',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject<'transcription-stopped'>) => {
+        (ev) => {
           set(transcriptionState, (prevState) => ({
             ...prevState,
             updatedBy: ev?.updatedBy,
@@ -134,7 +134,7 @@ export const useTranscription = ({
     'transcription-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObject<'transcription-error'>) => {
+        (ev) => {
           set(transcriptionState, (prevState) => ({
             ...prevState,
             error: true,

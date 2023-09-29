@@ -1,7 +1,4 @@
-import {
-  DailyEventObjectRecordingStarted,
-  DailyStreamingLayoutConfig,
-} from '@daily-co/daily-js';
+import { DailyStreamingLayoutConfig } from '@daily-co/daily-js';
 import React, { useEffect } from 'react';
 import { atom, useRecoilCallback, useSetRecoilState } from 'recoil';
 
@@ -105,7 +102,7 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
     'recording-started',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectRecordingStarted) => {
+        (ev) => {
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
             case 'cloud-beta':

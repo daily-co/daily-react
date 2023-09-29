@@ -42,7 +42,7 @@ export const useActiveParticipant = ({
   useDailyEvent(
     'active-speaker-change',
     useCallback(
-      (ev: DailyEventObject<'active-speaker-change'>) => {
+      (ev) => {
         onActiveSpeakerChange?.(ev);
       },
       [onActiveSpeakerChange]
