@@ -3,7 +3,9 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
 
-type EventCallback = (event?: DailyEventObject) => void;
+type EventCallback<T extends DailyEvent> = (
+  event?: DailyEventObject<T>
+) => void;
 
 let uniqueCounter = 0;
 export const getUnique = () => uniqueCounter++;
@@ -18,7 +20,10 @@ export const getUnique = () => uniqueCounter++;
  * @param ev The DailyEvent to register.
  * @param callback A memoized callback reference to run when the event is emitted.
  */
-export const useDailyEvent = (ev: DailyEvent, callback: EventCallback) => {
+export const useDailyEvent = <T extends DailyEvent>(
+  ev: T,
+  callback: EventCallback<T>
+) => {
   const { off, on } = useContext(DailyEventContext);
   const [isBlocked, setIsBlocked] = useState(false);
   const reassignCount = useRef<number>(0);
