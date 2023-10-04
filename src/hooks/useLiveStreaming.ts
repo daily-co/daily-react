@@ -31,7 +31,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-started',
     useCallback(
-      (ev: DailyEventObject<'live-streaming-started'>) => {
+      (ev) => {
         onLiveStreamingStarted?.(ev);
       },
       [onLiveStreamingStarted]
@@ -41,7 +41,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-stopped',
     useCallback(
-      (ev: DailyEventObject<'live-streaming-stopped'>) => {
+      (ev) => {
         onLiveStreamingStopped?.(ev);
       },
       [onLiveStreamingStopped]
@@ -51,7 +51,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-updated',
     useCallback(
-      (ev: DailyEventObject<'live-streaming-updated'>) => {
+      (ev) => {
         onLiveStreamingUpdated?.(ev);
       },
       [onLiveStreamingUpdated]
@@ -61,7 +61,7 @@ export const useLiveStreaming = ({
   useDailyEvent(
     'live-streaming-error',
     useCallback(
-      (ev: DailyEventObject<'live-streaming-error'>) => {
+      (ev) => {
         onLiveStreamingError?.(ev);
       },
       [onLiveStreamingError]

@@ -1,5 +1,4 @@
 import {
-  DailyEventObjectMeetingSessionStateUpdated,
   DailyMeetingSessionState,
   DailyMeetingState,
 } from '@daily-co/daily-js';
@@ -73,7 +72,7 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
     'meeting-session-state-updated',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectMeetingSessionStateUpdated) => {
+        (ev) => {
           set(meetingSessionDataState, ev.meetingSessionState);
         },
       []

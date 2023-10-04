@@ -25,7 +25,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-started',
     useCallback(
-      (ev: DailyEventObject<'recording-started'>) => {
+      (ev) => {
         onRecordingStarted?.(ev);
       },
       [onRecordingStarted]
@@ -34,7 +34,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-stopped',
     useCallback(
-      (ev: DailyEventObject<'recording-stopped'>) => {
+      (ev) => {
         onRecordingStopped?.(ev);
       },
       [onRecordingStopped]
@@ -43,7 +43,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-error',
     useCallback(
-      (ev: DailyEventObject<'recording-error'>) => {
+      (ev) => {
         onRecordingError?.(ev);
       },
       [onRecordingError]
@@ -52,7 +52,7 @@ export const useRecording = ({
   useDailyEvent(
     'recording-data',
     useCallback(
-      (ev: DailyEventObject<'recording-data'>) => {
+      (ev) => {
         onRecordingData?.(ev);
       },
       [onRecordingData]

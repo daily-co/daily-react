@@ -1,8 +1,4 @@
-import {
-  DailyEventObjectLiveStreamingError,
-  DailyEventObjectLiveStreamingStarted,
-  DailyStreamingLayoutConfig,
-} from '@daily-co/daily-js';
+import { DailyStreamingLayoutConfig } from '@daily-co/daily-js';
 import React from 'react';
 import { atom, useRecoilCallback } from 'recoil';
 
@@ -31,7 +27,7 @@ export const DailyLiveStreaming: React.FC<React.PropsWithChildren<unknown>> = ({
     'live-streaming-started',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectLiveStreamingStarted) => {
+        (ev) => {
           set(liveStreamingState, {
             isLiveStreaming: true,
             layout: ev?.layout,
@@ -60,7 +56,7 @@ export const DailyLiveStreaming: React.FC<React.PropsWithChildren<unknown>> = ({
     'live-streaming-error',
     useRecoilCallback(
       ({ set }) =>
-        (ev: DailyEventObjectLiveStreamingError) => {
+        (ev) => {
           set(liveStreamingState, (prevState) => ({
             ...prevState,
             errorMsg: ev.errorMsg,

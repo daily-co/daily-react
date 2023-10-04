@@ -62,7 +62,7 @@ export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
   useDailyEvent(
     'cpu-load-change',
     useCallback(
-      (ev: DailyEventObject<'cpu-load-change'>) => {
+      (ev) => {
         updateCPULoadState({
           state: ev.cpuLoadState,
           reason: ev.cpuLoadStateReason,

@@ -30,30 +30,33 @@ export const useWaitingParticipants = ({
 
   const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
 
-  const handleAdded = useCallback(
-    (ev: DailyEventObject<'waiting-participant-added'>) => {
-      onWaitingParticipantAdded?.(ev);
-    },
-    [onWaitingParticipantAdded]
+  useDailyEvent(
+    'waiting-participant-added',
+    useCallback(
+      (ev) => {
+        onWaitingParticipantAdded?.(ev);
+      },
+      [onWaitingParticipantAdded]
+    )
   );
-
-  const handleRemoved = useCallback(
-    (ev: DailyEventObject<'waiting-participant-removed'>) => {
-      onWaitingParticipantRemoved?.(ev);
-    },
-    [onWaitingParticipantRemoved]
+  useDailyEvent(
+    'waiting-participant-removed',
+    useCallback(
+      (ev) => {
+        onWaitingParticipantRemoved?.(ev);
+      },
+      [onWaitingParticipantRemoved]
+    )
   );
-
-  const handleUpdated = useCallback(
-    (ev: DailyEventObject<'waiting-participant-updated'>) => {
-      onWaitingParticipantUpdated?.(ev);
-    },
-    [onWaitingParticipantUpdated]
+  useDailyEvent(
+    'waiting-participant-updated',
+    useCallback(
+      (ev) => {
+        onWaitingParticipantUpdated?.(ev);
+      },
+      [onWaitingParticipantUpdated]
+    )
   );
-
-  useDailyEvent('waiting-participant-added', handleAdded);
-  useDailyEvent('waiting-participant-removed', handleRemoved);
-  useDailyEvent('waiting-participant-updated', handleUpdated);
 
   const updateWaitingParticipantAccess = useCallback(
     (id: '*' | string, grantRequestedAccess: boolean) => {
