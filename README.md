@@ -121,17 +121,6 @@ function Call() {
 
 Each of these features is very flexible, accepting many different configuration options. Be sure to check out the [screenshare](https://docs.daily.co/reference/daily-react/use-screen-share), [recording](https://docs.daily.co/reference/daily-react/use-recording), and [transcription](https://docs.daily.co/reference/daily-react/use-transcription) hook docs for a complete overview.
 
-## Handling Daily events
-```jsx
-import { DailyAudio } from '@daily-co/daily-react';
-
-function Call() {
-  return (
-    <DailyAudio />
-  )
-}
-```
-
 ## Learn more
 Check out https://docs.daily.co/reference/daily-react for the full `daily-react` documentation, or https://docs.daily.co/reference/daily-react#available-hooks for the full list of Daily hooks.
 
