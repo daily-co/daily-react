@@ -1,7 +1,12 @@
-import { DailyCall, DailyTrackState } from '@daily-co/daily-js';
+import {
+  DailyCall,
+  DailyEventObjectNonFatalError,
+  DailyTrackState,
+} from '@daily-co/daily-js';
 import { useCallback } from 'react';
 
 import { useScreenSharesContext } from '../DailyScreenShares';
+import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -13,7 +18,14 @@ export interface ScreenShare {
   session_id: string;
 }
 
+type DailyEventObjectScreenShareError = Reconstruct<
+  DailyEventObjectNonFatalError,
+  'type',
+  'screen-share-error'
+>;
+
 interface UseScreenShareArgs {
+  onError?(ev: DailyEventObjectScreenShareError): void;
   onLocalScreenShareStarted?(): void;
   onLocalScreenShareStopped?(): void;
 }
@@ -22,6 +34,7 @@ interface UseScreenShareArgs {
  * Allows access to information about shared screens, and methods to start or stop a local screen share.
  */
 export const useScreenShare = ({
+  onError,
   onLocalScreenShareStarted,
   onLocalScreenShareStopped,
 }: UseScreenShareArgs = {}) => {
@@ -53,6 +66,16 @@ export const useScreenShare = ({
     useCallback(
       () => onLocalScreenShareStopped?.(),
       [onLocalScreenShareStopped]
+    )
+  );
+  useDailyEvent(
+    'nonfatal-error',
+    useCallback(
+      (ev) => {
+        if (ev.type !== 'screen-share-error') return;
+        onError?.(ev as DailyEventObjectScreenShareError);
+      },
+      [onError]
     )
   );
 

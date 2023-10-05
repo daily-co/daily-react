@@ -1,16 +1,28 @@
-import { DailyCall, DailyEventObject } from '@daily-co/daily-js';
+import {
+  DailyCall,
+  DailyEventObject,
+  DailyEventObjectNonFatalError,
+} from '@daily-co/daily-js';
 import { useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { liveStreamingState } from '../DailyLiveStreaming';
+import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+
+type DailyEventObjectLiveStreamingWarning = Reconstruct<
+  DailyEventObjectNonFatalError,
+  'type',
+  'live-streaming-warning'
+>;
 
 interface UseLiveStreamingArgs {
   onLiveStreamingStarted?(ev: DailyEventObject<'live-streaming-started'>): void;
   onLiveStreamingStopped?(ev: DailyEventObject<'live-streaming-stopped'>): void;
   onLiveStreamingUpdated?(ev: DailyEventObject<'live-streaming-updated'>): void;
   onLiveStreamingError?(ev: DailyEventObject<'live-streaming-error'>): void;
+  onLiveStreamingWarning?(ev: DailyEventObjectLiveStreamingWarning): void;
 }
 
 /**
@@ -24,6 +36,7 @@ export const useLiveStreaming = ({
   onLiveStreamingStarted,
   onLiveStreamingStopped,
   onLiveStreamingUpdated,
+  onLiveStreamingWarning,
 }: UseLiveStreamingArgs = {}) => {
   const daily = useDaily();
   const state = useRecoilValue(liveStreamingState);
@@ -37,7 +50,6 @@ export const useLiveStreaming = ({
       [onLiveStreamingStarted]
     )
   );
-
   useDailyEvent(
     'live-streaming-stopped',
     useCallback(
@@ -47,7 +59,6 @@ export const useLiveStreaming = ({
       [onLiveStreamingStopped]
     )
   );
-
   useDailyEvent(
     'live-streaming-updated',
     useCallback(
@@ -57,7 +68,6 @@ export const useLiveStreaming = ({
       [onLiveStreamingUpdated]
     )
   );
-
   useDailyEvent(
     'live-streaming-error',
     useCallback(
@@ -65,6 +75,16 @@ export const useLiveStreaming = ({
         onLiveStreamingError?.(ev);
       },
       [onLiveStreamingError]
+    )
+  );
+  useDailyEvent(
+    'nonfatal-error',
+    useCallback(
+      (ev) => {
+        if (ev.type !== 'live-streaming-warning') return;
+        onLiveStreamingWarning?.(ev as DailyEventObjectLiveStreamingWarning);
+      },
+      [onLiveStreamingWarning]
     )
   );
 

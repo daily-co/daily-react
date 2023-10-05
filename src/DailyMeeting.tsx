@@ -1,4 +1,6 @@
 import {
+  DailyEventObjectFatalError,
+  DailyEventObjectNonFatalError,
   DailyMeetingSessionState,
   DailyMeetingState,
 } from '@daily-co/daily-js';
@@ -12,6 +14,16 @@ import { RECOIL_PREFIX } from './lib/constants';
 export const meetingStateState = atom<DailyMeetingState>({
   key: RECOIL_PREFIX + 'meeting-state',
   default: 'new',
+});
+
+export const meetingErrorState = atom<DailyEventObjectFatalError | null>({
+  key: RECOIL_PREFIX + 'meeting-error',
+  default: null,
+});
+
+export const nonFatalErrorState = atom<DailyEventObjectNonFatalError | null>({
+  key: RECOIL_PREFIX + 'non-fatal-error',
+  default: null,
 });
 
 export const meetingSessionDataState = atom<DailyMeetingSessionState>({
@@ -46,7 +58,27 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   useDailyEvent('joining-meeting', updateMeetingState);
   useDailyEvent('joined-meeting', updateMeetingState);
   useDailyEvent('left-meeting', updateMeetingState);
-  useDailyEvent('error', updateMeetingState);
+  useDailyEvent(
+    'error',
+    useRecoilCallback(
+      ({ set }) =>
+        (ev) => {
+          set(meetingErrorState, ev);
+          updateMeetingState();
+        },
+      [updateMeetingState]
+    )
+  );
+  useDailyEvent(
+    'nonfatal-error',
+    useRecoilCallback(
+      ({ set }) =>
+        (ev) => {
+          set(nonFatalErrorState, ev);
+        },
+      []
+    )
+  );
 
   /**
    * Updates meeting session state.
