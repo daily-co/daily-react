@@ -196,7 +196,7 @@ export const DailyAudio = memo(
               // Try to find muted recent speaker
               const mutedIdx = prevSpeakers.findIndex((id) =>
                 subscribedParticipants.some(
-                  (p) => p.session_id === id && isTrackOff(p.tracks.audio)
+                  (p) => p.session_id === id && isTrackOff(p.tracks.audio.state)
                 )
               );
               if (mutedIdx >= 0) {
