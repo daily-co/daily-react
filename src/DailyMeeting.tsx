@@ -131,9 +131,14 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   useDailyEvent(
     'call-instance-destroyed',
     useRecoilCallback(
-      ({ reset }) =>
+      ({ transact_UNSTABLE }) =>
         () => {
-          reset(meetingStateState);
+          transact_UNSTABLE(({ reset }) => {
+            reset(meetingStateState);
+            reset(meetingErrorState);
+            reset(nonFatalErrorState);
+            reset(meetingSessionDataState);
+          });
         },
       []
     )
