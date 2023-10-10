@@ -224,14 +224,7 @@ export const useParticipantIds = ({
       'participant-left',
     ],
     useCallback(
-      (
-        evts: DailyEventObject<
-          | 'participant-joined'
-          | 'participant-updated'
-          | 'active-speaker-change'
-          | 'participant-left'
-        >[]
-      ) => {
+      (evts) => {
         if (!evts.length) return;
         evts.forEach((ev) => {
           switch (ev.action) {

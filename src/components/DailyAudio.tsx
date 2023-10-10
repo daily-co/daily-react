@@ -1,4 +1,3 @@
-import { DailyEventObject } from '@daily-co/daily-js';
 import React, {
   forwardRef,
   memo,
@@ -258,11 +257,7 @@ export const DailyAudio = memo(
       useThrottledDailyEvent(
         ['active-speaker-change', 'track-started', 'participant-left'],
         useCallback(
-          (
-            evts: DailyEventObject<
-              'active-speaker-change' | 'track-started' | 'participant-left'
-            >[]
-          ) => {
+          (evts) => {
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change':

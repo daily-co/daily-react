@@ -23,9 +23,7 @@ export const useParticipant = (
   useThrottledDailyEvent(
     ['participant-updated', 'participant-left'],
     useCallback(
-      (
-        evts: DailyEventObject<'participant-updated' | 'participant-left'>[]
-      ) => {
+      (evts) => {
         const filteredEvts = evts.filter(
           (ev) => ev.participant.session_id === sessionId
         );

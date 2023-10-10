@@ -1,6 +1,4 @@
 import {
-  DailyEventObject,
-  DailyEventObjectWaitingParticipant,
   DailyParticipant,
   DailyParticipantsObject,
   DailyWaitingParticipant,
@@ -178,16 +176,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     ],
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
-        (
-          evts: DailyEventObject<
-            | 'active-speaker-change'
-            | 'participant-joined'
-            | 'participant-updated'
-            | 'participant-left'
-            | 'left-meeting'
-            | 'call-instance-destroyed'
-          >[]
-        ) => {
+        (evts) => {
           transact_UNSTABLE(({ get, reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
@@ -266,7 +255,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     ],
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
-        (evts: DailyEventObjectWaitingParticipant[]) => {
+        (evts) => {
           transact_UNSTABLE(({ reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
