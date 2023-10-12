@@ -166,7 +166,7 @@ export const DailyAudio = memo(
                 daily &&
                 !daily.isDestroyed() &&
                 autoSubscribeActiveSpeaker &&
-                !daily.subscribeToTracksAutomatically
+                !daily.subscribeToTracksAutomatically()
               ) {
                 daily.updateParticipant(sessionId, {
                   setSubscribedTracks: {
