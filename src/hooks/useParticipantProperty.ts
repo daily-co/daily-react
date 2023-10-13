@@ -1,21 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
-import {
-  selectorFamily,
-  useRecoilCallback,
-  useRecoilTransactionObserver_UNSTABLE,
-} from 'recoil';
+import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
 
-import {
-  ExtendedDailyParticipant,
-  participantState,
-} from '../DailyParticipants';
+import { ExtendedDailyParticipant } from '../DailyParticipants';
 import { RECOIL_PREFIX } from '../lib/constants';
-import { customDeepEqual } from '../lib/customDeepEqual';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
-import { resolveParticipantPaths } from '../utils/resolveParticipantPaths';
-import { useDaily } from './useDaily';
 
 type PropertyType = {
   id: string;
@@ -28,17 +17,23 @@ type PropertiesType = {
 };
 
 /**
+ * Stores all property paths for a given participant.
+ */
+export const participantPropertyPathsState = atomFamily<
+  Paths<ExtendedDailyParticipant>[],
+  string
+>({
+  key: RECOIL_PREFIX + 'participant-property-paths',
+  default: [],
+});
+
+/**
  * Stores resolved values for each participant and property path.
  */
-export const participantPropertyState = selectorFamily<any, PropertyType>({
+export const participantPropertyState = atomFamily<any, PropertyType>({
   key: RECOIL_PREFIX + 'participant-property',
-  get:
-    ({ id, property }) =>
-    ({ get }) => {
-      const participant = get(participantState(id));
-      const [value] = resolveParticipantPaths(participant, [property]);
-      return value;
-    },
+  default: null,
+  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
 });
 
 /**
@@ -77,70 +72,8 @@ export const useParticipantProperty = <
   participantId: string,
   propertyPaths: P
 ): UseParticipantPropertyReturnType<T, P> => {
-  const daily = useDaily();
-  let initialValues: any[] = [];
-  if (daily && !daily.isDestroyed()) {
-    const participant = Object.values(daily.participants()).find(
-      (p) => p.session_id === participantId
-    );
-    if (participant) {
-      initialValues = resolveParticipantPaths(
-        participant as T,
-        (Array.isArray(propertyPaths)
-          ? propertyPaths
-          : [propertyPaths]) as Paths<T>[]
-      );
-    }
-  }
-  const [properties, setProperties] = useState<any[]>(initialValues);
-
-  /**
-   * Updates properties state, in case the passed list of values differs to what's currently in state.
-   */
-  const maybeUpdateProperties = useCallback((properties: any[]) => {
-    setProperties((prevProperties) => {
-      if (customDeepEqual(properties, prevProperties)) return prevProperties;
-      return properties;
-    });
-  }, []);
-
-  /**
-   * Used to initialize the properties state, when the component mounts,
-   * or the parameters change.
-   */
-  const initProperties = useRecoilCallback(
-    ({ snapshot }) =>
-      async () => {
-        const recoilAtom = Array.isArray(propertyPaths)
-          ? participantPropertiesState({
-              id: participantId,
-              properties: propertyPaths as Paths<ExtendedDailyParticipant>[],
-            })
-          : participantPropertyState({
-              id: participantId,
-              property: propertyPaths as Paths<ExtendedDailyParticipant>,
-            });
-        const properties = await snapshot.getPromise(recoilAtom);
-        maybeUpdateProperties(
-          Array.isArray(propertyPaths) ? properties : [properties]
-        );
-      },
-    [maybeUpdateProperties, participantId, propertyPaths]
-  );
-
-  /**
-   * Effect to initialize state when mounted.
-   */
-  useEffect(() => {
-    initProperties();
-  }, [initProperties]);
-
-  /**
-   * Asynchronously subscribes to updates to the participantPropertyState, without causing re-renders.
-   * Anytime the recoil state returns a different list, we'll update this hook instance's state.
-   */
-  useRecoilTransactionObserver_UNSTABLE(async ({ snapshot }) => {
-    const recoilAtom = Array.isArray(propertyPaths)
+  const properties = useRecoilValue(
+    Array.isArray(propertyPaths)
       ? participantPropertiesState({
           id: participantId,
           properties: propertyPaths as Paths<ExtendedDailyParticipant>[],
@@ -148,12 +81,8 @@ export const useParticipantProperty = <
       : participantPropertyState({
           id: participantId,
           property: propertyPaths as Paths<ExtendedDailyParticipant>,
-        });
-    const properties = await snapshot.getPromise(recoilAtom);
-    maybeUpdateProperties(
-      Array.isArray(propertyPaths) ? properties : [properties]
-    );
-  });
+        })
+  );
 
-  return Array.isArray(propertyPaths) ? properties : properties[0];
+  return properties;
 };
