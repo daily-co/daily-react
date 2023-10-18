@@ -4,9 +4,11 @@ import {
   DailyTrackState,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
-import { selector, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
+import { customDeepEqual } from '../lib/customDeepEqual';
+import { equalSelector } from '../lib/recoil-custom';
 import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
@@ -21,8 +23,9 @@ export interface ScreenShare {
   session_id: string;
 }
 
-const screenSharesState = selector({
+const screenSharesState = equalSelector({
   key: RECOIL_PREFIX + 'screen-shares',
+  equals: customDeepEqual,
   get: ({ get }) => {
     const screenIds = get(
       participantIdsFilteredAndSortedState({ filter: 'screen', sort: null })

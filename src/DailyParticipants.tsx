@@ -15,6 +15,7 @@ import {
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
 import { customDeepEqual } from './lib/customDeepEqual';
+import { equalSelector } from './lib/recoil-custom';
 import { getParticipantPaths } from './utils/getParticipantPaths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
@@ -97,8 +98,9 @@ export const waitingParticipantState = atomFamily<
 /**
  * Returns all waiting participant objects in an array.
  */
-export const allWaitingParticipantsSelector = selector({
+export const allWaitingParticipantsSelector = equalSelector({
   key: RECOIL_PREFIX + 'waitingParticipantsSelector',
+  equals: customDeepEqual,
   get: ({ get }) => {
     const ids = get(waitingParticipantsState);
     return ids.map((id) => get(waitingParticipantState(id)));

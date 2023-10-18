@@ -1,6 +1,6 @@
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
 import { useCallback, useMemo } from 'react';
-import { selectorFamily, useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
   ExtendedDailyParticipant,
@@ -8,6 +8,8 @@ import {
   participantState,
 } from '../DailyParticipants';
 import { RECOIL_PREFIX } from '../lib/constants';
+import { customDeepEqual } from '../lib/customDeepEqual';
+import { equalSelectorFamily } from '../lib/recoil-custom';
 import { isTrackOff } from '../utils/isTrackOff';
 import {
   participantPropertiesState,
@@ -44,7 +46,7 @@ type SortParticipants = SerializableSortParticipants | SortParticipantsFunction;
 /**
  * Short-cut state selector for useParticipantIds({ filter: 'local' })
  */
-export const participantIdsFilteredAndSortedState = selectorFamily<
+export const participantIdsFilteredAndSortedState = equalSelectorFamily<
   string[],
   {
     filter: SerializableFilterParticipants | null;
@@ -52,6 +54,7 @@ export const participantIdsFilteredAndSortedState = selectorFamily<
   }
 >({
   key: RECOIL_PREFIX + 'participant-ids-filtered-sorted',
+  equals: customDeepEqual,
   get:
     ({ filter, sort }) =>
     ({ get }) => {
@@ -155,7 +158,7 @@ export const useParticipantIds = ({
           typeof filter !== 'function' &&
           typeof sort !== 'function'
         )
-          return preFilteredSortedIds;
+          return [];
 
         const participants: ExtendedDailyParticipant[] =
           preFilteredSortedIds.map(
