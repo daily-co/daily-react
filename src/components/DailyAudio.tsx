@@ -1,4 +1,3 @@
-import { DailyEventObject } from '@daily-co/daily-js';
 import React, {
   forwardRef,
   memo,
@@ -167,7 +166,7 @@ export const DailyAudio = memo(
                 daily &&
                 !daily.isDestroyed() &&
                 autoSubscribeActiveSpeaker &&
-                !daily.subscribeToTracksAutomatically
+                !daily.subscribeToTracksAutomatically()
               ) {
                 daily.updateParticipant(sessionId, {
                   setSubscribedTracks: {
@@ -196,7 +195,7 @@ export const DailyAudio = memo(
               // Try to find muted recent speaker
               const mutedIdx = prevSpeakers.findIndex((id) =>
                 subscribedParticipants.some(
-                  (p) => p.session_id === id && isTrackOff(p.tracks.audio)
+                  (p) => p.session_id === id && isTrackOff(p.tracks.audio.state)
                 )
               );
               if (mutedIdx >= 0) {
@@ -258,11 +257,7 @@ export const DailyAudio = memo(
       useThrottledDailyEvent(
         ['active-speaker-change', 'track-started', 'participant-left'],
         useCallback(
-          (
-            evts: DailyEventObject<
-              'active-speaker-change' | 'track-started' | 'participant-left'
-            >[]
-          ) => {
+          (evts) => {
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change':

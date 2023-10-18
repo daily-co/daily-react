@@ -12,9 +12,11 @@ import { DailyDevices } from './DailyDevices';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyLiveStreaming } from './DailyLiveStreaming';
 import { DailyMeeting } from './DailyMeeting';
+import { DailyNetwork } from './DailyNetwork';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
+import { DailyScreenShares } from './DailyScreenShares';
 import { customDeepEqual } from './lib/customDeepEqual';
 
 type BaseProps =
@@ -208,13 +210,17 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
             <DailyMeeting>
-              <DailyParticipants>
-                <DailyRecordings>
-                  <DailyLiveStreaming>
-                    <DailyDevices>{children}</DailyDevices>
-                  </DailyLiveStreaming>
-                </DailyRecordings>
-              </DailyParticipants>
+              <DailyNetwork>
+                <DailyParticipants>
+                  <DailyScreenShares>
+                    <DailyRecordings>
+                      <DailyLiveStreaming>
+                        <DailyDevices>{children}</DailyDevices>
+                      </DailyLiveStreaming>
+                    </DailyRecordings>
+                  </DailyScreenShares>
+                </DailyParticipants>
+              </DailyNetwork>
             </DailyMeeting>
           </DailyRoom>
         </DailyEventContext.Provider>

@@ -1,6 +1,4 @@
 import {
-  DailyEventObject,
-  DailyEventObjectWaitingParticipant,
   DailyParticipant,
   DailyParticipantsObject,
   DailyWaitingParticipant,
@@ -10,8 +8,15 @@ import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import {
+  participantPropertyPathsState,
+  participantPropertyState,
+} from './hooks/useParticipantProperty';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
+import { customDeepEqual } from './lib/customDeepEqual';
+import { getParticipantPaths } from './utils/getParticipantPaths';
+import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
@@ -116,6 +121,23 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
           set(participantIdsState, ids);
           participantsArray.forEach((p) => {
             set(participantState(p.session_id), p);
+            const paths = getParticipantPaths(p);
+            // Set list of property paths
+            set(participantPropertyPathsState(p.session_id), paths);
+            // Set all property path values
+            paths.forEach((property) => {
+              const [value] = resolveParticipantPaths(
+                p as ExtendedDailyParticipant,
+                [property]
+              );
+              set(
+                participantPropertyState({
+                  id: p.session_id,
+                  property,
+                }),
+                value
+              );
+            });
           });
           setInitialized(true);
         });
@@ -178,16 +200,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     ],
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
-        (
-          evts: DailyEventObject<
-            | 'active-speaker-change'
-            | 'participant-joined'
-            | 'participant-updated'
-            | 'participant-left'
-            | 'left-meeting'
-            | 'call-instance-destroyed'
-          >[]
-        ) => {
+        (evts) => {
           transact_UNSTABLE(({ get, reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
@@ -203,22 +216,48 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                   });
                   break;
                 }
-                case 'participant-joined':
+                case 'participant-joined': {
+                  // Update list of ids
                   set(participantIdsState, (prevIds) =>
                     prevIds.includes(ev.participant.session_id)
                       ? prevIds
                       : [...prevIds, ev.participant.session_id]
                   );
+                  // Store entire object
                   set(
                     participantState(ev.participant.session_id),
                     ev.participant
                   );
+
+                  const paths = getParticipantPaths(ev.participant);
+                  // Set list of property paths
+                  set(
+                    participantPropertyPathsState(ev.participant.session_id),
+                    paths
+                  );
+                  // Set all property path values
+                  paths.forEach((property) => {
+                    const [value] = resolveParticipantPaths(
+                      ev.participant as ExtendedDailyParticipant,
+                      [property]
+                    );
+                    set(
+                      participantPropertyState({
+                        id: ev.participant.session_id,
+                        property,
+                      }),
+                      value
+                    );
+                  });
                   break;
-                case 'participant-updated':
+                }
+                case 'participant-updated': {
+                  // Update entire object
                   set(participantState(ev.participant.session_id), (prev) => ({
                     ...prev,
                     ...ev.participant,
                   }));
+                  // Update local session_id
                   if (ev.participant.local) {
                     set(localIdState, (prevId) =>
                       prevId !== ev.participant.session_id
@@ -226,8 +265,45 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                         : prevId
                     );
                   }
+
+                  const paths = getParticipantPaths(ev.participant);
+                  const oldPaths = get(
+                    participantPropertyPathsState(ev.participant.session_id)
+                  );
+                  // Set list of property paths
+                  set(
+                    participantPropertyPathsState(ev.participant.session_id),
+                    (prev) => (customDeepEqual(prev, paths) ? prev : paths)
+                  );
+                  // Reset old path values
+                  oldPaths
+                    .filter((p) => !paths.includes(p))
+                    .forEach((property) => {
+                      reset(
+                        participantPropertyState({
+                          id: ev.participant.session_id,
+                          property,
+                        })
+                      );
+                    });
+                  // Set all property path values
+                  paths.forEach((property) => {
+                    const [value] = resolveParticipantPaths(
+                      ev.participant as ExtendedDailyParticipant,
+                      [property]
+                    );
+                    set(
+                      participantPropertyState({
+                        id: ev.participant.session_id,
+                        property,
+                      }),
+                      (prev) => (customDeepEqual(prev, value) ? prev : value)
+                    );
+                  });
                   break;
-                case 'participant-left':
+                }
+                case 'participant-left': {
+                  // Remove from list of ids
                   set(participantIdsState, (prevIds) =>
                     prevIds.includes(ev.participant.session_id)
                       ? [
@@ -237,8 +313,27 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                         ]
                       : prevIds
                   );
+                  // Remove entire object
                   reset(participantState(ev.participant.session_id));
+
+                  const oldPaths = get(
+                    participantPropertyPathsState(ev.participant.session_id)
+                  );
+                  // Remove property path values
+                  oldPaths.forEach((property) => {
+                    reset(
+                      participantPropertyState({
+                        id: ev.participant.session_id,
+                        property,
+                      })
+                    );
+                  });
+                  // Remove all property paths
+                  reset(
+                    participantPropertyPathsState(ev.participant.session_id)
+                  );
                   break;
+                }
                 /**
                  * Reset stored participants, when meeting has ended.
                  */
@@ -266,7 +361,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
     ],
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
-        (evts: DailyEventObjectWaitingParticipant[]) => {
+        (evts) => {
           transact_UNSTABLE(({ reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {

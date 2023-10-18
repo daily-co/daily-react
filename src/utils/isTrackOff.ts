@@ -1,4 +1,4 @@
 import { DailyTrackState } from '@daily-co/daily-js';
 
-export const isTrackOff = (track: DailyTrackState) =>
-  ['blocked', 'off'].includes(track.state);
+export const isTrackOff = (trackState: DailyTrackState['state']) =>
+  ['blocked', 'off'].includes(trackState);

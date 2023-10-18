@@ -16,39 +16,39 @@ export const usePermissions = (sessionId?: string) => {
   const canSendAudio =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('audio');
+      : Boolean(permissions?.canSend?.has('audio'));
   const canSendVideo =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('video');
+      : Boolean(permissions?.canSend?.has('video'));
   const canSendCustomAudio =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('customAudio');
+      : Boolean(permissions?.canSend?.has('customAudio'));
   const canSendCustomVideo =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('customVideo');
+      : Boolean(permissions?.canSend?.has('customVideo'));
   const canSendScreenAudio =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('screenAudio');
+      : Boolean(permissions?.canSend?.has('screenAudio'));
   const canSendScreenVideo =
     typeof permissions?.canSend === 'boolean'
       ? permissions?.canSend
-      : permissions?.canSend.has('screenVideo');
+      : Boolean(permissions?.canSend?.has('screenVideo'));
   const canAdminParticipants =
     typeof permissions?.canAdmin === 'boolean'
       ? permissions?.canAdmin
-      : permissions?.canAdmin.has('participants');
+      : Boolean(permissions?.canAdmin?.has('participants'));
   const canAdminStreaming =
     typeof permissions?.canAdmin === 'boolean'
       ? permissions?.canAdmin
-      : permissions?.canAdmin.has('streaming');
+      : Boolean(permissions?.canAdmin?.has('streaming'));
   const canAdminTranscription =
     typeof permissions?.canAdmin === 'boolean'
       ? permissions?.canAdmin
-      : permissions?.canAdmin.has('transcription');
+      : Boolean(permissions?.canAdmin?.has('transcription'));
 
   return {
     canAdminParticipants,

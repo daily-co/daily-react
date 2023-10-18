@@ -1,26 +1,31 @@
 import {
   DailyCall,
   DailyEventObject,
+  DailyEventObjectNonFatalError,
   DailyInputSettings,
 } from '@daily-co/daily-js';
 import { useCallback, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
+import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
+import { useDailyError } from './useDailyError';
 import { useDailyEvent } from './useDailyEvent';
 
+type DailyEventObjectInputSettingsError = Reconstruct<
+  DailyEventObjectNonFatalError,
+  'type',
+  'input-settings-error'
+>;
+
 interface UseInputSettingsArgs {
-  onError?(ev: DailyEventObject<'nonfatal-error'>): void;
+  onError?(ev: DailyEventObjectInputSettingsError): void;
   onInputSettingsUpdated?(ev: DailyEventObject<'input-settings-updated'>): void;
 }
 
 const inputSettingsState = atom<DailyInputSettings | null>({
   key: RECOIL_PREFIX + 'input-settings',
-  default: null,
-});
-const errorState = atom<string | null>({
-  key: RECOIL_PREFIX + 'input-settings-error',
   default: null,
 });
 
@@ -29,7 +34,7 @@ export const useInputSettings = ({
   onInputSettingsUpdated,
 }: UseInputSettingsArgs = {}) => {
   const inputSettings = useRecoilValue(inputSettingsState);
-  const errorMsg = useRecoilValue(errorState);
+  const { nonFatalError } = useDailyError();
   const daily = useDaily();
 
   const updateInputSettingsState = useRecoilCallback(
@@ -64,13 +69,11 @@ export const useInputSettings = ({
    */
   useDailyEvent(
     'nonfatal-error',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
-          if (ev.type !== 'input-settings-error') return;
-          set(errorState, ev.errorMsg);
-          onError?.(ev);
-        },
+    useCallback(
+      (ev) => {
+        if (ev.type !== 'input-settings-error') return;
+        onError?.(ev as DailyEventObjectInputSettingsError);
+      },
       [onError]
     )
   );
@@ -86,7 +89,10 @@ export const useInputSettings = ({
   );
 
   return {
-    errorMsg,
+    errorMsg:
+      nonFatalError?.type === 'input-settings-error'
+        ? nonFatalError.errorMsg
+        : null,
     inputSettings,
     updateInputSettings,
   };

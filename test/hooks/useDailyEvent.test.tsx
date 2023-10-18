@@ -15,6 +15,14 @@ jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
   DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyMeeting', () => ({
+  ...jest.requireActual('../../src/DailyMeeting'),
+  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
+}));
+jest.mock('../../src/DailyNetwork', () => ({
+  ...jest.requireActual('../../src/DailyNetwork'),
+  DailyNetwork: (({ children }) => <>{children}</>) as React.FC,
+}));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
   DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
@@ -27,9 +35,9 @@ jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
-jest.mock('../../src/DailyMeeting', () => ({
-  ...jest.requireActual('../../src/DailyMeeting'),
-  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
+jest.mock('../../src/DailyScreenShares', () => ({
+  ...jest.requireActual('../../src/DailyScreenShares'),
+  DailyScreenShares: (({ children }) => <>{children}</>) as React.FC,
 }));
 
 const createWrapper =

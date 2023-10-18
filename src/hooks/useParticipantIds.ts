@@ -1,16 +1,24 @@
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
-import deepEqual from 'fast-deep-equal';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  selectorFamily,
   useRecoilCallback,
   useRecoilTransactionObserver_UNSTABLE,
+  useRecoilValue,
 } from 'recoil';
 
 import {
   ExtendedDailyParticipant,
-  participantsState,
+  participantIdsState,
+  participantState,
 } from '../DailyParticipants';
+import { RECOIL_PREFIX } from '../lib/constants';
+import { customDeepEqual } from '../lib/customDeepEqual';
 import { isTrackOff } from '../utils/isTrackOff';
+import {
+  participantPropertiesState,
+  participantPropertyState,
+} from './useParticipantProperty';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type FilterParticipantsFunction = (
@@ -18,27 +26,100 @@ type FilterParticipantsFunction = (
   index: number,
   arr: DailyParticipant[]
 ) => boolean;
-type FilterParticipants =
+type SerializableFilterParticipants =
   | 'local'
   | 'remote'
   | 'owner'
   | 'record'
-  | 'screen'
+  | 'screen';
+type FilterParticipants =
+  | SerializableFilterParticipants
   | FilterParticipantsFunction;
 
 type SortParticipantsFunction = (
   a: DailyParticipant,
   b: DailyParticipant
 ) => 1 | -1 | 0;
-type SortParticipants =
+type SerializableSortParticipants =
   | 'joined_at'
   | 'session_id'
   | 'user_id'
-  | 'user_name'
-  | SortParticipantsFunction;
+  | 'user_name';
+type SortParticipants = SerializableSortParticipants | SortParticipantsFunction;
 
-const defaultFilter: FilterParticipants = Boolean;
-const defaultSort: SortParticipants = () => 0;
+/**
+ * Short-cut state selector for useParticipantIds({ filter: 'local' })
+ */
+export const participantIdsFilteredAndSortedState = selectorFamily<
+  string[],
+  {
+    filter: SerializableFilterParticipants | null;
+    sort: SerializableSortParticipants | null;
+  }
+>({
+  key: RECOIL_PREFIX + 'participant-ids-filtered-sorted',
+  get:
+    ({ filter, sort }) =>
+    ({ get }) => {
+      const ids = get(participantIdsState);
+      return ids
+        .filter((id) => {
+          switch (filter) {
+            /**
+             * Simple boolean fields first.
+             */
+            case 'local':
+            case 'owner':
+            case 'record': {
+              return get(participantPropertyState({ id, property: filter }));
+            }
+            case 'remote': {
+              return !get(participantPropertyState({ id, property: 'local' }));
+            }
+            case 'screen': {
+              const [screenAudioState, screenVideoState] = get(
+                participantPropertiesState({
+                  id,
+                  properties: [
+                    'tracks.screenAudio.state',
+                    'tracks.screenVideo.state',
+                  ],
+                })
+              );
+              return (
+                !isTrackOff(screenAudioState) || !isTrackOff(screenVideoState)
+              );
+            }
+            default:
+              return true;
+          }
+        })
+        .sort((idA, idB) => {
+          switch (sort) {
+            case 'joined_at':
+            case 'session_id':
+            case 'user_id':
+            case 'user_name': {
+              const [aSort] = get(
+                participantPropertiesState({ id: idA, properties: [sort] })
+              );
+              const [bSort] = get(
+                participantPropertiesState({ id: idB, properties: [sort] })
+              );
+              if (aSort !== undefined || bSort !== undefined) {
+                if (aSort === undefined) return -1;
+                if (bSort === undefined) return 1;
+                if (aSort > bSort) return 1;
+                if (aSort < bSort) return -1;
+              }
+              return 0;
+            }
+            default:
+              return 0;
+          }
+        });
+    },
+});
 
 interface UseParticipantIdsArgs {
   filter?: FilterParticipants;
@@ -53,140 +134,86 @@ interface UseParticipantIdsArgs {
  * Returns a list of participant ids (= session_id).
  * The list can optionally be filtered and sorted, using the filter and sort options.
  */
-export const useParticipantIds = (
-  {
-    filter = defaultFilter,
-    onActiveSpeakerChange,
-    onParticipantJoined,
-    onParticipantLeft,
-    onParticipantUpdated,
-    sort = defaultSort,
-  }: UseParticipantIdsArgs = {
-    filter: defaultFilter,
-    sort: defaultSort,
-  }
-) => {
+export const useParticipantIds = ({
+  filter,
+  onActiveSpeakerChange,
+  onParticipantJoined,
+  onParticipantLeft,
+  onParticipantUpdated,
+  sort,
+}: UseParticipantIdsArgs = {}) => {
   /**
-   * Every instance of useParticipantIds holds its own state of session IDs.
-   * We don't subscribe to the participantsState directly, because this would
-   * cause re-renders anytime one of the participant objects changes, e.g.
-   * when a participant toggles their cam or mic.
-   * We only want to trigger a re-render here when the list of ids changes.
+   * For instances of useParticipantIds with string-based filter and sort,
+   * we can immediately return the correct ids from Recoil's state.
    */
-  const [sortedIds, setSortedIds] = useState<string[]>([]);
-
-  const filterFn = useMemo(() => {
-    let filterFn = defaultFilter;
-    switch (filter) {
-      case 'local':
-        filterFn = (p) => p.local;
-        break;
-      case 'owner':
-        filterFn = (p) => p.owner;
-        break;
-      case 'record':
-        filterFn = (p) => p.record;
-        break;
-      case 'remote':
-        filterFn = (p) => !p.local;
-        break;
-      case 'screen':
-        filterFn = (p) =>
-          !isTrackOff(p.tracks.screenAudio) ||
-          !isTrackOff(p.tracks.screenVideo);
-        break;
-      default:
-        filterFn = filter;
-    }
-    return filterFn;
-  }, [filter]);
-
-  const sortFn = useMemo(() => {
-    let sortFn: SortParticipantsFunction;
-    switch (sort) {
-      case 'joined_at':
-      case 'session_id':
-      case 'user_id':
-      case 'user_name':
-        sortFn = (a, b) => {
-          // joined_at can technically be undefined. so in that
-          // case, sort whichever has a value first. though, it
-          // should only be undefined in prejoin, when there are
-          // no other participants to sort so... really this
-          // shouldn't happen :)
-          let aSort = a[sort];
-          let bSort = b[sort];
-          if (aSort !== undefined || bSort !== undefined) {
-            if (aSort === undefined) return -1;
-            if (bSort === undefined) return 1;
-            if (aSort > bSort) return 1;
-            if (aSort < bSort) return -1;
-          }
-          return 0;
-        };
-        break;
-      default:
-        sortFn = sort;
-        break;
-    }
-    return sortFn;
-  }, [sort]);
-
-  /**
-   * Applies memoized filter and sorting to the passed array of participant objects.
-   */
-  const filterAndSortParticipants = useCallback(
-    (participants: ExtendedDailyParticipant[]) => {
-      return participants
-        .filter(filterFn)
-        .sort(sortFn)
-        .map((p) => p.session_id)
-        .filter(Boolean);
-    },
-    [filterFn, sortFn]
+  const preFilteredSortedIds = useRecoilValue(
+    participantIdsFilteredAndSortedState({
+      filter: typeof filter === 'string' ? filter : null,
+      sort: typeof sort === 'string' ? sort : null,
+    })
   );
 
   /**
-   * Updates storedIds state, in case the passed list of ids differs to what's currently in state.
+   * For custom filter and/or sort, we need to calculate the returned ids manually.
    */
-  const maybeUpdateIds = useCallback((ids: string[]) => {
-    setSortedIds((prevIds) => {
-      if (deepEqual(prevIds, ids)) return prevIds;
-      return ids;
-    });
-  }, []);
-
+  const [customIds, setCustomIds] = useState<string[]>([]);
   /**
-   * Used to initialize the storedIds state, when the component mounts,
-   * or its filter or sort prop changed.
+   * Loads participant state from Recoil store and updates custom ids state,
+   * in case resulting set of ids is different.
    */
-  const initIds = useRecoilCallback(
+  const maybeUpdateCustomIds = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
-        const ids = filterAndSortParticipants(
-          await snapshot.getPromise(participantsState)
+        if (
+          // Ignore if both filter and sort are not functions.
+          typeof filter !== 'function' &&
+          typeof sort !== 'function'
+        )
+          return;
+
+        const participants: ExtendedDailyParticipant[] = await Promise.all(
+          preFilteredSortedIds.map(
+            async (id) =>
+              (await snapshot.getPromise(
+                participantState(id)
+              )) as ExtendedDailyParticipant
+          )
         );
-        maybeUpdateIds(ids);
+        const newCustomIds = participants
+          // Make sure we don't accidentally try to filter/sort `null` participants
+          // This can happen when a participant's id is already present in store
+          // but the participant object is not stored, yet.
+          .filter(Boolean)
+          // Run custom filter, if it's a function. Otherwise don't filter any participants.
+          .filter(typeof filter === 'function' ? filter : () => true)
+          // Run custom sort, if it's a function. Otherwise don't sort.
+          .sort(typeof sort === 'function' ? sort : () => 0)
+          // Map back to session_id.
+          .map((p) => p.session_id)
+          // Filter any potential null/undefined ids.
+          // This shouldn't really happen, but better safe than sorry.
+          .filter(Boolean);
+
+        // Finally compare the new list of ids with the current one.
+        if (customDeepEqual(customIds, newCustomIds)) return;
+
+        setCustomIds(newCustomIds);
       },
-    [filterAndSortParticipants, maybeUpdateIds]
+    [customIds, filter, preFilteredSortedIds, sort]
   );
 
   /**
-   * Effect to initialize state when mounted.
+   * Initialize state.
    */
   useEffect(() => {
-    initIds();
-  }, [initIds]);
+    maybeUpdateCustomIds();
+  }, [maybeUpdateCustomIds]);
 
   /**
-   * Asynchronously subscribes to updates to the participantsState, without causing re-renders.
-   * Anytime filtering and sorting the participant objects in the recoil state returns a different list,
-   * we'll update this hook instance's state.
+   * Wires up this instance to the Recoil store.
    */
-  useRecoilTransactionObserver_UNSTABLE(async ({ snapshot }) => {
-    const participants = await snapshot.getPromise(participantsState);
-    const newSortedIds = filterAndSortParticipants(participants);
-    maybeUpdateIds(newSortedIds);
+  useRecoilTransactionObserver_UNSTABLE(() => {
+    maybeUpdateCustomIds();
   });
 
   useThrottledDailyEvent(
@@ -197,14 +224,7 @@ export const useParticipantIds = (
       'participant-left',
     ],
     useCallback(
-      (
-        evts: DailyEventObject<
-          | 'participant-joined'
-          | 'participant-updated'
-          | 'active-speaker-change'
-          | 'participant-left'
-        >[]
-      ) => {
+      (evts) => {
         if (!evts.length) return;
         evts.forEach((ev) => {
           switch (ev.action) {
@@ -232,5 +252,7 @@ export const useParticipantIds = (
     )
   );
 
-  return sortedIds;
+  return typeof filter === 'function' || typeof sort === 'function'
+    ? customIds
+    : preFilteredSortedIds;
 };
