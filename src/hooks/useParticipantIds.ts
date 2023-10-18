@@ -1,5 +1,5 @@
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
@@ -187,10 +187,17 @@ export const useParticipantIds = ({
     [filter, preFilteredSortedIds, sort]
   );
 
-  const customIds = useMemo(
-    () => getCustomFilteredIds(),
-    [getCustomFilteredIds]
-  );
+  const [customIds, setCustomIds] = useState<string[]>([]);
+
+  const maybeUpdateCustomIds = useCallback(() => {
+    const newIds = getCustomFilteredIds();
+    if (customDeepEqual(newIds, customIds)) return;
+    setCustomIds(newIds);
+  }, [customIds, getCustomFilteredIds]);
+
+  useEffect(() => {
+    maybeUpdateCustomIds();
+  }, [maybeUpdateCustomIds]);
 
   useThrottledDailyEvent(
     [
@@ -218,8 +225,10 @@ export const useParticipantIds = ({
               break;
           }
         });
+        maybeUpdateCustomIds();
       },
       [
+        maybeUpdateCustomIds,
         onActiveSpeakerChange,
         onParticipantJoined,
         onParticipantLeft,
