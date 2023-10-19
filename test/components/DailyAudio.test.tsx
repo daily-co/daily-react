@@ -352,6 +352,7 @@ describe('DailyAudio', () => {
       });
     });
     it('replaces least recent speaker slot', async () => {
+      jest.useFakeTimers();
       /**
        * Scenario: 4 participants to trigger sorting by last_active dates.
        * - Remote participant 1 becomes active speaker (subscribed)
@@ -392,12 +393,16 @@ describe('DailyAudio', () => {
       );
       act(() => emitJoinedMeeting(callObject, participants));
       act(() => emitStartedCamera(callObject));
-      act(() => emitActiveSpeakerChange(callObject, remoteParticipants[0]));
+      act(() => {
+        emitActiveSpeakerChange(callObject, remoteParticipants[0]);
+        jest.advanceTimersByTime(500);
+      });
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
       });
       act(() => {
         emitActiveSpeakerChange(callObject, remoteParticipants[1]);
+        jest.advanceTimersByTime(500);
       });
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
@@ -405,6 +410,7 @@ describe('DailyAudio', () => {
       });
       act(() => {
         emitActiveSpeakerChange(callObject, remoteParticipants[2]);
+        jest.advanceTimersByTime(500);
       });
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).not.toBeNull();
@@ -413,6 +419,7 @@ describe('DailyAudio', () => {
       });
       act(() => {
         emitActiveSpeakerChange(callObject, remoteParticipants[3]);
+        jest.advanceTimersByTime(500);
       });
       await waitFor(() => {
         expect(queryAudioById(remoteParticipants[0], container)).toBeNull();
@@ -420,6 +427,7 @@ describe('DailyAudio', () => {
         expect(queryAudioById(remoteParticipants[2], container)).not.toBeNull();
         expect(queryAudioById(remoteParticipants[3], container)).not.toBeNull();
       });
+      jest.useRealTimers();
     });
   });
 });

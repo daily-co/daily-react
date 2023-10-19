@@ -207,9 +207,8 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change': {
-                  const sessionId = ev.activeSpeaker.peerId;
-                  set(activeIdState, sessionId);
-                  set(participantState(sessionId), (prev) => {
+                  set(activeIdState, ev.activeSpeaker.peerId);
+                  set(participantState(ev.activeSpeaker.peerId), (prev) => {
                     if (!prev) return null;
                     return {
                       ...prev,
