@@ -11,6 +11,7 @@ export { useAudioLevel } from './hooks/useAudioLevel';
 export { useAudioTrack } from './hooks/useAudioTrack';
 export { useCPULoad } from './hooks/useCPULoad';
 export { useDaily } from './hooks/useDaily';
+export { useDailyError } from './hooks/useDailyError';
 export { useDailyEvent } from './hooks/useDailyEvent';
 export { useDevices } from './hooks/useDevices';
 export { useInputSettings } from './hooks/useInputSettings';
