@@ -50,7 +50,7 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
   useDailyEvent(
     'call-instance-destroyed',
     useCallback(() => {
-      throttledEvents.current = [];
+      throttledEvents.current.length = 0;
     }, [])
   );
 
@@ -60,7 +60,7 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
         () => {
           if (throttledEvents.current.length === 0) return;
           callback(throttledEvents.current);
-          throttledEvents.current = [];
+          throttledEvents.current.length = 0;
         },
         throttleTimeout,
         {
