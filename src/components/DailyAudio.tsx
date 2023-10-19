@@ -280,7 +280,8 @@ export const DailyAudio = memo(
             });
           },
           [assignSpeaker, localSessionId, removeSpeaker]
-        )
+        ),
+        200
       );
 
       const rmpAudioIds = useParticipantIds({
