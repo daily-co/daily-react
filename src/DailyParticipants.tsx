@@ -15,6 +15,7 @@ import {
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import { RECOIL_PREFIX } from './lib/constants';
 import { customDeepEqual } from './lib/customDeepEqual';
+import { equalSelector } from './lib/recoil-custom';
 import { getParticipantPaths } from './utils/getParticipantPaths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
@@ -97,8 +98,9 @@ export const waitingParticipantState = atomFamily<
 /**
  * Returns all waiting participant objects in an array.
  */
-export const allWaitingParticipantsSelector = selector({
+export const allWaitingParticipantsSelector = equalSelector({
   key: RECOIL_PREFIX + 'waitingParticipantsSelector',
+  equals: customDeepEqual,
   get: ({ get }) => {
     const ids = get(waitingParticipantsState);
     return ids.map((id) => get(waitingParticipantState(id)));
@@ -205,9 +207,8 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
             evts.forEach((ev) => {
               switch (ev.action) {
                 case 'active-speaker-change': {
-                  const sessionId = ev.activeSpeaker.peerId;
-                  set(activeIdState, sessionId);
-                  set(participantState(sessionId), (prev) => {
+                  set(activeIdState, ev.activeSpeaker.peerId);
+                  set(participantState(ev.activeSpeaker.peerId), (prev) => {
                     if (!prev) return null;
                     return {
                       ...prev,

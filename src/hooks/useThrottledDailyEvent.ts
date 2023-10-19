@@ -33,7 +33,7 @@ type EventCallback<T extends DailyEvent | DailyEvent[]> = (
 export const useThrottledDailyEvent = <T extends DailyEvent>(
   ev: T | T[],
   callback: EventCallback<EnsureArray<T>>,
-  throttleTimeout = 100
+  throttleTimeout = 500
 ) => {
   const { off, on } = useContext(DailyEventContext);
   const eventId = useMemo(() => {
@@ -50,7 +50,7 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
   useDailyEvent(
     'call-instance-destroyed',
     useCallback(() => {
-      throttledEvents.current = [];
+      throttledEvents.current.length = 0;
     }, [])
   );
 
@@ -60,7 +60,7 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
         () => {
           if (throttledEvents.current.length === 0) return;
           callback(throttledEvents.current);
-          throttledEvents.current = [];
+          throttledEvents.current.length = 0;
         },
         throttleTimeout,
         {
@@ -74,11 +74,7 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
     if (!ev) return;
     const addEvent = (ev: DailyEventObject) => {
       throttledEvents.current.push(ev);
-      /**
-       * A 0ms timeout allows the event loop to process additional incoming events,
-       * while the throttle is active. Otherwise every event would be delayed.
-       */
-      setTimeout(emitEvents, 0);
+      emitEvents();
     };
     if (Array.isArray(ev)) {
       ev.forEach((e) => on(e, addEvent, eventId[e]));

@@ -10,6 +10,11 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useActiveSpeakerId } from '../../src/hooks/useActiveSpeakerId';
+import {
+  emitActiveSpeakerChange,
+  emitJoinedMeeting,
+} from '../.test-utils/event-emitter';
+import { mockParticipant } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
@@ -82,15 +87,19 @@ describe('useActiveSpeakerId', () => {
     });
     it('does not change returned participant, when ignoreLocal is set', async () => {
       const daily = DailyIframe.createCallObject();
+      const local = mockParticipant({
+        local: true,
+        session_id: 'local',
+        user_name: '',
+      });
+      const a = mockParticipant({
+        local: false,
+        session_id: 'a',
+        user_name: 'Alpha',
+      });
       (daily.participants as jest.Mock).mockImplementation(() => ({
-        local: {
-          session_id: 'local',
-          user_name: '',
-        },
-        a: {
-          session_id: 'a',
-          user_name: 'Alpha',
-        },
+        local,
+        a,
       }));
       const { result, waitFor } = renderHook(
         () =>
@@ -101,16 +110,14 @@ describe('useActiveSpeakerId', () => {
           wrapper: createWrapper(daily),
         }
       );
-      const event: DailyEvent = 'active-speaker-change';
-      const payload: DailyEventObjectActiveSpeakerChange = {
-        action: event,
-        activeSpeaker: {
-          peerId: 'local',
-        },
-      };
       act(() => {
-        // @ts-ignore
-        daily.emit(event, payload);
+        emitJoinedMeeting(daily, {
+          local,
+          a,
+        });
+      });
+      act(() => {
+        emitActiveSpeakerChange(daily, local.session_id);
       });
       await waitFor(() => {
         expect(result.current).toEqual(null);
