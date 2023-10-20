@@ -61,6 +61,8 @@ describe('useNetwork', () => {
         latest: {
           recvBitsPerSecond: 1000000,
           sendBitsPerSecond: 1000000,
+          aveNetworkRTT: 0.07171428571428572,
+          curNetworkRTT: 0.07,
           timestamp: 0,
           videoRecvBitsPerSecond: 1000000,
           videoRecvPacketLoss: 0,
