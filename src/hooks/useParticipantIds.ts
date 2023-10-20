@@ -1,4 +1,4 @@
-import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 
@@ -18,9 +18,9 @@ import {
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type FilterParticipantsFunction = (
-  p: DailyParticipant,
+  p: ExtendedDailyParticipant,
   index: number,
-  arr: DailyParticipant[]
+  arr: ExtendedDailyParticipant[]
 ) => boolean;
 type SerializableFilterParticipants =
   | 'local'
@@ -33,8 +33,8 @@ type FilterParticipants =
   | FilterParticipantsFunction;
 
 type SortParticipantsFunction = (
-  a: DailyParticipant,
-  b: DailyParticipant
+  a: ExtendedDailyParticipant,
+  b: ExtendedDailyParticipant
 ) => 1 | -1 | 0;
 type SerializableSortParticipants =
   | 'joined_at'

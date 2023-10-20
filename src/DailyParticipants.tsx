@@ -1,6 +1,7 @@
 import {
   DailyParticipant,
   DailyParticipantsObject,
+  DailyParticipantTracks,
   DailyWaitingParticipant,
 } from '@daily-co/daily-js';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -21,9 +22,13 @@ import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
 /**
  * Extends DailyParticipant with convenient additional properties.
+ * The `tracks` object needs to omit custom track keys, otherwise
+ * autocomplete for `tracks` in useParticipantProperty doesn't work.
  */
-export interface ExtendedDailyParticipant extends DailyParticipant {
+export interface ExtendedDailyParticipant
+  extends Omit<DailyParticipant, 'tracks'> {
   last_active?: Date;
+  tracks: DailyParticipantTracks;
 }
 
 /**

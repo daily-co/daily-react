@@ -66,8 +66,10 @@ type UseParticipantPropertyReturnType<
  * @param propertyPaths the array of participant property that you want to subscribe to.
  */
 export const useParticipantProperty = <
-  T extends ExtendedDailyParticipant,
-  P extends Paths<T> | [Paths<T>, ...Paths<T>[]]
+  T extends ExtendedDailyParticipant = ExtendedDailyParticipant,
+  P extends Paths<T> | [Paths<T>, ...Paths<T>[]] =
+    | Paths<T>
+    | [Paths<T>, ...Paths<T>[]]
 >(
   participantId: string,
   propertyPaths: P
