@@ -8,14 +8,12 @@ import React, {
 } from 'react';
 import { useRecoilCallback } from 'recoil';
 
-import {
-  ExtendedDailyParticipant,
-  participantsState,
-} from '../DailyParticipants';
+import { ExtendedDailyParticipant } from '../DailyParticipants';
 import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useDaily } from '../hooks/useDaily';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
+import { participantPropertyState } from '../hooks/useParticipantProperty';
 import { useScreenShare } from '../hooks/useScreenShare';
 import { useThrottledDailyEvent } from '../hooks/useThrottledDailyEvent';
 import { isTrackOff } from '../utils/isTrackOff';
@@ -154,8 +152,8 @@ export const DailyAudio = memo(
             /**
              * Only consider remote participants with subscribed or staged audio.
              */
-            const subscribedParticipants = (
-              await snapshot.getPromise(participantsState)
+            const subscribedParticipants = Object.values(
+              daily?.participants() ?? {}
             ).filter((p) => !p.local && Boolean(p.tracks.audio.subscribed));
 
             const isSubscribed = (id: string) =>
@@ -213,8 +211,20 @@ export const DailyAudio = memo(
                     p.session_id !== activeSpeakerId
                 )
                 .sort((a, b) => {
-                  const lastActiveA = a?.last_active ?? new Date('1970-01-01');
-                  const lastActiveB = b?.last_active ?? new Date('1970-01-01');
+                  const lastActiveA =
+                    snapshot.getLoadable(
+                      participantPropertyState({
+                        id: a.session_id,
+                        property: 'last_active',
+                      })
+                    ).contents ?? new Date('1970-01-01');
+                  const lastActiveB =
+                    snapshot.getLoadable(
+                      participantPropertyState({
+                        id: b.session_id,
+                        property: 'last_active',
+                      })
+                    ).contents ?? new Date('1970-01-01');
                   if (lastActiveA > lastActiveB) return 1;
                   if (lastActiveA < lastActiveB) return -1;
                   return 0;
