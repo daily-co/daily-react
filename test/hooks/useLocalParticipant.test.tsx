@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -26,13 +26,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useLocalParticipant', () => {
   it('returns null, if daily.participants() does not contain local user yet', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({}));
     const { result, waitFor } = renderHook(() => useLocalParticipant(), {
       wrapper: createWrapper(daily),
@@ -42,7 +42,7 @@ describe('useLocalParticipant', () => {
     });
   });
   it('returns local user object', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
         local: true,
@@ -62,7 +62,7 @@ describe('useLocalParticipant', () => {
     });
   });
   it('participant-updated event inits state and calls useParticipant with session_id', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const spy = jest.spyOn(useParticipantModule, 'useParticipant');
     const { waitFor } = renderHook(() => useLocalParticipant(), {
       wrapper: createWrapper(daily),

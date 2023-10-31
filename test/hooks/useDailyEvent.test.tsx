@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -37,13 +37,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useDailyEvent', () => {
   it('registers and unregisters a daily event listener', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const eventHandler = jest.fn();
     const { unmount } = renderHook(
       () => useDailyEvent('app-message', eventHandler),
@@ -58,7 +58,7 @@ describe('useDailyEvent', () => {
     expect(daily.off).toHaveBeenCalledWith('app-message', expect.any(Function));
   });
   it('registers only one daily event listener for the same event type', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const randomAmount = 10 + Math.ceil(50 * Math.random());
     const handlers = new Array(randomAmount).fill(0).map(() => jest.fn());
     renderHook(
@@ -77,7 +77,7 @@ describe('useDailyEvent', () => {
   });
   // TODO: Find better/faster way to simulate re-render loop
   it.skip('logs an error if callback is an unstable reference', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const consoleError = console.error;
     console.error = jest.fn();
     const { rerender } = renderHook(

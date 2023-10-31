@@ -120,10 +120,10 @@ const createCallObject = (properties) => {
   }
 };
 
-const mockedDailyIframe = {
+const mockedDailyCall = {
   createCallObject,
   supportedBrowser: jest.fn(),
   version: jest.fn(),
 };
 
-module.exports = mockedDailyIframe;
+module.exports = mockedDailyCall;

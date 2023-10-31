@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectRecordingData,
@@ -42,7 +42,7 @@ jest.mock('../../src/hooks/useLocalSessionId', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -51,7 +51,7 @@ describe('useRecording', () => {
     jest.clearAllMocks();
   });
   it('returns default state and functions', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
@@ -62,7 +62,7 @@ describe('useRecording', () => {
   });
   it('recording-started calls onRecordingStarted and updates state', async () => {
     const onRecordingStarted = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useRecording({ onRecordingStarted }),
       {
@@ -99,7 +99,7 @@ describe('useRecording', () => {
   });
   it('recording-stopped calls onRecordingStopped and updates state', async () => {
     const onRecordingStopped = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useRecording({ onRecordingStopped }),
       {
@@ -121,7 +121,7 @@ describe('useRecording', () => {
   });
   it('recording-error calls onRecordingError and updates state', async () => {
     const onRecordingError = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useRecording({ onRecordingError }),
       {
@@ -144,7 +144,7 @@ describe('useRecording', () => {
   });
   it('recording-data calls onRecordingData', async () => {
     const onRecordingData = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { waitFor } = renderHook(() => useRecording({ onRecordingData }), {
       wrapper: createWrapper(daily),
     });
@@ -163,7 +163,7 @@ describe('useRecording', () => {
     });
   });
   it('startRecording calls daily.startRecording', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
@@ -180,7 +180,7 @@ describe('useRecording', () => {
     });
   });
   it('stopRecording calls daily.stopRecording', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
@@ -192,7 +192,7 @@ describe('useRecording', () => {
     });
   });
   it('updateRecording calls daily.updateRecording', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
@@ -210,7 +210,7 @@ describe('useRecording', () => {
     });
   });
   it('single-participant recording for other participant sets isLocalParticipantRecorded to false', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const otherId = 'other';
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
@@ -242,7 +242,7 @@ describe('useRecording', () => {
     });
   });
   it('returns as recording when any participant is running a local recording', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const otherId = faker.datatype.uuid();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
@@ -275,7 +275,7 @@ describe('useRecording', () => {
     });
   });
   it('left-meeting event resets state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onRecordingStarted = jest.fn();
     const { result, waitFor } = renderHook(
       () => useRecording({ onRecordingStarted }),

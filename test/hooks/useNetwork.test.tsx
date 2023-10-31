@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectNetworkConnectionEvent,
@@ -36,7 +36,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -90,7 +90,7 @@ describe('useNetwork', () => {
       },
       threshold: 'good',
     };
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (
       daily.getNetworkStats as jest.Mock<Promise<DailyNetworkStats>>
     ).mockImplementation(() => Promise.resolve(mockStats));
@@ -104,7 +104,7 @@ describe('useNetwork', () => {
     ${'sfu'}
     ${'peer'}
   `('joined-meeting event initializes with $topology', async ({ topology }) => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useNetwork(), {
       wrapper: createWrapper(daily),
     });
@@ -138,7 +138,7 @@ describe('useNetwork', () => {
     'network-connection updates topology ($topology) and calls onNetworkConnection',
     async ({ topology, type }) => {
       const onNetworkConnection = jest.fn();
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () => useNetwork({ onNetworkConnection }),
         {
@@ -163,7 +163,7 @@ describe('useNetwork', () => {
   );
   it('network-quality-change updates quality & threshold and calls onNetworkQualityChange', async () => {
     const onNetworkQualityChange = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useNetwork({ onNetworkQualityChange }),
       {

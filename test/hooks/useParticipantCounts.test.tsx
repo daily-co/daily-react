@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectParticipantCounts,
@@ -33,7 +33,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -42,7 +42,7 @@ describe('useParticipantCounts', () => {
     jest.clearAllMocks();
   });
   it('returns default counts of 0', async () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     (callObject.participantCounts as jest.Mock).mockImplementation(() => ({
       hidden: 0,
       present: 0,
@@ -57,7 +57,7 @@ describe('useParticipantCounts', () => {
     });
   });
   it('updates counts when event is emitted', async () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     (callObject.participantCounts as jest.Mock).mockImplementation(() => ({
       hidden: 0,
       present: 0,

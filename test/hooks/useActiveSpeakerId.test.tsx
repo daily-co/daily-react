@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectActiveSpeakerChange,
@@ -30,13 +30,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useActiveSpeakerId', () => {
   it('returns null by default', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
         session_id: 'local',
@@ -56,7 +56,7 @@ describe('useActiveSpeakerId', () => {
   });
   describe('active-speaker-change event', () => {
     it('changes returned participant session id (local)', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: {
           session_id: 'local',
@@ -86,7 +86,7 @@ describe('useActiveSpeakerId', () => {
       });
     });
     it('does not change returned participant, when ignoreLocal is set', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const local = mockParticipant({
         local: true,
         session_id: 'local',

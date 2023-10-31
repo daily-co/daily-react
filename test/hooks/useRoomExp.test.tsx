@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectNoPayload,
@@ -36,7 +36,7 @@ jest.mock('../../src/DailyRoom', () => ({
 jest.mock('../../src/hooks/useRoom');
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -55,7 +55,7 @@ describe('useRoomExp', () => {
   });
 
   it('returns null initially', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useRoomExp(), {
       wrapper: createWrapper(daily),
     });
@@ -78,7 +78,7 @@ describe('useRoomExp', () => {
           exp: 0,
         },
       }));
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(() => useRoomExp(), {
         wrapper: createWrapper(daily),
       });
@@ -117,7 +117,7 @@ describe('useRoomExp', () => {
         },
       }));
 
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const onCountdown = jest.fn();
       renderHook(() => useRoomExp({ onCountdown }), {
         wrapper: createWrapper(daily),
@@ -182,7 +182,7 @@ describe('useRoomExp', () => {
           exp: 4100760732, // 2099-12-12T12:12:12.000Z
         },
       }));
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(() => useRoomExp(), {
         wrapper: createWrapper(daily),
       });
@@ -211,7 +211,7 @@ describe('useRoomExp', () => {
         },
       }));
 
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const onCountdown = jest.fn();
       renderHook(() => useRoomExp({ onCountdown }), {
         wrapper: createWrapper(daily),

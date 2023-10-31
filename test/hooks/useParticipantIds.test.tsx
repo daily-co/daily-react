@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -33,13 +33,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useParticipantIds', () => {
   it('returns ids of participants', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });
@@ -62,7 +62,7 @@ describe('useParticipantIds', () => {
   });
   describe('filter', () => {
     it('local filter returns local id only', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -93,7 +93,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('remote filter returns remote ids only', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -124,7 +124,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('owner filter returns owner ids only', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -155,7 +155,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('custom filter returns expected results', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -191,7 +191,7 @@ describe('useParticipantIds', () => {
   });
   describe('sort', () => {
     it('sort by joined_at returns ordered ids', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -222,7 +222,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('sort by session_id returns ordered ids', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -250,7 +250,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('sort by user_id returns ordered ids', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -281,7 +281,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('sort by user_name returns ordered ids', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -316,7 +316,7 @@ describe('useParticipantIds', () => {
       });
     });
     it('custom sort returns ordered ids', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const { result, waitFor } = renderHook(
         () =>
           useParticipantIds({
@@ -356,7 +356,7 @@ describe('useParticipantIds', () => {
     });
   });
   it('joined-meeting adds local participant to array', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });
@@ -376,7 +376,7 @@ describe('useParticipantIds', () => {
     });
   });
   it('participant-joined adds id and calls onParticipantJoined', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onParticipantJoined = jest.fn();
     const { result, waitFor } = renderHook(
       () => useParticipantIds({ onParticipantJoined }),
@@ -410,7 +410,7 @@ describe('useParticipantIds', () => {
     );
   });
   it('participant-updated calls onParticipantUpdated', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onParticipantUpdated = jest.fn();
     const { result, waitFor } = renderHook(
       () => useParticipantIds({ onParticipantUpdated }),
@@ -445,7 +445,7 @@ describe('useParticipantIds', () => {
     });
   });
   it('active-speaker-change calls onActiveSpeakerChange', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onActiveSpeakerChange = jest.fn();
     const { result, waitFor } = renderHook(
       () => useParticipantIds({ onActiveSpeakerChange }),
@@ -482,7 +482,7 @@ describe('useParticipantIds', () => {
     });
   });
   it('participant-left removes id and calls onParticipantLeft', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onParticipantLeft = jest.fn();
     const { result, waitFor } = renderHook(
       () => useParticipantIds({ onParticipantLeft }),
@@ -523,7 +523,7 @@ describe('useParticipantIds', () => {
     });
   });
   it('left-meeting removes all ids', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });

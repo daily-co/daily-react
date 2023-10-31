@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectParticipant,
@@ -30,7 +30,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -39,7 +39,7 @@ describe('useParticipant', () => {
     jest.clearAllMocks();
   });
   it('returns participant identified by given session_id', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useParticipant('a'), {
       wrapper: createWrapper(daily),
     });
@@ -59,7 +59,7 @@ describe('useParticipant', () => {
     });
   });
   it('participant-updated calls onParticipantUpdated', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onParticipantUpdated = jest.fn();
     const { waitFor } = renderHook(
       () => useParticipant('a', { onParticipantUpdated }),
@@ -85,7 +85,7 @@ describe('useParticipant', () => {
     });
   });
   it('participant-left event calls onParticipantLeft', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onParticipantLeft = jest.fn();
     const { waitFor } = renderHook(
       () => useParticipant('a', { onParticipantLeft }),
