@@ -23,7 +23,7 @@ export default function Tile({ sessionId }) {
         sessionId={sessionId}
       />
       <div className="Username">
-        <span>
+        <span role="img" aria-label={audioTrack.isOff ? 'Muted' : 'Unmuted'}>
           {audioTrack.isOff ? "🔇" : "🔈"}
         </span>
         <span>{username || "Guest"}</span>
