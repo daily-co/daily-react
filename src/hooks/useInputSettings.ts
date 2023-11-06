@@ -83,7 +83,7 @@ export const useInputSettings = ({
    */
   const updateInputSettings = useCallback(
     (...args: Parameters<DailyCall['updateInputSettings']>) => {
-      daily?.updateInputSettings(...args);
+      return daily?.updateInputSettings(...args);
     },
     [daily]
   );
