@@ -61,6 +61,7 @@ describe('useNetwork', () => {
         latest: {
           recvBitsPerSecond: 1000000,
           sendBitsPerSecond: 1000000,
+          networkRoundTripTime: 0.07,
           timestamp: 0,
           videoRecvBitsPerSecond: 1000000,
           videoRecvPacketLoss: 0,
@@ -85,6 +86,7 @@ describe('useNetwork', () => {
         worstVideoSendJitter: 0,
         worstAudioRecvJitter: 0.0178,
         worstAudioSendJitter: 0,
+        averageNetworkRoundTripTime: 0.07171428571428572,
       },
       threshold: 'good',
     };

@@ -4,11 +4,16 @@ import {
   DailyTrackState,
 } from '@daily-co/daily-js';
 import { useCallback } from 'react';
+import { useRecoilValue } from 'recoil';
 
-import { useScreenSharesContext } from '../DailyScreenShares';
+import { RECOIL_PREFIX } from '../lib/constants';
+import { customDeepEqual } from '../lib/customDeepEqual';
+import { equalSelector } from '../lib/recoil-custom';
 import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
+import { participantIdsFilteredAndSortedState } from './useParticipantIds';
+import { participantPropertyState } from './useParticipantProperty';
 
 export interface ScreenShare {
   local: boolean;
@@ -17,6 +22,29 @@ export interface ScreenShare {
   screenId: string;
   session_id: string;
 }
+
+const screenSharesState = equalSelector({
+  key: RECOIL_PREFIX + 'screen-shares',
+  equals: customDeepEqual,
+  get: ({ get }) => {
+    const screenIds = get(
+      participantIdsFilteredAndSortedState({ filter: 'screen', sort: null })
+    );
+    return screenIds.map<ScreenShare>((id) => {
+      return {
+        local: get(participantPropertyState({ id, property: 'local' })),
+        screenAudio: get(
+          participantPropertyState({ id, property: 'tracks.screenAudio' })
+        ),
+        screenVideo: get(
+          participantPropertyState({ id, property: 'tracks.screenVideo' })
+        ),
+        screenId: `${id}-screen`,
+        session_id: id,
+      };
+    });
+  },
+});
 
 type DailyEventObjectScreenShareError = Reconstruct<
   DailyEventObjectNonFatalError,
@@ -79,7 +107,7 @@ export const useScreenShare = ({
     )
   );
 
-  const { screens } = useScreenSharesContext();
+  const screens = useRecoilValue(screenSharesState);
 
   return {
     isSharingScreen: screens.some((s) => s.local),

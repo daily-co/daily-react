@@ -1,0 +1,113 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #121a24;
+  --border: #2b3f56;
+  --text: #fff;
+  --highlight: #feaa2c;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.App,
+.JoinForm {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.JoinForm {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.JoinForm label strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.JoinForm input,
+.JoinForm button {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.Call .tiles {
+  --gap: 4px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  padding-bottom: 56px;
+  position: relative;
+}
+
+.Tile {
+  --gap-space: calc((var(--columns) - 1) * var(--gap));
+
+  aspect-ratio: 16 / 9;
+  display: block;
+  max-width: min(50%, 600px);
+  min-width: 240px;
+  position: relative;
+  width: calc((100% - var(--gap-space)) / var(--columns));
+}
+
+.Tile video {
+  background: var(--bg);
+  border-radius: 4px;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.Tile video.active {
+  outline: 1px solid var(--highlight);
+}
+
+.Tile .Username {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
+  bottom: 0;
+  color: var(--text);
+  display: flex;
+  gap: 4px;
+  left: 0;
+  line-height: 1.1;
+  padding: 4px;
+  position: absolute;
+}
+
+.Tray {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  left: 0;
+  min-height: 56px;
+  justify-content: center;
+  padding: 8px;
+  position: fixed;
+  width: 100%;
+}
+
+.Tray .av {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

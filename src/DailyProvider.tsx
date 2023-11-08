@@ -16,7 +16,6 @@ import { DailyNetwork } from './DailyNetwork';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
-import { DailyScreenShares } from './DailyScreenShares';
 import { customDeepEqual } from './lib/customDeepEqual';
 
 type BaseProps =
@@ -212,13 +211,11 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
             <DailyMeeting>
               <DailyNetwork>
                 <DailyParticipants>
-                  <DailyScreenShares>
-                    <DailyRecordings>
-                      <DailyLiveStreaming>
-                        <DailyDevices>{children}</DailyDevices>
-                      </DailyLiveStreaming>
-                    </DailyRecordings>
-                  </DailyScreenShares>
+                  <DailyRecordings>
+                    <DailyLiveStreaming>
+                      <DailyDevices>{children}</DailyDevices>
+                    </DailyLiveStreaming>
+                  </DailyRecordings>
                 </DailyParticipants>
               </DailyNetwork>
             </DailyMeeting>

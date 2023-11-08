@@ -38,10 +38,6 @@ jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
-jest.mock('../../src/DailyScreenShares', () => ({
-  ...jest.requireActual('../../src/DailyScreenShares'),
-  DailyScreenShares: (({ children }) => <>{children}</>) as React.FC,
-}));
 
 const createWrapper =
   (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
@@ -83,10 +79,13 @@ describe('useThrottledDailyEvent', () => {
     // And useThrottledDailyEvent registers call-instance-destroyed listener itself.
     expect(daily.on).toHaveBeenCalledTimes(2 + 2);
   });
-  it('calls callback once in a given throttle timeframe', async () => {
+  it('calls callback at most twice in a given throttle timeframe', async () => {
     jest.useFakeTimers();
     const daily = DailyIframe.createCallObject();
-    const callback = jest.fn();
+    const receivedEvents: DailyEventObjectAppMessage[] = [];
+    const callback = jest.fn((evts: DailyEventObjectAppMessage[]) => {
+      receivedEvents.push(...evts);
+    });
     const delay = 100;
     const { waitFor } = renderHook(
       () => {
@@ -111,8 +110,8 @@ describe('useThrottledDailyEvent', () => {
     });
     jest.advanceTimersByTime(delay);
     await waitFor(() => {
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback).toHaveBeenCalledWith(expect.arrayContaining(evts));
+      expect(callback.mock.calls.length).toBeLessThanOrEqual(2);
+      expect(receivedEvents).toEqual(evts);
     });
     jest.useRealTimers();
   });

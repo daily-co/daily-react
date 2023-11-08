@@ -1,8 +1,9 @@
-import { DailyParticipant, DailyTrackState } from '@daily-co/daily-js';
+import { DailyParticipantTracks, DailyTrackState } from '@daily-co/daily-js';
 
+import { isTrackOff } from '../utils/isTrackOff';
 import { useParticipantProperty } from './useParticipantProperty';
 
-type MediaType = keyof DailyParticipant['tracks'];
+type MediaType = keyof DailyParticipantTracks;
 
 export interface MediaTrackState extends DailyTrackState {
   isOff: boolean;
@@ -32,6 +33,6 @@ export const useMediaTrack = (
 
   return {
     ...trackState,
-    isOff: trackState.state === 'blocked' || trackState.state === 'off',
+    isOff: isTrackOff(trackState.state),
   };
 };

@@ -1,11 +1,6 @@
-import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  selectorFamily,
-  useRecoilCallback,
-  useRecoilTransactionObserver_UNSTABLE,
-  useRecoilValue,
-} from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
   ExtendedDailyParticipant,
@@ -14,6 +9,7 @@ import {
 } from '../DailyParticipants';
 import { RECOIL_PREFIX } from '../lib/constants';
 import { customDeepEqual } from '../lib/customDeepEqual';
+import { equalSelectorFamily } from '../lib/recoil-custom';
 import { isTrackOff } from '../utils/isTrackOff';
 import {
   participantPropertiesState,
@@ -22,9 +18,9 @@ import {
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
 
 type FilterParticipantsFunction = (
-  p: DailyParticipant,
+  p: ExtendedDailyParticipant,
   index: number,
-  arr: DailyParticipant[]
+  arr: ExtendedDailyParticipant[]
 ) => boolean;
 type SerializableFilterParticipants =
   | 'local'
@@ -37,8 +33,8 @@ type FilterParticipants =
   | FilterParticipantsFunction;
 
 type SortParticipantsFunction = (
-  a: DailyParticipant,
-  b: DailyParticipant
+  a: ExtendedDailyParticipant,
+  b: ExtendedDailyParticipant
 ) => 1 | -1 | 0;
 type SerializableSortParticipants =
   | 'joined_at'
@@ -50,7 +46,7 @@ type SortParticipants = SerializableSortParticipants | SortParticipantsFunction;
 /**
  * Short-cut state selector for useParticipantIds({ filter: 'local' })
  */
-export const participantIdsFilteredAndSortedState = selectorFamily<
+export const participantIdsFilteredAndSortedState = equalSelectorFamily<
   string[],
   {
     filter: SerializableFilterParticipants | null;
@@ -58,6 +54,7 @@ export const participantIdsFilteredAndSortedState = selectorFamily<
   }
 >({
   key: RECOIL_PREFIX + 'participant-ids-filtered-sorted',
+  equals: customDeepEqual,
   get:
     ({ filter, sort }) =>
     ({ get }) => {
@@ -153,68 +150,54 @@ export const useParticipantIds = ({
     })
   );
 
-  /**
-   * For custom filter and/or sort, we need to calculate the returned ids manually.
-   */
-  const [customIds, setCustomIds] = useState<string[]>([]);
-  /**
-   * Loads participant state from Recoil store and updates custom ids state,
-   * in case resulting set of ids is different.
-   */
-  const maybeUpdateCustomIds = useRecoilCallback(
+  const getCustomFilteredIds = useRecoilCallback(
     ({ snapshot }) =>
-      async () => {
+      () => {
         if (
           // Ignore if both filter and sort are not functions.
           typeof filter !== 'function' &&
           typeof sort !== 'function'
         )
-          return;
+          return [];
 
-        const participants: ExtendedDailyParticipant[] = await Promise.all(
+        const participants: ExtendedDailyParticipant[] =
           preFilteredSortedIds.map(
-            async (id) =>
-              (await snapshot.getPromise(
-                participantState(id)
-              )) as ExtendedDailyParticipant
-          )
+            (id) =>
+              snapshot.getLoadable(participantState(id))
+                .contents as ExtendedDailyParticipant
+          );
+
+        return (
+          participants
+            // Make sure we don't accidentally try to filter/sort `null` participants
+            // This can happen when a participant's id is already present in store
+            // but the participant object is not stored, yet.
+            .filter(Boolean)
+            // Run custom filter, if it's a function. Otherwise don't filter any participants.
+            .filter(typeof filter === 'function' ? filter : () => true)
+            // Run custom sort, if it's a function. Otherwise don't sort.
+            .sort(typeof sort === 'function' ? sort : () => 0)
+            // Map back to session_id.
+            .map((p) => p.session_id)
+            // Filter any potential null/undefined ids.
+            // This shouldn't really happen, but better safe than sorry.
+            .filter(Boolean)
         );
-        const newCustomIds = participants
-          // Make sure we don't accidentally try to filter/sort `null` participants
-          // This can happen when a participant's id is already present in store
-          // but the participant object is not stored, yet.
-          .filter(Boolean)
-          // Run custom filter, if it's a function. Otherwise don't filter any participants.
-          .filter(typeof filter === 'function' ? filter : () => true)
-          // Run custom sort, if it's a function. Otherwise don't sort.
-          .sort(typeof sort === 'function' ? sort : () => 0)
-          // Map back to session_id.
-          .map((p) => p.session_id)
-          // Filter any potential null/undefined ids.
-          // This shouldn't really happen, but better safe than sorry.
-          .filter(Boolean);
-
-        // Finally compare the new list of ids with the current one.
-        if (customDeepEqual(customIds, newCustomIds)) return;
-
-        setCustomIds(newCustomIds);
       },
-    [customIds, filter, preFilteredSortedIds, sort]
+    [filter, preFilteredSortedIds, sort]
   );
 
-  /**
-   * Initialize state.
-   */
+  const [customIds, setCustomIds] = useState<string[]>([]);
+
+  const maybeUpdateCustomIds = useCallback(() => {
+    const newIds = getCustomFilteredIds();
+    if (customDeepEqual(newIds, customIds)) return;
+    setCustomIds(newIds);
+  }, [customIds, getCustomFilteredIds]);
+
   useEffect(() => {
     maybeUpdateCustomIds();
   }, [maybeUpdateCustomIds]);
-
-  /**
-   * Wires up this instance to the Recoil store.
-   */
-  useRecoilTransactionObserver_UNSTABLE(() => {
-    maybeUpdateCustomIds();
-  });
 
   useThrottledDailyEvent(
     [
@@ -242,8 +225,10 @@ export const useParticipantIds = ({
               break;
           }
         });
+        maybeUpdateCustomIds();
       },
       [
+        maybeUpdateCustomIds,
         onActiveSpeakerChange,
         onParticipantJoined,
         onParticipantLeft,
