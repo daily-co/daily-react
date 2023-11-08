@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectMeetingSessionStateUpdated,
@@ -32,7 +32,7 @@ jest.mock('../../src/DailyRecordings', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -41,7 +41,7 @@ describe('useMeetingSessionState', () => {
     jest.clearAllMocks();
   });
   it('initially returns undefined', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
@@ -51,7 +51,7 @@ describe('useMeetingSessionState', () => {
     });
   });
   it('emitted Daily event "joined-meeting" correctly updates the meeting session state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.meetingSessionState as jest.Mock).mockImplementation(() => ({
       data: {},
       topology: 'peer',
@@ -78,7 +78,7 @@ describe('useMeetingSessionState', () => {
     });
   });
   it('emitted Daily event "meeting-session-state-updated" correctly updates the meeting session state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
@@ -104,7 +104,7 @@ describe('useMeetingSessionState', () => {
     });
   });
   it('emitted Daily event "left-meeting" resets the meeting session state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });

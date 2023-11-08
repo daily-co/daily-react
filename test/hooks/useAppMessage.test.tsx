@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectAppMessage,
@@ -33,13 +33,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useAppMessage', () => {
   it('returns a function', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useAppMessage(), {
       wrapper: createWrapper(daily),
     });
@@ -47,7 +47,7 @@ describe('useAppMessage', () => {
   });
   it('app-message calls onAppMessage', async () => {
     const onAppMessage = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { waitFor } = renderHook(() => useAppMessage({ onAppMessage }), {
       wrapper: createWrapper(daily),
     });
@@ -66,7 +66,7 @@ describe('useAppMessage', () => {
     });
   });
   it('calling sendMessage calls sendAppMessage', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useAppMessage(), {
       wrapper: createWrapper(daily),
     });
@@ -80,7 +80,7 @@ describe('useAppMessage', () => {
     });
   });
   it('sendAppMessage defaults to broadcast message', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useAppMessage(), {
       wrapper: createWrapper(daily),
     });

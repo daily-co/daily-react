@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectNoPayload,
@@ -29,7 +29,7 @@ jest.mock('../../src/DailyRecordings', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -38,7 +38,7 @@ describe('useMeetingState', () => {
     jest.clearAllMocks();
   });
   it('returns the correct initial meeting state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     // set up daily.meetingState() mock, because it's undefined
     (daily.meetingState as jest.Mock).mockImplementation(() => 'new');
     const { result, waitFor } = renderHook(() => useMeetingState(), {
@@ -49,7 +49,7 @@ describe('useMeetingState', () => {
     });
   });
   it('emitted Daily event "joining-meeting" correctly updates the meeting state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.meetingState as jest.Mock).mockImplementation(
       () => 'joining-meeting'
     );

@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall, DailyRoomInfo } from '@daily-co/daily-js';
+import Daily, { DailyCall, DailyRoomInfo } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
 import faker from 'faker';
 import React from 'react';
@@ -29,7 +29,7 @@ jest.mock('../../src/DailyMeeting', () => ({
   DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
 }));
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -43,7 +43,7 @@ describe('useRoom', () => {
     });
   });
   it('returns same object as daily.room() after access-state-updated event', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const room: DailyRoomInfo = {
       config: {},
       domainConfig: {},

@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectSendSettingsUpdated,
@@ -38,7 +38,7 @@ jest.mock('../../src/DailyMeeting', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -47,7 +47,7 @@ describe('useSendSettings', () => {
     jest.clearAllMocks();
   });
   it('returns sendSettings as null and updateSendSettings', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useSendSettings(), {
       wrapper: createWrapper(daily),
     });
@@ -55,7 +55,7 @@ describe('useSendSettings', () => {
     expect(typeof result.current.updateSendSettings).toBe('function');
   });
   it('send-settings-updated event calls provided callback', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onSendSettingsUpdated = jest.fn();
     const { waitFor } = renderHook(
       () =>
@@ -82,7 +82,7 @@ describe('useSendSettings', () => {
     });
   });
   it('send-settings-updated event updates returned sendSettings', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useSendSettings(), {
       wrapper: createWrapper(daily),
     });
@@ -102,7 +102,7 @@ describe('useSendSettings', () => {
     });
   });
   it('updateSendSettings calls daily.updateSendSettings', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
 
     const { result, waitFor } = renderHook(() => useSendSettings(), {
       wrapper: createWrapper(daily),

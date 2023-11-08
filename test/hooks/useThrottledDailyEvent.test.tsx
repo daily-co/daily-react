@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEventObjectAppMessage,
 } from '@daily-co/daily-js';
@@ -40,13 +40,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useThrottledDailyEvent', () => {
   it('registers and unregisters a daily event listener', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const eventHandler = jest.fn();
     const { unmount } = renderHook(
       () => useThrottledDailyEvent('app-message', eventHandler),
@@ -61,7 +61,7 @@ describe('useThrottledDailyEvent', () => {
     expect(daily.off).toHaveBeenCalledWith('app-message', expect.any(Function));
   });
   it('registers only one daily event listener for the same event type', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const randomAmount = 10 + Math.ceil(50 * Math.random());
     const handlers = new Array(randomAmount).fill(0).map(() => jest.fn());
     renderHook(
@@ -81,7 +81,7 @@ describe('useThrottledDailyEvent', () => {
   });
   it('calls callback at most twice in a given throttle timeframe', async () => {
     jest.useFakeTimers();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const receivedEvents: DailyEventObjectAppMessage[] = [];
     const callback = jest.fn((evts: DailyEventObjectAppMessage[]) => {
       receivedEvents.push(...evts);

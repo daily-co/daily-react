@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectInputSettingsUpdated,
@@ -35,13 +35,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useInputSettings', () => {
   it('returns errorMsg and inputSettings', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const initialSettings = await daily.getInputSettings();
     const { result, waitFor } = renderHook(() => useInputSettings(), {
       wrapper: createWrapper(daily),
@@ -52,7 +52,7 @@ describe('useInputSettings', () => {
     });
   });
   it('input-settings-updated event updates inputSettings and calls onInputSettingsUpdated', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const initialSettings = await daily.getInputSettings();
     const updatedSettings: DailyInputSettings = {
       video: {
@@ -95,7 +95,7 @@ describe('useInputSettings', () => {
     });
   });
   it('nonfatal-error updates errorMsg and calls onError', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const initialSettings = await daily.getInputSettings();
     const onError = jest.fn();
     const { result, waitFor } = renderHook(

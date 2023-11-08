@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
@@ -33,13 +33,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useLiveStreaming', () => {
   it('returns default state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
@@ -49,7 +49,7 @@ describe('useLiveStreaming', () => {
   });
   it('live-streaming-started calls onLiveStreamingStarted and updates state', async () => {
     const onLiveStreamingStarted = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useLiveStreaming({ onLiveStreamingStarted }),
       {
@@ -75,7 +75,7 @@ describe('useLiveStreaming', () => {
   });
   it('live-streaming-stopped calls onLiveStreamingStopped and updates state', async () => {
     const onLiveStreamingStopped = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useLiveStreaming({ onLiveStreamingStopped }),
       {
@@ -98,7 +98,7 @@ describe('useLiveStreaming', () => {
   });
   it('live-streaming-error calls onLiveStreamingError and updates state', async () => {
     const onLiveStreamingError = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useLiveStreaming({ onLiveStreamingError }),
       {
@@ -121,7 +121,7 @@ describe('useLiveStreaming', () => {
     });
   });
   it('startLiveStreaming calls daily method', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
@@ -136,7 +136,7 @@ describe('useLiveStreaming', () => {
     });
   });
   it('stopLiveStreaming calls daily method', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
@@ -148,7 +148,7 @@ describe('useLiveStreaming', () => {
     });
   });
   it('updateLiveStreaming calls daily method', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });

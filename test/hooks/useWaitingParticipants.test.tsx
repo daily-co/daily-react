@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectWaitingParticipant,
@@ -29,7 +29,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -46,7 +46,7 @@ describe('useWaitingParticipants', () => {
 
   it('waiting-participant-added event adds waitingParticipant & calls onWaitingParticipantAdded', async () => {
     const onWaitingParticipantAdded = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantAdded }),
       {
@@ -77,7 +77,7 @@ describe('useWaitingParticipants', () => {
 
   it('waiting-participant-updated event updates waitingParticipant & calls onWaitingParticipantUpdated', async () => {
     const onWaitingParticipantUpdated = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantUpdated }),
       {
@@ -132,7 +132,7 @@ describe('useWaitingParticipants', () => {
 
   it('waiting-participant-removed event removes waitingParticipant & calls onWaitingParticipantRemoved', async () => {
     const onWaitingParticipantRemoved = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantRemoved }),
       {
@@ -195,7 +195,7 @@ describe('useWaitingParticipants', () => {
       grantRequestedAccess: boolean;
     }) => {
       it('calls updateWaitingParticipant for single id', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useWaitingParticipants(), {
           wrapper: createWrapper(daily),
         });
@@ -210,7 +210,7 @@ describe('useWaitingParticipants', () => {
         });
       });
       it('calls updateWaitingParticipants for "all" waiting participants', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useWaitingParticipants(), {
           wrapper: createWrapper(daily),
         });

@@ -1,4 +1,4 @@
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
@@ -137,13 +137,13 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
       return;
     }
 
-    let co = DailyIframe.getCallInstance();
+    let co = Daily.getCallInstance();
     if (!co) {
       /**
        * callObject doesn't exist, but should be created.
        * Important to spread props, because createCallObject alters the passed object (adds layout and dailyJsVersion).
        */
-      co = DailyIframe.createCallObject({ ...props });
+      co = Daily.createCallObject({ ...props });
       lastUsedProps.current = props;
     }
 

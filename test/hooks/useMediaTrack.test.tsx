@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEventObjectParticipant,
   DailyEventObjectParticipants,
@@ -31,7 +31,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -72,7 +72,7 @@ const participantBase: DailyParticipant = {
 
 describe('useMediaTrack', () => {
   it('returns track state for a joined participant', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
     const { result, waitFor } = renderHook(() => useMediaTrack(participantId), {
@@ -98,7 +98,7 @@ describe('useMediaTrack', () => {
     });
   });
   it('returns track state for an updated participant', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
     const { result, waitFor } = renderHook(
@@ -127,7 +127,7 @@ describe('useMediaTrack', () => {
     });
   });
   it('returns off state for unknown participant', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
     const { result, waitFor } = renderHook(
@@ -146,7 +146,7 @@ describe('useMediaTrack', () => {
     });
   });
   it('joined-meeting event sets up local participant state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
     const { result, waitFor } = renderHook(
@@ -178,7 +178,7 @@ describe('useMediaTrack', () => {
     });
   });
   it('participant event for other participant does not change state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
     const otherId = faker.datatype.uuid();
 
@@ -215,7 +215,7 @@ describe('useMediaTrack', () => {
     });
   });
   it('local participant state is automatically read from participants()', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
     const local: DailyParticipant = {
       ...participantBase,
