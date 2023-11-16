@@ -36,7 +36,7 @@ const createCallObject = (properties) => {
         },
       },
     })),
-    getMeetingSession: jest.fn(),
+    getMeetingSessionSummary: jest.fn(),
     getNetworkStats: jest.fn(),
     getNetworkTopology: jest.fn(),
     getReceiveSettings: jest.fn(async () => {}),
