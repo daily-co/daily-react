@@ -1,10 +1,10 @@
-import Daily, {
+import {
   DailyCall,
   DailyEvent,
   DailyEventObject,
   DailyFactoryOptions,
 } from '@daily-co/daily-js';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { RecoilRoot, RecoilRootProps } from 'recoil';
 
 import { DailyContext } from './DailyContext';
@@ -16,7 +16,7 @@ import { DailyNetwork } from './DailyNetwork';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
-import { customDeepEqual } from './lib/customDeepEqual';
+import { useCallObject } from './hooks/useCallObject';
 
 type BaseProps =
   | DailyFactoryOptions
@@ -41,39 +41,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   recoilRootProps = {},
   ...props
 }) => {
-  const externalCallObject = 'callObject' in props ? props.callObject : null;
-
-  const [callObject, setCallObject] = useState<DailyCall | null>(
-    externalCallObject
-  );
   const eventsMap = useRef<EventsMap>({});
-
-  /**
-   * Update callObject reference, in case externally created instance has changed.
-   */
-  useEffect(() => {
-    if (!externalCallObject) return;
-
-    const callFrameIdChanged =
-      // TODO: Replace _callFrameId check with something "official".
-      // @ts-ignore
-      callObject?._callFrameId !== externalCallObject?._callFrameId;
-    const callObjectNullified = !externalCallObject;
-    const callObjectCreated = !callObject && externalCallObject;
-
-    if (callObjectNullified) {
-      /**
-       * Passed callObject prop has been unset, e.g. because it was destroyed.
-       * We'll want to let go the internal reference in that case.
-       */
-      setCallObject(null);
-    } else if (callFrameIdChanged || callObjectCreated) {
-      /**
-       * Passed callObject has been created or changed.
-       */
-      setCallObject(externalCallObject);
-    }
-  }, [callObject, externalCallObject]);
 
   /**
    * Generic event handler to loop through registered event callbacks.
@@ -103,66 +71,22 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
     [handleEvent]
   );
 
-  /**
-   * Holds last used props when callObject instance was created.
-   */
-  const lastUsedProps = useRef<DailyFactoryOptions>();
+  const externalCallObject = 'callObject' in props ? props.callObject : null;
+
+  const internalCallObject = useCallObject({
+    options: 'callObject' in props ? {} : props,
+    shouldCreateInstance: useCallback(() => {
+      return !('callObject' in props);
+    }, [props]),
+  });
+
+  const callObject =
+    'callObject' in props ? externalCallObject : internalCallObject;
+
   useEffect(() => {
-    /**
-     * Store externally created callObject and init event handlers.
-     */
-    if ('callObject' in props) {
-      setCallObject(props.callObject);
-      initEventHandlers(props.callObject);
-      return;
-    }
-
-    async function destroyCallObject(co: DailyCall) {
-      await co.destroy();
-    }
-
-    /**
-     * callObject exists.
-     */
-    if (callObject) {
-      /**
-       * Props have changed. Destroy current instance, so a new one can be created.
-       */
-      if (!customDeepEqual(lastUsedProps.current, props)) {
-        destroyCallObject(callObject);
-      }
-      /**
-       * Return early.
-       */
-      return;
-    }
-
-    let co = Daily.getCallInstance();
-    if (!co) {
-      /**
-       * callObject doesn't exist, but should be created.
-       * Important to spread props, because createCallObject alters the passed object (adds layout and dailyJsVersion).
-       */
-      co = Daily.createCallObject({ ...props });
-      lastUsedProps.current = props;
-    }
-
-    setCallObject(co);
-    initEventHandlers(co);
-
-    /**
-     * Once instance is destroyed, nullify callObject, so a new one is created.
-     */
-    co.once('call-instance-destroyed', () => {
-      setCallObject(null);
-    });
-
-    /**
-     * No cleanup phase here, because callObject.destroy() returns a Promise.
-     * We can't have asynchronous cleanups in a useEffect.
-     * To avoid infinite render loops we compare the props when creating call object instances.
-     */
-  }, [callObject, initEventHandlers, props]);
+    if (!callObject) return;
+    initEventHandlers(callObject);
+  }, [callObject, initEventHandlers]);
 
   /**
    * Registers event callback.
