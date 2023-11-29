@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEventObjectCameraError,
   DailyEventObjectParticipant,
@@ -33,7 +33,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -42,7 +42,7 @@ describe('useDevices', () => {
     jest.resetAllMocks();
   });
   it('returns initial state', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
@@ -69,7 +69,7 @@ describe('useDevices', () => {
       // @ts-ignore
       navigator.mediaDevices.getUserMedia = undefined;
     }
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
@@ -90,7 +90,7 @@ describe('useDevices', () => {
       // @ts-ignore
       navigator.mediaDevices.enumerateDevices = undefined;
     }
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
@@ -148,7 +148,7 @@ describe('useDevices', () => {
           toJSON: jest.fn(),
         },
       ];
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
         devices,
       }));
@@ -230,7 +230,7 @@ describe('useDevices', () => {
           enumerateDevices: jest.fn(),
         };
       }
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
         devices,
       }));
@@ -275,7 +275,7 @@ describe('useDevices', () => {
           toJSON: jest.fn(),
         },
       ];
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
         devices,
       }));
@@ -307,7 +307,7 @@ describe('useDevices', () => {
     });
     describe('camera-error', () => {
       it('cam-in-use error updates general cam state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -332,7 +332,7 @@ describe('useDevices', () => {
         });
       });
       it('mic-in-use error updates general mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -357,7 +357,7 @@ describe('useDevices', () => {
         });
       });
       it('cam-mic-in-use error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -384,7 +384,7 @@ describe('useDevices', () => {
         });
       });
       it('not-found error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -412,7 +412,7 @@ describe('useDevices', () => {
         });
       });
       it('permissions error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -441,7 +441,7 @@ describe('useDevices', () => {
         });
       });
       it('constraints (invalid) error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -469,7 +469,7 @@ describe('useDevices', () => {
         });
       });
       it('constraints (none-specified) error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -497,7 +497,7 @@ describe('useDevices', () => {
         });
       });
       it('undefined-mediadevices error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -524,7 +524,7 @@ describe('useDevices', () => {
         });
       });
       it('unknown error updates general cam and mic state', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -553,7 +553,7 @@ describe('useDevices', () => {
     });
     describe('participant-updated', () => {
       it('remote updates are ignored', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -596,7 +596,7 @@ describe('useDevices', () => {
             },
           },
         };
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
@@ -645,7 +645,7 @@ describe('useDevices', () => {
             },
           },
         };
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
@@ -694,7 +694,7 @@ describe('useDevices', () => {
             },
           },
         };
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
@@ -750,7 +750,7 @@ describe('useDevices', () => {
               toJSON: jest.fn(),
             },
           ];
-          const daily = DailyIframe.createCallObject();
+          const daily = Daily.createCallObject();
           (daily.getInputDevices as jest.Mock).mockImplementation(async () => ({
             camera: {},
             mic: microphones[0],
@@ -826,7 +826,7 @@ describe('useDevices', () => {
               toJSON: jest.fn(),
             },
           ];
-          const daily = DailyIframe.createCallObject();
+          const daily = Daily.createCallObject();
           (daily.getInputDevices as jest.Mock).mockImplementation(async () => ({
             camera: {},
             mic: microphones[0],
@@ -909,7 +909,7 @@ describe('useDevices', () => {
               toJSON: jest.fn(),
             },
           ];
-          const daily = DailyIframe.createCallObject();
+          const daily = Daily.createCallObject();
           (daily.getInputDevices as jest.Mock).mockImplementation(async () => ({
             camera: cameras[0],
             mic: {},
@@ -989,7 +989,7 @@ describe('useDevices', () => {
               toJSON: jest.fn(),
             },
           ];
-          const daily = DailyIframe.createCallObject();
+          const daily = Daily.createCallObject();
           (daily.getInputDevices as jest.Mock).mockImplementation(async () => ({
             camera: cameras[0],
             mic: {},
@@ -1041,7 +1041,7 @@ describe('useDevices', () => {
     });
     describe('setting devices', () => {
       it('setCamera calls setInputDevicesAsync', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -1057,7 +1057,7 @@ describe('useDevices', () => {
         });
       });
       it('setMicrophone calls setInputDevicesAsync', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
@@ -1073,7 +1073,7 @@ describe('useDevices', () => {
         });
       });
       it('setSpeaker calls setOutputDeviceAsync', async () => {
-        const daily = DailyIframe.createCallObject();
+        const daily = Daily.createCallObject();
         const { result, waitFor } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });

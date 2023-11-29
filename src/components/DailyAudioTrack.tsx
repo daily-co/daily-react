@@ -26,6 +26,7 @@ export const DailyAudioTrack = memo(
       const audioEl = useRef<HTMLAudioElement>(null);
       const audio = useMediaTrack(sessionId, type);
       const audioRef = useMergedRef<HTMLAudioElement>(audioEl, ref);
+      const subscribedState = audio?.subscribed;
 
       /**
        * Setup audio tag.
@@ -69,6 +70,7 @@ export const DailyAudioTrack = memo(
           {...props}
           data-session-id={sessionId}
           data-audio-type={type}
+          data-subscribed={subscribedState}
         />
       );
     }

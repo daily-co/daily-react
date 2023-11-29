@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -25,13 +25,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useLocalSessionId', () => {
   it('returns null, if daily.participants() does not contain local user yet', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({}));
     const { result, waitFor } = renderHook(() => useLocalSessionId(), {
       wrapper: createWrapper(daily),
@@ -41,7 +41,7 @@ describe('useLocalSessionId', () => {
     });
   });
   it('returns local user session_id', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: {
         local: true,

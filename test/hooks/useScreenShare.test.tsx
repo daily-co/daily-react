@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
@@ -33,13 +33,13 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useScreenShare', () => {
   it('returns functions to start and stop screen shares', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useScreenShare(), {
       wrapper: createWrapper(daily),
     });
@@ -47,7 +47,7 @@ describe('useScreenShare', () => {
     expect(typeof result.current.stopScreenShare).toBe('function');
   });
   it('calling startScreenShare calls startScreenShare', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useScreenShare(), {
       wrapper: createWrapper(daily),
     });
@@ -59,7 +59,7 @@ describe('useScreenShare', () => {
     });
   });
   it('calling stopScreenShare calls stopScreenShare', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useScreenShare(), {
       wrapper: createWrapper(daily),
     });
@@ -71,7 +71,7 @@ describe('useScreenShare', () => {
     });
   });
   it('local-screen-share-started calls onLocalScreenShareStarted', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onLocalScreenShareStarted = jest.fn();
     const { waitFor } = renderHook(
       () => useScreenShare({ onLocalScreenShareStarted }),
@@ -92,7 +92,7 @@ describe('useScreenShare', () => {
     });
   });
   it('local-screen-share-stopped calls onLocalScreenShareStopped', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onLocalScreenShareStopped = jest.fn();
     const { waitFor } = renderHook(
       () => useScreenShare({ onLocalScreenShareStopped }),

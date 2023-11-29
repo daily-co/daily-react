@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall, DailyParticipant } from '@daily-co/daily-js';
+import Daily, { DailyCall, DailyParticipant } from '@daily-co/daily-js';
 import { act, render, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
@@ -27,7 +27,7 @@ jest.mock('../../src/DailyDevices', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -64,7 +64,7 @@ describe('DailyAudio', () => {
 
   describe('active speaker', () => {
     it('assigns subscribed speaker to first free slot', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const peerId = faker.datatype.uuid();
       const peer = mockParticipant({
         local: false,
@@ -91,7 +91,7 @@ describe('DailyAudio', () => {
       });
     });
     it('ignores unsubscribed speaker', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const peerId = faker.datatype.uuid();
       const peer = mockParticipant({
         local: false,
@@ -118,7 +118,7 @@ describe('DailyAudio', () => {
       });
     });
     it('ignores local participant', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       (callObject.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -140,7 +140,7 @@ describe('DailyAudio', () => {
   });
   describe('unmuted participant', () => {
     it('assigns subscribed participant to first free slot', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const peerId = faker.datatype.uuid();
       const peer = mockParticipant({
         local: false,
@@ -167,7 +167,7 @@ describe('DailyAudio', () => {
       });
     });
     it('ignores local participant', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       (callObject.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -189,7 +189,7 @@ describe('DailyAudio', () => {
   });
   describe('left participant', () => {
     it('unassigns audio', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const peerId = faker.datatype.uuid();
       const peer = mockParticipant({
         local: false,
@@ -231,7 +231,7 @@ describe('DailyAudio', () => {
        * - Unsubscribe from remote participant 2
        * - Remote participant 3 becomes active speaker (subscribed) and replaces slot of participant 2
        */
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const remoteParticipants = [
         faker.datatype.uuid(),
         faker.datatype.uuid(),
@@ -295,7 +295,7 @@ describe('DailyAudio', () => {
        * - Remote participant 2 mutes (still subscribed)
        * - Remote participant 3 becomes active speaker (subscribed) and replaces slot of participant 2
        */
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const remoteParticipants = [
         faker.datatype.uuid(),
         faker.datatype.uuid(),
@@ -360,7 +360,7 @@ describe('DailyAudio', () => {
        * - Remote participant 3 becomes active speaker (subscribed)
        * - Remote participant 4 becomes active speaker (subscribed) and replaces slot of participant 1
        */
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const remoteParticipants = [
         faker.datatype.uuid(),
         faker.datatype.uuid(),

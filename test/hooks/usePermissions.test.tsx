@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -26,7 +26,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -40,7 +40,7 @@ describe('usePermissions', () => {
       hasPresence: true,
       canAdmin: false,
     };
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({
       local: mockParticipant({
         local: true,
@@ -56,7 +56,7 @@ describe('usePermissions', () => {
   });
   describe('canSend', () => {
     it('returns all true, when canSend is true', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -80,7 +80,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns all false, when canSend is false', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -104,7 +104,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns individual mapping', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -130,7 +130,7 @@ describe('usePermissions', () => {
   });
   describe('hasPresence', () => {
     it('returns true, when hasPresence is true', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -149,7 +149,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns false, when hasPresence is false', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -170,7 +170,7 @@ describe('usePermissions', () => {
   });
   describe('canAdmin', () => {
     it('returns all true, when canAdmin is true', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -191,7 +191,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns all false, when canAdmin is false', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -212,7 +212,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns individual mapping', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       (daily.participants as jest.Mock).mockImplementation(() => ({
         local: mockParticipant({
           local: true,
@@ -235,7 +235,7 @@ describe('usePermissions', () => {
   });
   describe('Remote participant permissions', () => {
     it('returns true, when hasPresence is true', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
@@ -266,7 +266,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns false, when hasPresence is false', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
@@ -297,7 +297,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns individual canSend mapping of remote participant', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
@@ -333,7 +333,7 @@ describe('usePermissions', () => {
       });
     });
     it('returns individual canAdmin mapping of remote participant', async () => {
-      const daily = DailyIframe.createCallObject();
+      const daily = Daily.createCallObject();
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {

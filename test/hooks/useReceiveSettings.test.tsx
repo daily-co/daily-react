@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectReceiveSettingsUpdated,
@@ -40,7 +40,7 @@ jest.mock('../../src/DailyMeeting', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -49,7 +49,7 @@ describe('useReceiveSettings', () => {
     jest.clearAllMocks();
   });
   it('returns base settings and updateReceiveSettings', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
@@ -57,7 +57,7 @@ describe('useReceiveSettings', () => {
     expect(typeof result.current.updateReceiveSettings).toBe('function');
   });
   it('receive-settings-updated event calls provided callback', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const onReceiveSettingsUpdated = jest.fn();
     const { waitFor } = renderHook(
       () =>
@@ -91,7 +91,7 @@ describe('useReceiveSettings', () => {
     });
   });
   it('receive-settings-updated event updates returned receiveSettings (base)', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
@@ -120,7 +120,7 @@ describe('useReceiveSettings', () => {
     });
   });
   it('receive-settings-updated event updates returned receiveSettings (id)', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const id = faker.datatype.uuid();
     const { result, waitFor } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
@@ -155,7 +155,7 @@ describe('useReceiveSettings', () => {
     });
   });
   it('returns baseSettings in case id is not set', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const id = faker.datatype.uuid();
     const { result, waitFor } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
@@ -185,7 +185,7 @@ describe('useReceiveSettings', () => {
     });
   });
   it('updateReceiveSettings calls daily.updateReceiveSettings, when meeting state is joined-meeting', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     jest
       .spyOn(useMeetingStateModule, 'useMeetingState')
       .mockReturnValue('joined-meeting');

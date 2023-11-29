@@ -36,7 +36,7 @@ const createCallObject = (properties) => {
         },
       },
     })),
-    getMeetingSession: jest.fn(),
+    getMeetingSessionSummary: jest.fn(),
     getNetworkStats: jest.fn(),
     getNetworkTopology: jest.fn(),
     getReceiveSettings: jest.fn(async () => {}),
@@ -79,12 +79,10 @@ const createCallObject = (properties) => {
     setDailyLang: jest.fn(),
     setProxyUrl: jest.fn(),
     setIceConfig: jest.fn(),
-    setInputDevices: jest.fn(),
     setInputDevicesAsync: jest.fn(),
     setLocalAudio: jest.fn(),
     setLocalVideo: jest.fn(),
     setNetworkTopology: jest.fn(),
-    setOutputDevice: jest.fn(),
     setOutputDeviceAsync: jest.fn(),
     setPlayNewParticipantSound: jest.fn(),
     setShowLocalVideo: jest.fn(),
@@ -120,10 +118,10 @@ const createCallObject = (properties) => {
   }
 };
 
-const mockedDailyIframe = {
+const mockedDailyCall = {
   createCallObject,
   supportedBrowser: jest.fn(),
   version: jest.fn(),
 };
 
-module.exports = mockedDailyIframe;
+module.exports = mockedDailyCall;

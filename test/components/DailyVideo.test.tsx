@@ -1,7 +1,7 @@
 /// <reference types="@types/jest" />
 /// <reference types="@testing-library/jest-dom" />
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { act, render, waitFor } from '@testing-library/react';
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
 import faker from 'faker';
@@ -24,7 +24,7 @@ jest.mock('../../src/DailyDevices', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -62,7 +62,7 @@ describe('DailyVideo', () => {
     }
   });
   it('assigns correct video track to <video> tag', async () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.datatype.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
@@ -108,7 +108,7 @@ describe('DailyVideo', () => {
     });
   });
   it('renders staged subscription in data-subscribed attribute', async () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.datatype.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
@@ -154,7 +154,7 @@ describe('DailyVideo', () => {
     });
   });
   it('calls onResize callback with video dimensions', async () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.datatype.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
@@ -211,7 +211,7 @@ describe('DailyVideo', () => {
     });
   });
   it('flips video via CSS when mirrored', () => {
-    const callObject = DailyIframe.createCallObject();
+    const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.datatype.uuid();
     const { container } = render(
@@ -225,7 +225,7 @@ describe('DailyVideo', () => {
   });
   describe('with automirror enabled', () => {
     it('flips local video via CSS (no video track)', () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const Wrapper = createWrapper(callObject);
       const { container } = render(
         <Wrapper>
@@ -237,7 +237,7 @@ describe('DailyVideo', () => {
       });
     });
     it('flips local video via CSS (video track without facingMode)', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const Wrapper = createWrapper(callObject);
       const track = new FakeMediaStreamTrack({
         kind: 'video',
@@ -286,7 +286,7 @@ describe('DailyVideo', () => {
       });
     });
     it('flips local video via CSS (user facing video track)', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const Wrapper = createWrapper(callObject);
       const track = new FakeMediaStreamTrack({
         kind: 'video',
@@ -337,7 +337,7 @@ describe('DailyVideo', () => {
       });
     });
     it('does not flip local video via CSS (environment facing video track)', async () => {
-      const callObject = DailyIframe.createCallObject();
+      const callObject = Daily.createCallObject();
       const Wrapper = createWrapper(callObject);
       const track = new FakeMediaStreamTrack({
         kind: 'video',

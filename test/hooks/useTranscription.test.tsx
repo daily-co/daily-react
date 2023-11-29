@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
@@ -43,7 +43,7 @@ jest.mock('../../src/hooks/useLocalSessionId', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -52,7 +52,7 @@ describe('useTranscription', () => {
     jest.clearAllMocks();
   });
   it('returns default state and functions', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
@@ -63,7 +63,7 @@ describe('useTranscription', () => {
   });
   it('transcription-started calls onTranscriptionStarted and updates state', async () => {
     const onTranscriptionStarted = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useTranscription({ onTranscriptionStarted }),
       {
@@ -97,7 +97,7 @@ describe('useTranscription', () => {
   });
   it('transcription-stopped calls onTranscriptionStopped and updates state', async () => {
     const onTranscriptionStopped = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useTranscription({ onTranscriptionStopped }),
       {
@@ -121,7 +121,7 @@ describe('useTranscription', () => {
   });
   it('transcription-error calls onTranscriptionError and updates state', async () => {
     const onTranscriptionError = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useTranscription({ onTranscriptionError }),
       {
@@ -144,7 +144,7 @@ describe('useTranscription', () => {
   });
   it('transcription app-message data calls onTranscriptionAppData', async () => {
     const onTranscriptionAppData = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { waitFor } = renderHook(
       () => useTranscription({ onTranscriptionAppData }),
       {
@@ -172,7 +172,7 @@ describe('useTranscription', () => {
     });
   });
   it('startTranscription calls daily.startTranscription', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
@@ -188,7 +188,7 @@ describe('useTranscription', () => {
     });
   });
   it('stopTranscription calls daily.stopTranscription', async () => {
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });

@@ -1,6 +1,6 @@
 /// <reference types="@types/jest" />
 
-import DailyIframe, {
+import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectCpuLoadEvent,
@@ -37,7 +37,7 @@ jest.mock('../../src/DailyRoom', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = DailyIframe.createCallObject()): React.FC =>
+  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -55,7 +55,7 @@ describe('useCPULoad', () => {
   });
   it('cpu-load-change updates state and reason and calls onCPULoadChange', async () => {
     const onCPULoadChange = jest.fn();
-    const daily = DailyIframe.createCallObject();
+    const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(
       () => useCPULoad({ onCPULoadChange }),
       {
