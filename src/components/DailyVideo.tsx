@@ -44,7 +44,7 @@ interface Props extends React.VideoHTMLAttributes<HTMLVideoElement> {
 }
 
 export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
-  (
+  function DailyVideo(
     {
       automirror,
       fit = 'contain',
@@ -57,7 +57,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
       ...props
     },
     ref
-  ) => {
+  ) {
     const localSessionId = useLocalSessionId();
     const isLocal = localSessionId === sessionId;
     const isScreen = type === 'screenVideo';
