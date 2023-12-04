@@ -20,6 +20,7 @@ interface UseActiveParticipantArgs {
 
 /**
  * Returns the most recent participant mentioned in an [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
+ * @deprecated Use [useActiveSpeakerId](https://docs.daily.co/reference/daily-react/use-active-speaker-id) instead.
  */
 export const useActiveParticipant = ({
   ignoreLocal = false,
