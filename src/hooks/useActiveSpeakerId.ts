@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useDebugValue, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { activeIdState } from '../DailyParticipants';
@@ -36,6 +36,8 @@ export const useActiveSpeakerId = ({
 
     setActiveId(recentActiveId);
   }, [filter, localSessionId, ignoreLocal, recentActiveId]);
+
+  useDebugValue(activeId);
 
   return activeId;
 };

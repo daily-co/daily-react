@@ -1,5 +1,5 @@
 import { DailyEventObject, DailyParticipantCounts } from '@daily-co/daily-js';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useDebugValue, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
@@ -52,6 +52,8 @@ export const useParticipantCounts = ({
     if (!daily || daily.isDestroyed()) return;
     updateCounts(daily.participantCounts());
   }, [daily, updateCounts]);
+
+  useDebugValue(participantCounts);
 
   return participantCounts;
 };

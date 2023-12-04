@@ -1,3 +1,4 @@
+import { useDebugValue } from 'react';
 import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
 
 import { ExtendedDailyParticipant } from '../DailyParticipants';
@@ -84,6 +85,20 @@ export const useParticipantProperty = <
           id: participantId,
           property: propertyPaths as Paths<ExtendedDailyParticipant>,
         })
+  );
+
+  useDebugValue(
+    Array.isArray(propertyPaths)
+      ? propertyPaths.reduce(
+          (o: Record<any, any>, path: Paths<T>, i: number) => {
+            o[path] = properties[i];
+            return o;
+          },
+          {}
+        )
+      : {
+          [propertyPaths as any]: properties,
+        }
   );
 
   return properties;

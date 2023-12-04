@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { participantState } from '../DailyParticipants';
@@ -42,6 +42,8 @@ export const useParticipant = (
       [onParticipantLeft, onParticipantUpdated, sessionId]
     )
   );
+
+  useDebugValue(participant);
 
   return participant;
 };

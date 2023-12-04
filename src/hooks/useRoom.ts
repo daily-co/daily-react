@@ -1,4 +1,5 @@
 import { DailyRoomInfo } from '@daily-co/daily-js';
+import { useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { roomState } from '../DailyRoom';
@@ -9,5 +10,6 @@ import { roomState } from '../DailyRoom';
  */
 export const useRoom = (): DailyRoomInfo | null => {
   const room = useRecoilValue(roomState);
+  useDebugValue(room);
   return room;
 };

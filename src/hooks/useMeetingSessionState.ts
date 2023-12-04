@@ -1,5 +1,5 @@
 import { DailyEventObjectNonFatalError } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { meetingSessionDataState } from '../DailyMeeting';
@@ -33,8 +33,12 @@ export const useMeetingSessionState = <T = any>({ onError }: Props = {}) => {
     )
   );
 
-  return {
+  const result = {
     data: meetingSessionState?.data as T,
     topology: meetingSessionState?.topology,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

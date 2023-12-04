@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useDebugValue, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { activeIdState } from '../DailyParticipants';
@@ -48,6 +48,8 @@ export const useActiveParticipant = ({
       [onActiveSpeakerChange]
     )
   );
+
+  useDebugValue(activeParticipant);
 
   return activeParticipant;
 };

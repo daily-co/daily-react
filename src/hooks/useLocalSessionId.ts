@@ -1,3 +1,4 @@
+import { useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { localIdState } from '../DailyParticipants';
@@ -7,5 +8,7 @@ import { localIdState } from '../DailyParticipants';
  * if the local participant doesn't exist.
  */
 export const useLocalSessionId = () => {
-  return useRecoilValue(localIdState);
+  const localId = useRecoilValue(localIdState);
+  useDebugValue(localId);
+  return localId;
 };

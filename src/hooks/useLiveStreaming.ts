@@ -3,7 +3,7 @@ import {
   DailyEventObject,
   DailyEventObjectNonFatalError,
 } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { liveStreamingState } from '../DailyLiveStreaming';
@@ -112,10 +112,14 @@ export const useLiveStreaming = ({
     [daily]
   );
 
-  return {
+  const result = {
     ...state,
     startLiveStreaming,
     stopLiveStreaming,
     updateLiveStreaming,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

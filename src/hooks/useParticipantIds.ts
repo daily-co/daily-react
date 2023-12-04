@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useDebugValue, useEffect, useState } from 'react';
 import { useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
@@ -237,7 +237,12 @@ export const useParticipantIds = ({
     )
   );
 
-  return typeof filter === 'function' || typeof sort === 'function'
-    ? customIds
-    : preFilteredSortedIds;
+  const result =
+    typeof filter === 'function' || typeof sort === 'function'
+      ? customIds
+      : preFilteredSortedIds;
+
+  useDebugValue(result);
+
+  return result;
 };
