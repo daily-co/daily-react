@@ -13,6 +13,7 @@ interface UseParticipantArgs {
 /**
  * Returns the participant identified by the given sessionId.
  * @param sessionId – The participant's session_id or "local".
+ * @deprecated Use [useParticipantProperty](https://docs.daily.co/reference/daily-react/use-participant-property) instead to only subscribe to required participant properties.
  */
 export const useParticipant = (
   sessionId: string,
