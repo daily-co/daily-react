@@ -1,3 +1,4 @@
+import { useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { localIdState } from '../DailyParticipants';
@@ -8,5 +9,7 @@ import { useParticipant } from './useParticipant';
  */
 export const useLocalParticipant = (): ReturnType<typeof useParticipant> => {
   const localId = useRecoilValue(localIdState);
-  return useParticipant(localId);
+  const localParticipant = useParticipant(localId);
+  useDebugValue(localParticipant);
+  return localParticipant;
 };

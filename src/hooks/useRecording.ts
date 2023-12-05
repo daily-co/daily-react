@@ -1,5 +1,5 @@
 import { DailyCall, DailyEventObject } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { recordingState } from '../DailyRecordings';
@@ -92,10 +92,14 @@ export const useRecording = ({
     [daily]
   );
 
-  return {
+  const result = {
     ...state,
     startRecording,
     stopRecording,
     updateRecording,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

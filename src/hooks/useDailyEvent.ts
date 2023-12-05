@@ -1,5 +1,12 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useContext,
+  useDebugValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
 
@@ -53,4 +60,11 @@ export const useDailyEvent = <T extends DailyEvent>(
       off(ev, eventId);
     };
   }, [callback, ev, eventId, isBlocked, off, on]);
+
+  useDebugValue({
+    event: ev,
+    eventId,
+    isBlocked,
+    callback,
+  });
 };

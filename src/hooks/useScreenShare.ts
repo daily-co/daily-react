@@ -3,7 +3,7 @@ import {
   DailyEventObjectNonFatalError,
   DailyTrackState,
 } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
@@ -109,10 +109,14 @@ export const useScreenShare = ({
 
   const screens = useRecoilValue(screenSharesState);
 
-  return {
+  const result = {
     isSharingScreen: screens.some((s) => s.local),
     screens,
     startScreenShare,
     stopScreenShare,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

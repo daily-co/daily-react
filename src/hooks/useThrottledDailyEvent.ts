@@ -1,6 +1,13 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
 import throttle from 'lodash.throttle';
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import {
+  useCallback,
+  useContext,
+  useDebugValue,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
 import { getUnique, useDailyEvent } from './useDailyEvent';
@@ -89,4 +96,9 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
       }
     };
   }, [emitEvents, ev, eventId, off, on]);
+
+  useDebugValue({
+    event: ev,
+    eventId,
+  });
 };

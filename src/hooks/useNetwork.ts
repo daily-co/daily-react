@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import {
@@ -53,10 +53,14 @@ export const useNetwork = ({
     return newStats?.stats;
   }, [daily]);
 
-  return {
+  const result = {
     getStats,
     quality,
     threshold,
     topology,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

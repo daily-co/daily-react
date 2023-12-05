@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useDebugValue } from 'react';
 
 import { DailyContext } from '../DailyContext';
 
@@ -7,5 +7,6 @@ import { DailyContext } from '../DailyContext';
  */
 export const useDaily = () => {
   const daily = useContext(DailyContext);
+  useDebugValue(daily);
   return daily;
 };

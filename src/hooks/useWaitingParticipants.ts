@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback } from 'react';
+import { useCallback, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { allWaitingParticipantsSelector } from '../DailyParticipants';
@@ -89,9 +89,13 @@ export const useWaitingParticipants = ({
     [updateWaitingParticipantAccess]
   );
 
-  return {
+  const result = {
     waitingParticipants,
     grantAccess,
     denyAccess,
   };
+
+  useDebugValue(result);
+
+  return result;
 };
