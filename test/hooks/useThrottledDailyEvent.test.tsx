@@ -38,6 +38,10 @@ jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
   DailyRoom: (({ children }) => <>{children}</>) as React.FC,
 }));
+jest.mock('../../src/DailyTranscriptions', () => ({
+  ...jest.requireActual('../../src/DailyTranscriptions'),
+  DailyTranscriptions: (({ children }) => <>{children}</>) as React.FC,
+}));
 
 const createWrapper =
   (callObject: DailyCall = Daily.createCallObject()): React.FC =>
