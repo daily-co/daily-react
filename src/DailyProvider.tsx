@@ -80,8 +80,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
     }, [props]),
   });
 
-  const callObject =
-    'callObject' in props ? externalCallObject : internalCallObject;
+  const callObject = externalCallObject ?? internalCallObject;
 
   useEffect(() => {
     if (!callObject) return;
