@@ -12,7 +12,6 @@ const createCallObject = (properties) => {
     cycleCamera: jest.fn(),
     cycleMic: jest.fn(),
     destroy: jest.fn(),
-    detectAllFaces: jest.fn(),
     enumerateDevices: jest.fn(async () => ({
       devices: [],
     })),
