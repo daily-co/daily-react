@@ -347,7 +347,8 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                 case 'left-meeting': {
                   reset(localIdState);
                   const ids = get(participantIdsState);
-                  ids.forEach((id) => reset(participantState(id)));
+                  if (Array.isArray(ids))
+                    ids.forEach((id) => reset(participantState(id)));
                   reset(participantIdsState);
                   break;
                 }
