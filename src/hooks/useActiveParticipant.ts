@@ -1,5 +1,5 @@
 import { DailyEventObject } from '@daily-co/daily-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useDebugValue, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { activeIdState } from '../DailyParticipants';
@@ -20,6 +20,7 @@ interface UseActiveParticipantArgs {
 
 /**
  * Returns the most recent participant mentioned in an [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
+ * @deprecated Use [useActiveSpeakerId](https://docs.daily.co/reference/daily-react/use-active-speaker-id) instead.
  */
 export const useActiveParticipant = ({
   ignoreLocal = false,
@@ -48,6 +49,8 @@ export const useActiveParticipant = ({
       [onActiveSpeakerChange]
     )
   );
+
+  useDebugValue(activeParticipant);
 
   return activeParticipant;
 };

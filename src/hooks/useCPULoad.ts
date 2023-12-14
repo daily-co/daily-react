@@ -1,6 +1,6 @@
 import { DailyCpuLoadStats, DailyEventObject } from '@daily-co/daily-js';
 import deepEqual from 'fast-deep-equal';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useDebugValue, useEffect } from 'react';
 import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { useDaily } from './useDaily';
@@ -72,6 +72,8 @@ export const useCPULoad = ({ onCPULoadChange }: Props = {}) => {
       [onCPULoadChange, updateCPULoadState]
     )
   );
+
+  useDebugValue(cpu);
 
   return cpu;
 };

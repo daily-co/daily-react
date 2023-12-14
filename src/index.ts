@@ -9,6 +9,8 @@ export { useActiveSpeakerId } from './hooks/useActiveSpeakerId';
 export { useAppMessage } from './hooks/useAppMessage';
 export { useAudioLevel } from './hooks/useAudioLevel';
 export { useAudioTrack } from './hooks/useAudioTrack';
+export { useCallFrame } from './hooks/useCallFrame';
+export { useCallObject } from './hooks/useCallObject';
 export { useCPULoad } from './hooks/useCPULoad';
 export { useDaily } from './hooks/useDaily';
 export { useDailyError } from './hooks/useDailyError';

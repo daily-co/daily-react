@@ -1,3 +1,5 @@
+import { useDebugValue } from 'react';
+
 import { useLocalSessionId } from './useLocalSessionId';
 import { useParticipantProperty } from './useParticipantProperty';
 
@@ -50,7 +52,7 @@ export const usePermissions = (sessionId?: string) => {
       ? permissions?.canAdmin
       : Boolean(permissions?.canAdmin?.has('transcription'));
 
-  return {
+  const result = {
     canAdminParticipants,
     canAdminStreaming,
     canAdminTranscription,
@@ -63,4 +65,8 @@ export const usePermissions = (sessionId?: string) => {
     hasPresence: permissions?.hasPresence,
     permissions,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

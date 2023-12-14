@@ -1,3 +1,4 @@
+import { useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { meetingErrorState, nonFatalErrorState } from '../DailyMeeting';
@@ -8,8 +9,10 @@ import { meetingErrorState, nonFatalErrorState } from '../DailyMeeting';
 export const useDailyError = () => {
   const meetingError = useRecoilValue(meetingErrorState);
   const nonFatalError = useRecoilValue(nonFatalErrorState);
-  return {
+  const result = {
     meetingError,
     nonFatalError,
   };
+  useDebugValue(result);
+  return result;
 };

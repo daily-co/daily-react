@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useDebugValue, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { localJoinDateState } from '../DailyParticipants';
@@ -87,7 +87,11 @@ export const useRoomExp = ({ onCountdown }: Props = {}) => {
     };
   }, [ejectDate, onCountdown]);
 
-  return {
+  const result = {
     ejectDate,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

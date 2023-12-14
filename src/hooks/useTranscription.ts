@@ -4,7 +4,7 @@ import {
   DailyEventObjectAppMessage,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useDebugValue, useEffect } from 'react';
 import {
   atom,
   useRecoilCallback,
@@ -188,9 +188,13 @@ export const useTranscription = ({
     [daily]
   );
 
-  return {
+  const result = {
     ...state,
     startTranscription,
     stopTranscription,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

@@ -1,4 +1,5 @@
 import { DailyParticipantTracks, DailyTrackState } from '@daily-co/daily-js';
+import { useDebugValue } from 'react';
 
 import { isTrackOff } from '../utils/isTrackOff';
 import { useParticipantProperty } from './useParticipantProperty';
@@ -23,16 +24,19 @@ export const useMediaTrack = (
 ): MediaTrackState => {
   const trackState = useParticipantProperty(participantId, `tracks.${type}`);
 
-  if (!trackState)
-    return {
-      isOff: true,
-      persistentTrack: undefined,
-      state: 'off',
-      subscribed: false,
-    };
+  const result: MediaTrackState = trackState
+    ? {
+        ...trackState,
+        isOff: isTrackOff(trackState.state),
+      }
+    : {
+        isOff: true,
+        persistentTrack: undefined,
+        state: 'off',
+        subscribed: false,
+      };
 
-  return {
-    ...trackState,
-    isOff: isTrackOff(trackState.state),
-  };
+  useDebugValue(result);
+
+  return result;
 };

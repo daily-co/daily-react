@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useDebugValue } from 'react';
 import { useRecoilValue } from 'recoil';
 
 import {
@@ -75,7 +75,7 @@ export const useDevices = () => {
     'unknown',
   ];
 
-  return {
+  const result = {
     /**
      * Most recent error object emitted via [camera-error event](https://docs.daily.co/reference/daily-js/events/meeting-events#camera-error).
      */
@@ -137,4 +137,8 @@ export const useDevices = () => {
      */
     speakers: speakerDevices,
   };
+
+  useDebugValue(result);
+
+  return result;
 };

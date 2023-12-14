@@ -4,7 +4,7 @@ import {
   DailyReceiveSettings,
   DailySingleParticipantReceiveSettings,
 } from '@daily-co/daily-js';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useDebugValue, useEffect } from 'react';
 import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import { RECOIL_PREFIX } from '../lib/constants';
@@ -81,11 +81,15 @@ export const useReceiveSettings = ({
     [daily, meetingState]
   );
 
-  return {
+  const result = {
     receiveSettings:
       id === 'base' || Object.keys(receiveSettings).length === 0
         ? baseSettings
         : receiveSettings,
     updateReceiveSettings,
   };
+
+  useDebugValue(result);
+
+  return result;
 };
