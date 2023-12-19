@@ -16,6 +16,7 @@ import { DailyNetwork } from './DailyNetwork';
 import { DailyParticipants } from './DailyParticipants';
 import { DailyRecordings } from './DailyRecordings';
 import { DailyRoom } from './DailyRoom';
+import { DailyTranscriptions } from './DailyTranscriptions';
 import { useCallObject } from './hooks/useCallObject';
 
 type BaseProps =
@@ -136,7 +137,9 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
                 <DailyParticipants>
                   <DailyRecordings>
                     <DailyLiveStreaming>
-                      <DailyDevices>{children}</DailyDevices>
+                      <DailyTranscriptions>
+                        <DailyDevices>{children}</DailyDevices>
+                      </DailyTranscriptions>
                     </DailyLiveStreaming>
                   </DailyRecordings>
                 </DailyParticipants>
