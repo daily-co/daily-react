@@ -36,18 +36,15 @@ export const DailyAudioTrack = memo(
         if (!audioTag || !audio?.persistentTrack) return;
         let playTimeout: ReturnType<typeof setTimeout>;
         const handleCanPlay = () => {
-          playTimeout = setTimeout(() => {
-            if (
-              audioTag.readyState === audioTag.HAVE_ENOUGH_DATA &&
-              !audioTag.paused
-            )
-              return;
+          audioTag.play().catch((e) => {
             onPlayFailed?.({
               sessionId,
               target: audioTag,
               type,
+              message: e.message,
+              name: e.name,
             });
-          }, 1500);
+          });
         };
         const handlePlay = () => {
           clearTimeout(playTimeout);
