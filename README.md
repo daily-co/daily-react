@@ -21,16 +21,20 @@ function App({ roomUrl }) {
 Then in your application you can access Daily React:
 
 ```jsx
-import { useParticipant, useParticipantIds } from '@daily-co/daily-react';
+import { useParticipantIds, useParticipantProperty } from '@daily-co/daily-react';
 
 function ParticipantRow({ id }) {
-  const participant = useParticipant(id);
+  const [username, videoState, audioState] = useParticipantProperty(id, [
+    'user_name',
+    'tracks.video.state',
+    'tracks.audio.state'
+  ]);
 
   return (
     <li style={{ display: 'flex', gap: 8 }}>
-      <span>{participant?.user_name ?? 'Guest'}</span>
-      <span>📷{participant?.tracks?.video?.state === 'playable' ? '✅' : '❌'}</span>
-      <span>🎙️{participant?.tracks?.audio?.state === 'playable' ? '✅' : '❌'}</span>
+      <span>{username ?? 'Guest'}</span>
+      <span>📷{videoState === 'playable' ? '✅' : '❌'}</span>
+      <span>🎙️{audioState === 'playable' ? '✅' : '❌'}</span>
     </li>
   )
 }
