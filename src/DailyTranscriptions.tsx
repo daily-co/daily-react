@@ -2,11 +2,10 @@ import {
   DailyEventObjectAppMessage,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
-import { atom, useRecoilCallback, useSetRecoilState } from 'recoil';
+import React from 'react';
+import { atom, useRecoilCallback } from 'recoil';
 
 import { useDailyEvent } from './hooks/useDailyEvent';
-import { useRoom } from './hooks/useRoom';
 import { RECOIL_PREFIX } from './lib/constants';
 
 export interface Transcription {
@@ -22,10 +21,6 @@ interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
    * Determines whether an error occurred during the last transcription attempt.
    */
   error?: boolean;
-  /**
-   * Determines whether a transcription is enabled in the domain or not.
-   */
-  isTranscriptionEnabled: boolean;
   /**
    * Determines whether a transcription is currently running or not.
    */
@@ -52,7 +47,6 @@ interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
 export const transcriptionState = atom<TranscriptionState>({
   key: RECOIL_PREFIX + 'transcription',
   default: {
-    isTranscriptionEnabled: false,
     isTranscribing: false,
     model: 'general',
     language: 'en',
@@ -63,26 +57,12 @@ export const transcriptionState = atom<TranscriptionState>({
 export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const setState = useSetRecoilState(transcriptionState);
-
-  const room = useRoom();
-
-  useEffect(() => {
-    if (!room?.domainConfig?.enable_transcription) return;
-
-    setState((prevState) => ({
-      ...prevState,
-      isTranscriptionEnabled: true,
-    }));
-  }, [room?.domainConfig?.enable_transcription, setState]);
-
   useDailyEvent(
     'transcription-started',
     useRecoilCallback(
       ({ set }) =>
         (ev) => {
           set(transcriptionState, {
-            isTranscriptionEnabled: true,
             error: false,
             isTranscribing: true,
             transcriptionStartDate: new Date(),

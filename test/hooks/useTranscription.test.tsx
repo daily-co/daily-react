@@ -56,7 +56,6 @@ describe('useTranscription', () => {
     const { result } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
-    expect(result.current.isTranscriptionEnabled).toBe(false);
     expect(result.current.isTranscribing).toBe(false);
     expect(typeof result.current.startTranscription).toBe('function');
     expect(typeof result.current.stopTranscription).toBe('function');
