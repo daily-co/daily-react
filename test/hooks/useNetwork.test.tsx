@@ -61,6 +61,7 @@ describe('useNetwork', () => {
         latest: {
           recvBitsPerSecond: 1000000,
           sendBitsPerSecond: 1000000,
+          availableOutgoingBitrate: 5582400,
           networkRoundTripTime: 0.07,
           timestamp: 0,
           videoRecvBitsPerSecond: 1000000,
