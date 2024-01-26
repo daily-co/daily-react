@@ -7,7 +7,7 @@ type InstanceType = 'callFrame' | 'callObject';
 
 const defaultShouldCreateInstance = () => true;
 
-interface Props {
+export interface Props {
   parentEl?: HTMLElement;
   options?: DailyFactoryOptions;
   shouldCreateInstance?(): boolean;

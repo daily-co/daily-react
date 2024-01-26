@@ -1,9 +1,9 @@
-import { useCallInstance } from './useCallInstance';
+import { Props, useCallInstance } from './useCallInstance';
 
-type Props = Parameters<typeof useCallInstance>[1];
+type CallObjectProps = Omit<Props, 'parentEl'>;
 
 /**
  * Helper hook to maintain custom callObject instances in React codebases.
  */
-export const useCallObject = (props: Props) =>
+export const useCallObject = (props: CallObjectProps) =>
   useCallInstance('callObject', props);
