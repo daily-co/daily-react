@@ -5,6 +5,7 @@ import { customDeepEqual } from '../lib/customDeepEqual';
 
 type InstanceType = 'callFrame' | 'callObject';
 
+const defaultOptions: DailyFactoryOptions = {};
 const defaultShouldCreateInstance = () => true;
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const defaultProps: Props = {
+  options: defaultOptions,
   shouldCreateInstance: defaultShouldCreateInstance,
 };
 
@@ -22,16 +24,18 @@ const defaultProps: Props = {
  */
 export const useCallInstance = (
   type: InstanceType,
-  props: Props = defaultProps
+  {
+    parentEl,
+    options = defaultOptions,
+    shouldCreateInstance = defaultShouldCreateInstance,
+  }: Props = defaultProps
 ) => {
   const [callInstance, setCallInstance] = useState<DailyCall | null>(null);
-  const shouldCreateInstance =
-    props?.shouldCreateInstance ?? defaultShouldCreateInstance;
 
   /**
    * Holds last used props when callObject instance was created.
    */
-  const lastUsedProps = useRef<Props>();
+  const lastUsedOptions = useRef<DailyFactoryOptions>();
   useEffect(() => {
     if (!shouldCreateInstance()) {
       return;
@@ -48,7 +52,7 @@ export const useCallInstance = (
       /**
        * Props have changed. Destroy current instance, so a new one can be created.
        */
-      if (!customDeepEqual(lastUsedProps.current, props)) {
+      if (!customDeepEqual(lastUsedOptions.current, options)) {
         destroyCallInstance(callInstance);
       }
       /**
@@ -65,15 +69,15 @@ export const useCallInstance = (
        */
       switch (type) {
         case 'callFrame':
-          co = props?.parentEl
-            ? Daily.createFrame(props.parentEl, { ...props.options })
-            : Daily.createFrame({ ...props.options });
+          co = parentEl
+            ? Daily.createFrame(parentEl, { ...options })
+            : Daily.createFrame({ ...options });
           break;
         case 'callObject':
-          co = Daily.createCallObject({ ...props.options });
+          co = Daily.createCallObject({ ...options });
           break;
       }
-      lastUsedProps.current = props;
+      lastUsedOptions.current = options;
     }
 
     setCallInstance(co);
@@ -90,7 +94,7 @@ export const useCallInstance = (
      * We can't have asynchronous cleanups in a useEffect.
      * To avoid infinite render loops we compare the props when creating call object instances.
      */
-  }, [callInstance, props, shouldCreateInstance, type]);
+  }, [callInstance, options, parentEl, shouldCreateInstance, type]);
 
   return callInstance;
 };

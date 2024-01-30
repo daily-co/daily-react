@@ -4,7 +4,7 @@ import {
   DailyEventObject,
   DailyFactoryOptions,
 } from '@daily-co/daily-js';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { RecoilRoot, RecoilRootProps } from 'recoil';
 
 import { DailyContext } from './DailyContext';
@@ -74,11 +74,15 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
 
   const externalCallObject = 'callObject' in props ? props.callObject : null;
 
+  const memoizedOptions = useMemo(
+    () => ('callObject' in props ? {} : props),
+    [props]
+  );
   const internalCallObject = useCallObject({
-    options: 'callObject' in props ? {} : props,
+    options: memoizedOptions,
     shouldCreateInstance: useCallback(() => {
-      return !('callObject' in props);
-    }, [props]),
+      return !('callObject' in memoizedOptions);
+    }, [memoizedOptions]),
   });
 
   const callObject = externalCallObject ?? internalCallObject;
