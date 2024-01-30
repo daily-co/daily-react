@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 
 const createCallObject = (properties) => {
-  const emitter = new EventEmitter;
+  const emitter = new EventEmitter();
 
   return {
     ...emitter,
@@ -20,7 +20,7 @@ const createCallObject = (properties) => {
     getActiveSpeaker: jest.fn(),
     getCpuLoadStats: jest.fn(async () => ({
       cpuLoadState: 'low',
-      cpuLoadStateReason: 'none'
+      cpuLoadStateReason: 'none',
     })),
     getDailyLang: jest.fn(),
     getInputDevices: jest.fn(async () => ({
@@ -60,8 +60,8 @@ const createCallObject = (properties) => {
     participants: jest.fn(() => ({
       local: {
         local: true,
-        session_id: 'local'
-      }
+        session_id: 'local',
+      },
     })),
     participantCounts: jest.fn(() => ({
       hidden: 0,
@@ -114,11 +114,12 @@ const createCallObject = (properties) => {
     waitingParticipants: jest.fn(),
     updateWaitingParticipant: jest.fn(),
     updateWaitingParticipants: jest.fn(),
-  }
+  };
 };
 
 const mockedDailyCall = {
   createCallObject,
+  getCallInstance: jest.fn(() => null),
   supportedBrowser: jest.fn(),
   version: jest.fn(),
 };
