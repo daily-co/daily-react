@@ -9,7 +9,7 @@ const defaultOptions: DailyFactoryOptions = {};
 const defaultShouldCreateInstance = () => true;
 
 export interface Props {
-  parentEl?: HTMLElement;
+  parentEl?: HTMLElement | null;
   options?: DailyFactoryOptions;
   shouldCreateInstance?(): boolean;
 }
