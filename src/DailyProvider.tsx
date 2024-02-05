@@ -22,7 +22,7 @@ import { useCallObject } from './hooks/useCallObject';
 type BaseProps =
   | DailyFactoryOptions
   | {
-      callObject: DailyCall;
+      callObject: DailyCall | null;
     };
 
 type Props = BaseProps & {
