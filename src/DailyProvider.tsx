@@ -81,8 +81,8 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   const internalCallObject = useCallObject({
     options: memoizedOptions,
     shouldCreateInstance: useCallback(() => {
-      return !('callObject' in memoizedOptions);
-    }, [memoizedOptions]),
+      return !('callObject' in props);
+    }, [props]),
   });
 
   const callObject = externalCallObject ?? internalCallObject;
