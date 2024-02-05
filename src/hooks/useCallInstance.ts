@@ -62,9 +62,10 @@ export const useCallInstance = (
     }
 
     let co = Daily.getCallInstance();
-    if (!co) {
+    if (!co || co.isDestroyed()) {
       /**
-       * callInstance doesn't exist, but should be created.
+       * callInstance doesn't exist or is destroyed (TODO: Check why getCallInstance() can return a destroyed instance),
+       * but should be created.
        * Important to spread props, because createCallObject/createFrame alters the passed object (adds layout and dailyJsVersion).
        */
       switch (type) {
