@@ -37,9 +37,15 @@ export const useCallInstance = (
    */
   const lastUsedOptions = useRef<DailyFactoryOptions>();
   useEffect(() => {
-    if (!shouldCreateInstance()) {
+    /**
+     * Call frame instances with a defined parentEl likely pass a ref.
+     * Typically a DOM ref is initialized with useRef(null).
+     * We'll want to wait until parentEl is defined, meaning that the ref is
+     * correctly wired up with a DOM element.
+     * Otherwise we'll just check shouldCreateInstance().
+     */
+    if ((type === 'callFrame' && parentEl === null) || !shouldCreateInstance())
       return;
-    }
 
     async function destroyCallInstance(co: DailyCall) {
       await co.destroy();
