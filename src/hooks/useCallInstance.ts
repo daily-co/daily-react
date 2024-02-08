@@ -52,6 +52,30 @@ export const useCallInstance = (
     }
 
     /**
+     * Once instance is destroyed, nullify callInstance, so a new one can be created.
+     */
+    const handleDestroyedInstance = () => {
+      /**
+       * Setting a timeout makes sure the destruction and creation
+       * of call instances happen in separate call stacks.
+       * Otherwise there's a risk for duplicate call instances.
+       */
+      setTimeout(() => setCallInstance(null), 0);
+    };
+
+    let co = Daily.getCallInstance();
+
+    /**
+     * In case a call instance exists outside of this hook instance's knowledge,
+     * store it in state.
+     */
+    if (!callInstance && co && !co.isDestroyed()) {
+      co.once('call-instance-destroyed', handleDestroyedInstance);
+      setCallInstance(co);
+      return;
+    }
+
+    /**
      * callInstance exists.
      */
     if (callInstance) {
@@ -67,7 +91,6 @@ export const useCallInstance = (
       return;
     }
 
-    let co = Daily.getCallInstance();
     if (!co || co.isDestroyed()) {
       /**
        * callInstance doesn't exist or is destroyed (TODO: Check why getCallInstance() can return a destroyed instance),
@@ -89,12 +112,7 @@ export const useCallInstance = (
 
     setCallInstance(co);
 
-    /**
-     * Once instance is destroyed, nullify callInstance, so a new one is created.
-     */
-    co.once('call-instance-destroyed', () => {
-      setCallInstance(null);
-    });
+    co.once('call-instance-destroyed', handleDestroyedInstance);
 
     /**
      * No cleanup phase here, because callObject.destroy() returns a Promise.
