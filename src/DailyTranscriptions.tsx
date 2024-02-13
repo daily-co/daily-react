@@ -102,6 +102,19 @@ export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
     )
   );
   useDailyEvent(
+    'left-meeting',
+    useRecoilCallback(
+      ({ set }) =>
+        () => {
+          set(transcriptionState, (prevState) => ({
+            ...prevState,
+            isTranscribing: false,
+          }));
+        },
+      []
+    )
+  );
+  useDailyEvent(
     'app-message',
     useRecoilCallback(
       ({ set }) =>
