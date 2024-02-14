@@ -36,6 +36,7 @@ export const useAudioLevel = (
         new MediaStream([mediaTrack])
       );
       let node: AudioWorkletNode | null;
+      let gainNode: GainNode;
 
       const startProcessing = async () => {
         /**
@@ -50,6 +51,8 @@ export const useAudioLevel = (
          */
         try {
           node = new AudioWorkletNode(audioContext, 'audiolevel');
+          gainNode = audioContext.createGain();
+          gainNode.gain.value = 0;
         } catch {
           try {
             await audioContext.audioWorklet.addModule(inlineAudioWorklet);
@@ -69,7 +72,10 @@ export const useAudioLevel = (
         };
 
         try {
-          mediaStreamSource.connect(node).connect(audioContext.destination);
+          mediaStreamSource
+            .connect(node)
+            .connect(gainNode)
+            .connect(audioContext.destination);
         } catch (e) {
           console.warn(e);
         }
