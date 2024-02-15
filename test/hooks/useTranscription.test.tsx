@@ -5,7 +5,6 @@ import Daily, {
   DailyEvent,
   DailyEventObject,
   DailyEventObjectTranscriptionStarted,
-  DailyEventObjectTranscriptionStopped,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
 import { act, renderHook } from '@testing-library/react-hooks';
@@ -14,6 +13,11 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useTranscription } from '../../src/hooks/useTranscription';
+import {
+  emitLeftMeeting,
+  emitTranscriptionStarted,
+  emitTranscriptionStopped,
+} from '../.test-utils/event-emitter';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -69,7 +73,6 @@ describe('useTranscription', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const event: DailyEvent = 'transcription-started';
     const payload: DailyEventObjectTranscriptionStarted = {
       action: 'transcription-started',
       language: 'en',
@@ -80,8 +83,7 @@ describe('useTranscription', () => {
       redact: true,
     };
     act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
+      emitTranscriptionStarted(daily, payload);
     });
     await waitFor(() => {
       expect(onTranscriptionStarted).toHaveBeenCalledWith(payload);
@@ -103,19 +105,17 @@ describe('useTranscription', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const event: DailyEvent = 'transcription-stopped';
-    const payload: DailyEventObjectTranscriptionStopped = {
-      action: 'transcription-stopped',
-      updatedBy: faker.datatype.uuid(),
-    };
+    const updatedBy = faker.datatype.uuid();
     act(() => {
-      // @ts-ignore
-      daily.emit(event, payload);
+      emitTranscriptionStopped(daily, updatedBy);
     });
     await waitFor(() => {
-      expect(onTranscriptionStopped).toHaveBeenCalledWith(payload);
+      expect(onTranscriptionStopped).toHaveBeenCalledWith({
+        action: 'transcription-stopped',
+        updatedBy,
+      });
       expect(result.current.isTranscribing).toBe(false);
-      expect(result.current.updatedBy).toBe(payload.updatedBy);
+      expect(result.current.updatedBy).toBe(updatedBy);
     });
   });
   it('transcription-error calls onTranscriptionError and updates state', async () => {
@@ -139,6 +139,24 @@ describe('useTranscription', () => {
     await waitFor(() => {
       expect(onTranscriptionError).toHaveBeenCalledWith(payload);
       expect(result.current.error).toBe(true);
+    });
+  });
+  it('left-meeting resets isTranscribing', async () => {
+    const daily = Daily.createCallObject();
+    const { result, waitFor } = renderHook(() => useTranscription(), {
+      wrapper: createWrapper(daily),
+    });
+    act(() => {
+      emitTranscriptionStarted(daily);
+    });
+    await waitFor(() => {
+      expect(result.current.isTranscribing).toBe(true);
+    });
+    act(() => {
+      emitLeftMeeting(daily);
+    });
+    await waitFor(() => {
+      expect(result.current.isTranscribing).toBe(false);
     });
   });
   it('transcription app-message data calls onTranscriptionAppData', async () => {

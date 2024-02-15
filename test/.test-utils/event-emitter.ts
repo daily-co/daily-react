@@ -1,7 +1,10 @@
 import {
   DailyCall,
+  DailyEventObjectTranscriptionStarted,
+  DailyEventObjectTranscriptionStopped,
   DailyParticipant,
 } from '@daily-co/daily-js';
+import faker from 'faker';
 
 export const emitStartedCamera = (callObject: DailyCall) => {
   // @ts-ignore
@@ -85,4 +88,34 @@ export const emitLeftMeeting = (callObject: DailyCall) => {
   callObject.emit('left-meeting', {
     action: 'left-meeting',
   });
+};
+
+export const emitTranscriptionStarted = (
+  callObject: DailyCall,
+  data: Partial<DailyEventObjectTranscriptionStarted> = {}
+) => {
+  const payload: DailyEventObjectTranscriptionStarted = {
+    action: 'transcription-started',
+    language: 'en',
+    model: 'general',
+    startedBy: faker.datatype.uuid(),
+    tier: 'enhanced',
+    profanity_filter: true,
+    redact: true,
+    ...data,
+  };
+  // @ts-ignore
+  callObject.emit('transcription-started', payload);
+};
+
+export const emitTranscriptionStopped = (
+  callObject: DailyCall,
+  updatedBy: string
+) => {
+  const payload: DailyEventObjectTranscriptionStopped = {
+    action: 'transcription-stopped',
+    updatedBy: updatedBy ?? faker.datatype.uuid(),
+  };
+  // @ts-ignore
+  callObject.emit('transcription-stopped', payload);
 };
