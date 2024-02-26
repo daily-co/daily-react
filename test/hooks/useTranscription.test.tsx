@@ -81,6 +81,8 @@ describe('useTranscription', () => {
       tier: 'enhanced',
       profanity_filter: true,
       redact: true,
+      extra: { diarize: true },
+      includeRawResponse: true,
     };
     act(() => {
       emitTranscriptionStarted(daily, payload);
@@ -94,6 +96,10 @@ describe('useTranscription', () => {
       expect(result.current.tier).toEqual(payload.tier);
       expect(result.current.profanity_filter).toEqual(payload.profanity_filter);
       expect(result.current.redact).toEqual(payload.redact);
+      expect(result.current.extra).toEqual(payload.extra);
+      expect(result.current.includeRawResponse).toEqual(
+        payload.includeRawResponse
+      );
     });
   });
   it('transcription-stopped calls onTranscriptionStopped and updates state', async () => {

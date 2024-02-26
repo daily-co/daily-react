@@ -102,6 +102,7 @@ export const emitTranscriptionStarted = (
     tier: 'enhanced',
     profanity_filter: true,
     redact: true,
+    includeRawResponse: false,
     ...data,
   };
   // @ts-ignore
