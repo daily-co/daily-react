@@ -58,7 +58,7 @@ export const useTranscription = ({
     'app-message',
     useCallback(
       (ev: DailyEventObjectAppMessage<Transcription>) => {
-        if (ev?.fromId === 'transcription' && ev?.data?.is_final) {
+        if (ev?.fromId === 'transcription') {
           onTranscriptionAppData?.(ev);
         }
       },

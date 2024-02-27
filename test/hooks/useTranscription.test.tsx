@@ -181,7 +181,6 @@ describe('useTranscription', () => {
         session_id: faker.datatype.uuid(),
         user_id: faker.datatype.uuid(),
         text: 'Transcription text',
-        is_final: true,
         timestamp: new Date(),
       },
       fromId: 'transcription',
