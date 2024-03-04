@@ -193,6 +193,31 @@ describe('useTranscription', () => {
       expect(onTranscriptionAppData).toHaveBeenCalledWith(payload);
     });
   });
+  it('transcription-message data calls onTranscriptionMessage', async () => {
+    const onTranscriptionMessage = jest.fn();
+    const daily = Daily.createCallObject();
+    const { waitFor } = renderHook(
+      () => useTranscription({ onTranscriptionMessage }),
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    const event: DailyEvent = 'transcription-message';
+    const payload: DailyEventObject<'transcription-message'> = {
+      action: 'transcription-message',
+      participantId: faker.datatype.uuid(),
+      text: 'Transcription text',
+      timestamp: new Date(),
+      rawResponse: {},
+    };
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(onTranscriptionMessage).toHaveBeenCalledWith(payload);
+    });
+  });
   it('startTranscription calls daily.startTranscription', async () => {
     const daily = Daily.createCallObject();
     const { result, waitFor } = renderHook(() => useTranscription(), {
