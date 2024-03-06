@@ -14,12 +14,17 @@ interface UseTranscriptionArgs {
   onTranscriptionStarted?(ev: DailyEventObject<'transcription-started'>): void;
   onTranscriptionStopped?(ev: DailyEventObject<'transcription-stopped'>): void;
   onTranscriptionError?(ev: DailyEventObject<'transcription-error'>): void;
+  /**
+   * @deprecated Please use onTranscriptionMessage instead.
+   */
   onTranscriptionAppData?(ev: DailyEventObjectAppMessage<Transcription>): void;
+  onTranscriptionMessage?(ev: DailyEventObject<'transcription-message'>): void;
 }
 
 export const useTranscription = ({
   onTranscriptionAppData,
   onTranscriptionError,
+  onTranscriptionMessage,
   onTranscriptionStarted,
   onTranscriptionStopped,
 }: UseTranscriptionArgs = {}) => {
@@ -55,10 +60,19 @@ export const useTranscription = ({
     )
   );
   useDailyEvent(
+    'transcription-message',
+    useCallback(
+      (ev) => {
+        onTranscriptionMessage?.(ev);
+      },
+      [onTranscriptionMessage]
+    )
+  );
+  useDailyEvent(
     'app-message',
     useCallback(
       (ev: DailyEventObjectAppMessage<Transcription>) => {
-        if (ev?.fromId === 'transcription' && ev?.data?.is_final) {
+        if (ev?.fromId === 'transcription') {
           onTranscriptionAppData?.(ev);
         }
       },

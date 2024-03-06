@@ -28,14 +28,17 @@ export const useActiveSpeakerId = ({
 }: UseActiveSpeakerIdArgs = {}) => {
   const localSessionId = useLocalSessionId();
   const recentActiveId = useRecoilValue(activeIdState);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const isIgnoredLocalId = ignoreLocal && recentActiveId === localSessionId;
+  const isFilteredOut = !filter?.(recentActiveId);
+  const isRecentIdRelevant = !isIgnoredLocalId && !isFilteredOut;
+  const [activeId, setActiveId] = useState<string | null>(
+    isRecentIdRelevant ? recentActiveId : null
+  );
 
   useEffect(() => {
-    if (ignoreLocal && recentActiveId === localSessionId) return;
-    if (!filter?.(recentActiveId)) return;
-
+    if (isIgnoredLocalId || isFilteredOut) return;
     setActiveId(recentActiveId);
-  }, [filter, localSessionId, ignoreLocal, recentActiveId]);
+  }, [isFilteredOut, isIgnoredLocalId, recentActiveId]);
 
   useDebugValue(activeId);
 

@@ -81,6 +81,8 @@ describe('useTranscription', () => {
       tier: 'enhanced',
       profanity_filter: true,
       redact: true,
+      extra: { diarize: true },
+      includeRawResponse: true,
     };
     act(() => {
       emitTranscriptionStarted(daily, payload);
@@ -94,6 +96,10 @@ describe('useTranscription', () => {
       expect(result.current.tier).toEqual(payload.tier);
       expect(result.current.profanity_filter).toEqual(payload.profanity_filter);
       expect(result.current.redact).toEqual(payload.redact);
+      expect(result.current.extra).toEqual(payload.extra);
+      expect(result.current.includeRawResponse).toEqual(
+        payload.includeRawResponse
+      );
     });
   });
   it('transcription-stopped calls onTranscriptionStopped and updates state', async () => {
@@ -175,7 +181,6 @@ describe('useTranscription', () => {
         session_id: faker.datatype.uuid(),
         user_id: faker.datatype.uuid(),
         text: 'Transcription text',
-        is_final: true,
         timestamp: new Date(),
       },
       fromId: 'transcription',
@@ -186,6 +191,31 @@ describe('useTranscription', () => {
     });
     await waitFor(() => {
       expect(onTranscriptionAppData).toHaveBeenCalledWith(payload);
+    });
+  });
+  it('transcription-message data calls onTranscriptionMessage', async () => {
+    const onTranscriptionMessage = jest.fn();
+    const daily = Daily.createCallObject();
+    const { waitFor } = renderHook(
+      () => useTranscription({ onTranscriptionMessage }),
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    const event: DailyEvent = 'transcription-message';
+    const payload: DailyEventObject<'transcription-message'> = {
+      action: 'transcription-message',
+      participantId: faker.datatype.uuid(),
+      text: 'Transcription text',
+      timestamp: new Date(),
+      rawResponse: {},
+    };
+    act(() => {
+      // @ts-ignore
+      daily.emit(event, payload);
+    });
+    await waitFor(() => {
+      expect(onTranscriptionMessage).toHaveBeenCalledWith(payload);
     });
   });
   it('startTranscription calls daily.startTranscription', async () => {

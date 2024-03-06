@@ -11,9 +11,10 @@ import { RECOIL_PREFIX } from './lib/constants';
 export interface Transcription {
   session_id: string;
   user_id: string;
-  is_final: boolean;
   text: string;
   timestamp: string;
+  // Deprecated
+  is_final: boolean;
 }
 
 interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
@@ -119,7 +120,7 @@ export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
     useRecoilCallback(
       ({ set }) =>
         (ev: DailyEventObjectAppMessage<Transcription>) => {
-          if (ev?.fromId === 'transcription' && ev?.data?.is_final) {
+          if (ev?.fromId === 'transcription') {
             set(transcriptionState, (prevState) => ({
               ...prevState,
               // setting it to true whenever a new message is received
