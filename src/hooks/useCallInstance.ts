@@ -1,5 +1,5 @@
 import Daily, { DailyCall, DailyFactoryOptions } from '@daily-co/daily-js';
-import { useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useEffect, useRef, useState } from 'react';
 
 import { customDeepEqual } from '../lib/customDeepEqual';
 
@@ -9,7 +9,7 @@ const defaultOptions: DailyFactoryOptions = {};
 const defaultShouldCreateInstance = () => true;
 
 export interface Props {
-  parentEl?: HTMLElement | null;
+  parentElRef?: MutableRefObject<HTMLElement>;
   options?: DailyFactoryOptions;
   shouldCreateInstance?(): boolean;
 }
@@ -25,7 +25,7 @@ const defaultProps: Props = {
 export const useCallInstance = (
   type: InstanceType,
   {
-    parentEl,
+    parentElRef,
     options = defaultOptions,
     shouldCreateInstance = defaultShouldCreateInstance,
   }: Props = defaultProps
@@ -44,7 +44,10 @@ export const useCallInstance = (
      * correctly wired up with a DOM element.
      * Otherwise we'll just check shouldCreateInstance().
      */
-    if ((type === 'callFrame' && parentEl === null) || !shouldCreateInstance())
+    if (
+      (type === 'callFrame' && parentElRef?.current === null) ||
+      !shouldCreateInstance()
+    )
       return;
 
     async function destroyCallInstance(co: DailyCall) {
@@ -99,8 +102,8 @@ export const useCallInstance = (
        */
       switch (type) {
         case 'callFrame':
-          co = parentEl
-            ? Daily.createFrame(parentEl, { ...options })
+          co = parentElRef?.current
+            ? Daily.createFrame(parentElRef.current, { ...options })
             : Daily.createFrame({ ...options });
           break;
         case 'callObject':
@@ -119,7 +122,7 @@ export const useCallInstance = (
      * We can't have asynchronous cleanups in a useEffect.
      * To avoid infinite render loops we compare the props when creating call object instances.
      */
-  }, [callInstance, options, parentEl, shouldCreateInstance, type]);
+  }, [callInstance, options, parentElRef, shouldCreateInstance, type]);
 
   return callInstance;
 };
