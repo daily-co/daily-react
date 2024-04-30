@@ -10,7 +10,7 @@ import Daily, {
   DailyStreamingLayoutConfig,
   DailyStreamingOptions,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
 
@@ -20,19 +20,27 @@ import { emitLeftMeeting } from '../.test-utils/event-emitter';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const localId = faker.datatype.uuid();
@@ -42,7 +50,9 @@ jest.mock('../../src/hooks/useLocalSessionId', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -63,12 +73,9 @@ describe('useRecording', () => {
   it('recording-started calls onRecordingStarted and updates state', async () => {
     const onRecordingStarted = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
-      () => useRecording({ onRecordingStarted }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useRecording({ onRecordingStarted }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'recording-started';
     const payload: DailyEventObjectRecordingStarted = {
       action: 'recording-started',
@@ -100,12 +107,9 @@ describe('useRecording', () => {
   it('recording-stopped calls onRecordingStopped and updates state', async () => {
     const onRecordingStopped = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
-      () => useRecording({ onRecordingStopped }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useRecording({ onRecordingStopped }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'recording-stopped';
     const payload: DailyEventObjectRecordingStopped = {
       action: 'recording-stopped',
@@ -122,12 +126,9 @@ describe('useRecording', () => {
   it('recording-error calls onRecordingError and updates state', async () => {
     const onRecordingError = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
-      () => useRecording({ onRecordingError }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useRecording({ onRecordingError }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'recording-error';
     const payload: DailyEventObjectRecordingError = {
       action: 'recording-error',
@@ -145,7 +146,7 @@ describe('useRecording', () => {
   it('recording-data calls onRecordingData', async () => {
     const onRecordingData = jest.fn();
     const daily = Daily.createCallObject();
-    const { waitFor } = renderHook(() => useRecording({ onRecordingData }), {
+    renderHook(() => useRecording({ onRecordingData }), {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-data';
@@ -164,7 +165,7 @@ describe('useRecording', () => {
   });
   it('startRecording calls daily.startRecording', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useRecording(), {
+    const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
     const options: DailyStreamingOptions<'recording', 'start'> = {
@@ -181,7 +182,7 @@ describe('useRecording', () => {
   });
   it('stopRecording calls daily.stopRecording', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useRecording(), {
+    const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -193,7 +194,7 @@ describe('useRecording', () => {
   });
   it('updateRecording calls daily.updateRecording', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useRecording(), {
+    const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
     const layout: DailyStreamingLayoutConfig = {
@@ -217,7 +218,7 @@ describe('useRecording', () => {
         session_id: localId,
       },
     }));
-    const { result, waitFor } = renderHook(() => useRecording(), {
+    const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-started';
@@ -256,7 +257,7 @@ describe('useRecording', () => {
         session_id: otherId,
       },
     }));
-    const { result, waitFor } = renderHook(() => useRecording(), {
+    const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -277,12 +278,9 @@ describe('useRecording', () => {
   it('left-meeting event resets state', async () => {
     const daily = Daily.createCallObject();
     const onRecordingStarted = jest.fn();
-    const { result, waitFor } = renderHook(
-      () => useRecording({ onRecordingStarted }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useRecording({ onRecordingStarted }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'recording-started';
     const payload: DailyEventObjectRecordingStarted = {
       action: 'recording-started',

@@ -6,7 +6,7 @@ import Daily, {
   DailyEventObjectParticipants,
   DailyParticipant,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
 
@@ -15,23 +15,33 @@ import { useMediaTrack } from '../../src/hooks/useMediaTrack';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -75,7 +85,7 @@ describe('useMediaTrack', () => {
     const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
-    const { result, waitFor } = renderHook(() => useMediaTrack(participantId), {
+    const { result } = renderHook(() => useMediaTrack(participantId), {
       wrapper: createWrapper(daily),
     });
     const payload: DailyEventObjectParticipant = {
@@ -101,12 +111,9 @@ describe('useMediaTrack', () => {
     const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
-    const { result, waitFor } = renderHook(
-      () => useMediaTrack(participantId, 'audio'),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useMediaTrack(participantId, 'audio'), {
+      wrapper: createWrapper(daily),
+    });
     const payload: DailyEventObjectParticipant = {
       action: 'participant-updated',
       participant: {
@@ -130,12 +137,9 @@ describe('useMediaTrack', () => {
     const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
-    const { result, waitFor } = renderHook(
-      () => useMediaTrack(participantId, 'video'),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
+      wrapper: createWrapper(daily),
+    });
     await waitFor(() => {
       expect(result.current).toEqual<ReturnType<typeof useMediaTrack>>({
         persistentTrack: undefined,
@@ -149,12 +153,9 @@ describe('useMediaTrack', () => {
     const daily = Daily.createCallObject();
     const participantId = faker.datatype.uuid();
 
-    const { result, waitFor } = renderHook(
-      () => useMediaTrack(participantId, 'video'),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
+      wrapper: createWrapper(daily),
+    });
     const payload: DailyEventObjectParticipants = {
       action: 'joined-meeting',
       participants: {
@@ -182,12 +183,9 @@ describe('useMediaTrack', () => {
     const participantId = faker.datatype.uuid();
     const otherId = faker.datatype.uuid();
 
-    const { result, waitFor } = renderHook(
-      () => useMediaTrack(participantId, 'video'),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
+      wrapper: createWrapper(daily),
+    });
     const payload: DailyEventObjectParticipant = {
       action: 'participant-joined',
       participant: {
@@ -227,12 +225,9 @@ describe('useMediaTrack', () => {
       local,
     }));
 
-    const { result, waitFor } = renderHook(
-      () => useMediaTrack(participantId, 'video'),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
+      wrapper: createWrapper(daily),
+    });
     await waitFor(() => {
       expect(daily.participants).toHaveBeenCalled();
       expect(result.current).toEqual<ReturnType<typeof useMediaTrack>>({

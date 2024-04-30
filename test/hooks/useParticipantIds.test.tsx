@@ -1,7 +1,7 @@
 /// <reference types="@types/jest" />
 
 import Daily, { DailyCall } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -17,30 +17,40 @@ import {
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useParticipantIds', () => {
   it('returns ids of participants', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useParticipantIds(), {
+    const { result } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });
     act(() =>
@@ -63,7 +73,7 @@ describe('useParticipantIds', () => {
   describe('filter', () => {
     it('local filter returns local id only', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             filter: 'local',
@@ -94,7 +104,7 @@ describe('useParticipantIds', () => {
     });
     it('remote filter returns remote ids only', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             filter: 'remote',
@@ -125,7 +135,7 @@ describe('useParticipantIds', () => {
     });
     it('owner filter returns owner ids only', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             filter: 'owner',
@@ -156,7 +166,7 @@ describe('useParticipantIds', () => {
     });
     it('custom filter returns expected results', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             filter: (p) => p.session_id.includes('a'),
@@ -192,7 +202,7 @@ describe('useParticipantIds', () => {
   describe('sort', () => {
     it('sort by joined_at returns ordered ids', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             sort: 'joined_at',
@@ -223,7 +233,7 @@ describe('useParticipantIds', () => {
     });
     it('sort by session_id returns ordered ids', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             sort: 'session_id',
@@ -251,7 +261,7 @@ describe('useParticipantIds', () => {
     });
     it('sort by user_id returns ordered ids', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             sort: 'user_id',
@@ -282,7 +292,7 @@ describe('useParticipantIds', () => {
     });
     it('sort by user_name returns ordered ids', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             sort: 'user_name',
@@ -317,7 +327,7 @@ describe('useParticipantIds', () => {
     });
     it('custom sort returns ordered ids', async () => {
       const daily = Daily.createCallObject();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useParticipantIds({
             sort: (a, b) => {
@@ -357,7 +367,7 @@ describe('useParticipantIds', () => {
   });
   it('joined-meeting adds local participant to array', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useParticipantIds(), {
+    const { result } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -378,7 +388,7 @@ describe('useParticipantIds', () => {
   it('participant-joined adds id and calls onParticipantJoined', async () => {
     const daily = Daily.createCallObject();
     const onParticipantJoined = jest.fn();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useParticipantIds({ onParticipantJoined }),
       {
         wrapper: createWrapper(daily),
@@ -412,7 +422,7 @@ describe('useParticipantIds', () => {
   it('participant-updated calls onParticipantUpdated', async () => {
     const daily = Daily.createCallObject();
     const onParticipantUpdated = jest.fn();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useParticipantIds({ onParticipantUpdated }),
       {
         wrapper: createWrapper(daily),
@@ -447,7 +457,7 @@ describe('useParticipantIds', () => {
   it('active-speaker-change calls onActiveSpeakerChange', async () => {
     const daily = Daily.createCallObject();
     const onActiveSpeakerChange = jest.fn();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useParticipantIds({ onActiveSpeakerChange }),
       {
         wrapper: createWrapper(daily),
@@ -484,7 +494,7 @@ describe('useParticipantIds', () => {
   it('participant-left removes id and calls onParticipantLeft', async () => {
     const daily = Daily.createCallObject();
     const onParticipantLeft = jest.fn();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useParticipantIds({ onParticipantLeft }),
       {
         wrapper: createWrapper(daily),
@@ -524,7 +534,7 @@ describe('useParticipantIds', () => {
   });
   it('left-meeting removes all ids', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useParticipantIds(), {
+    const { result } = renderHook(() => useParticipantIds(), {
       wrapper: createWrapper(daily),
     });
     act(() =>

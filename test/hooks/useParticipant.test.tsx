@@ -6,7 +6,7 @@ import Daily, {
   DailyEventObjectParticipant,
   DailyEventObjectParticipantLeft,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -14,23 +14,33 @@ import { useParticipant } from '../../src/hooks/useParticipant';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -40,7 +50,7 @@ describe('useParticipant', () => {
   });
   it('returns participant identified by given session_id', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useParticipant('a'), {
+    const { result } = renderHook(() => useParticipant('a'), {
       wrapper: createWrapper(daily),
     });
     const participant = {
@@ -61,12 +71,9 @@ describe('useParticipant', () => {
   it('participant-updated calls onParticipantUpdated', async () => {
     const daily = Daily.createCallObject();
     const onParticipantUpdated = jest.fn();
-    const { waitFor } = renderHook(
-      () => useParticipant('a', { onParticipantUpdated }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useParticipant('a', { onParticipantUpdated }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'participant-updated';
     const payload: DailyEventObjectParticipant = {
       action: event,
@@ -87,12 +94,9 @@ describe('useParticipant', () => {
   it('participant-left event calls onParticipantLeft', async () => {
     const daily = Daily.createCallObject();
     const onParticipantLeft = jest.fn();
-    const { waitFor } = renderHook(
-      () => useParticipant('a', { onParticipantLeft }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useParticipant('a', { onParticipantLeft }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'participant-left';
     const payload: DailyEventObjectParticipantLeft = {
       action: event,

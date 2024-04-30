@@ -62,7 +62,6 @@ export const DailyAudioTrack = memo(
       return (
         <audio
           autoPlay
-          playsInline
           ref={audioRef}
           {...props}
           data-session-id={sessionId}

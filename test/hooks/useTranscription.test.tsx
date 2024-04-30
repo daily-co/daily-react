@@ -7,7 +7,7 @@ import Daily, {
   DailyEventObjectTranscriptionStarted,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
 
@@ -21,23 +21,33 @@ import {
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const localId = faker.datatype.uuid();
@@ -47,7 +57,9 @@ jest.mock('../../src/hooks/useLocalSessionId', () => ({
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -67,7 +79,7 @@ describe('useTranscription', () => {
   it('transcription-started calls onTranscriptionStarted and updates state', async () => {
     const onTranscriptionStarted = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useTranscription({ onTranscriptionStarted }),
       {
         wrapper: createWrapper(daily),
@@ -105,7 +117,7 @@ describe('useTranscription', () => {
   it('transcription-stopped calls onTranscriptionStopped and updates state', async () => {
     const onTranscriptionStopped = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useTranscription({ onTranscriptionStopped }),
       {
         wrapper: createWrapper(daily),
@@ -127,7 +139,7 @@ describe('useTranscription', () => {
   it('transcription-error calls onTranscriptionError and updates state', async () => {
     const onTranscriptionError = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useTranscription({ onTranscriptionError }),
       {
         wrapper: createWrapper(daily),
@@ -149,7 +161,7 @@ describe('useTranscription', () => {
   });
   it('left-meeting resets isTranscribing', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useTranscription(), {
+    const { result } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -168,12 +180,9 @@ describe('useTranscription', () => {
   it('transcription app-message data calls onTranscriptionAppData', async () => {
     const onTranscriptionAppData = jest.fn();
     const daily = Daily.createCallObject();
-    const { waitFor } = renderHook(
-      () => useTranscription({ onTranscriptionAppData }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useTranscription({ onTranscriptionAppData }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'app-message';
     const payload: DailyEventObject = {
       action: 'app-message',
@@ -196,12 +205,9 @@ describe('useTranscription', () => {
   it('transcription-message data calls onTranscriptionMessage', async () => {
     const onTranscriptionMessage = jest.fn();
     const daily = Daily.createCallObject();
-    const { waitFor } = renderHook(
-      () => useTranscription({ onTranscriptionMessage }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useTranscription({ onTranscriptionMessage }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'transcription-message';
     const payload: DailyEventObject<'transcription-message'> = {
       action: 'transcription-message',
@@ -220,7 +226,7 @@ describe('useTranscription', () => {
   });
   it('startTranscription calls daily.startTranscription', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useTranscription(), {
+    const { result } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
     const options: DailyTranscriptionDeepgramOptions = {
@@ -236,7 +242,7 @@ describe('useTranscription', () => {
   });
   it('stopTranscription calls daily.stopTranscription', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useTranscription(), {
+    const { result } = renderHook(() => useTranscription(), {
       wrapper: createWrapper(daily),
     });
     act(() => {

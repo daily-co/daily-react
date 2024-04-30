@@ -7,7 +7,7 @@ import Daily, {
   DailyEventObjectNoPayload,
   DailyEventObjectParticipants,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -16,23 +16,33 @@ import { mockParticipant } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -42,7 +52,7 @@ describe('useMeetingSessionState', () => {
   });
   it('initially returns undefined', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
+    const { result } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -56,7 +66,7 @@ describe('useMeetingSessionState', () => {
       data: {},
       topology: 'peer',
     }));
-    const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
+    const { result } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'joined-meeting';
@@ -79,7 +89,7 @@ describe('useMeetingSessionState', () => {
   });
   it('emitted Daily event "meeting-session-state-updated" correctly updates the meeting session state', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
+    const { result } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'meeting-session-state-updated';
@@ -105,7 +115,7 @@ describe('useMeetingSessionState', () => {
   });
   it('emitted Daily event "left-meeting" resets the meeting session state', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useMeetingSessionState(), {
+    const { result } = renderHook(() => useMeetingSessionState(), {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'meeting-session-state-updated';

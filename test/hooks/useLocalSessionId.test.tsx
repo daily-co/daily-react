@@ -1,7 +1,7 @@
 /// <reference types="@types/jest" />
 
 import Daily, { DailyCall } from '@daily-co/daily-js';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -9,23 +9,33 @@ import { useLocalSessionId } from '../../src/hooks/useLocalSessionId';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -33,7 +43,7 @@ describe('useLocalSessionId', () => {
   it('returns null, if daily.participants() does not contain local user yet', async () => {
     const daily = Daily.createCallObject();
     (daily.participants as jest.Mock).mockImplementation(() => ({}));
-    const { result, waitFor } = renderHook(() => useLocalSessionId(), {
+    const { result } = renderHook(() => useLocalSessionId(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -49,7 +59,7 @@ describe('useLocalSessionId', () => {
         user_name: '',
       },
     }));
-    const { result, waitFor } = renderHook(() => useLocalSessionId(), {
+    const { result } = renderHook(() => useLocalSessionId(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {

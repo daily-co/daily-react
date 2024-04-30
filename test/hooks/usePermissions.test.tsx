@@ -1,7 +1,7 @@
 /// <reference types="@types/jest" />
 
 import Daily, { DailyCall } from '@daily-co/daily-js';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -10,23 +10,33 @@ import { mockParticipant } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -47,7 +57,7 @@ describe('usePermissions', () => {
         permissions,
       }),
     }));
-    const { result, waitFor } = renderHook(() => usePermissions(), {
+    const { result } = renderHook(() => usePermissions(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -67,7 +77,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -91,7 +101,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -115,7 +125,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -141,7 +151,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -160,7 +170,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -181,7 +191,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -202,7 +212,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -223,7 +233,7 @@ describe('usePermissions', () => {
           },
         }),
       }));
-      const { result, waitFor } = renderHook(() => usePermissions(), {
+      const { result } = renderHook(() => usePermissions(), {
         wrapper: createWrapper(daily),
       });
       await waitFor(() => {
@@ -255,7 +265,7 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () => usePermissions(mockRemoteParticipant.session_id),
         {
           wrapper: createWrapper(daily),
@@ -286,7 +296,7 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () => usePermissions(mockRemoteParticipant.session_id),
         {
           wrapper: createWrapper(daily),
@@ -317,7 +327,7 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () => usePermissions(mockRemoteParticipant.session_id),
         {
           wrapper: createWrapper(daily),
@@ -353,7 +363,7 @@ describe('usePermissions', () => {
         }),
         [mockRemoteParticipant.session_id]: mockRemoteParticipant,
       }));
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () => usePermissions(mockRemoteParticipant.session_id),
         {
           wrapper: createWrapper(daily),

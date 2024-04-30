@@ -5,7 +5,7 @@ import Daily, {
   DailyEvent,
   DailyEventObjectWaitingParticipant,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -13,23 +13,33 @@ import { useWaitingParticipants } from '../../src/hooks/useWaitingParticipants';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -47,7 +57,7 @@ describe('useWaitingParticipants', () => {
   it('waiting-participant-added event adds waitingParticipant & calls onWaitingParticipantAdded', async () => {
     const onWaitingParticipantAdded = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantAdded }),
       {
         wrapper: createWrapper(daily),
@@ -78,7 +88,7 @@ describe('useWaitingParticipants', () => {
   it('waiting-participant-updated event updates waitingParticipant & calls onWaitingParticipantUpdated', async () => {
     const onWaitingParticipantUpdated = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantUpdated }),
       {
         wrapper: createWrapper(daily),
@@ -133,7 +143,7 @@ describe('useWaitingParticipants', () => {
   it('waiting-participant-removed event removes waitingParticipant & calls onWaitingParticipantRemoved', async () => {
     const onWaitingParticipantRemoved = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useWaitingParticipants({ onWaitingParticipantRemoved }),
       {
         wrapper: createWrapper(daily),
@@ -196,7 +206,7 @@ describe('useWaitingParticipants', () => {
     }) => {
       it('calls updateWaitingParticipant for single id', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useWaitingParticipants(), {
+        const { result } = renderHook(() => useWaitingParticipants(), {
           wrapper: createWrapper(daily),
         });
         const id = 'abcdef';
@@ -211,7 +221,7 @@ describe('useWaitingParticipants', () => {
       });
       it('calls updateWaitingParticipants for "all" waiting participants', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useWaitingParticipants(), {
+        const { result } = renderHook(() => useWaitingParticipants(), {
           wrapper: createWrapper(daily),
         });
         const id = '*';

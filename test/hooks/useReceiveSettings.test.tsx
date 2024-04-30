@@ -6,7 +6,7 @@ import Daily, {
   DailyEventObjectReceiveSettingsUpdated,
   DailyReceiveSettings,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
 
@@ -16,31 +16,45 @@ import { useReceiveSettings } from '../../src/hooks/useReceiveSettings';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyMeeting', () => ({
   ...jest.requireActual('../../src/DailyMeeting'),
-  DailyMeeting: (({ children }) => <>{children}</>) as React.FC,
+  DailyMeeting: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -59,7 +73,7 @@ describe('useReceiveSettings', () => {
   it('receive-settings-updated event calls provided callback', async () => {
     const daily = Daily.createCallObject();
     const onReceiveSettingsUpdated = jest.fn();
-    const { waitFor } = renderHook(
+    renderHook(
       () =>
         useReceiveSettings({
           onReceiveSettingsUpdated,
@@ -92,7 +106,7 @@ describe('useReceiveSettings', () => {
   });
   it('receive-settings-updated event updates returned receiveSettings (base)', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useReceiveSettings(), {
+    const { result } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
@@ -122,7 +136,7 @@ describe('useReceiveSettings', () => {
   it('receive-settings-updated event updates returned receiveSettings (id)', async () => {
     const daily = Daily.createCallObject();
     const id = faker.datatype.uuid();
-    const { result, waitFor } = renderHook(() => useReceiveSettings({ id }), {
+    const { result } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
@@ -157,7 +171,7 @@ describe('useReceiveSettings', () => {
   it('returns baseSettings in case id is not set', async () => {
     const daily = Daily.createCallObject();
     const id = faker.datatype.uuid();
-    const { result, waitFor } = renderHook(() => useReceiveSettings({ id }), {
+    const { result } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
@@ -190,7 +204,7 @@ describe('useReceiveSettings', () => {
       .spyOn(useMeetingStateModule, 'useMeetingState')
       .mockReturnValue('joined-meeting');
 
-    const { result, waitFor } = renderHook(() => useReceiveSettings(), {
+    const { result } = renderHook(() => useReceiveSettings(), {
       wrapper: createWrapper(daily),
     });
 

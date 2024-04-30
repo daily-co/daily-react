@@ -1,11 +1,10 @@
 /// <reference types="@types/jest" />
-
 import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObjectActiveSpeakerChange,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -13,19 +12,27 @@ import { useActiveParticipant } from '../../src/hooks/useActiveParticipant';
 
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -42,7 +49,7 @@ describe('useActiveParticipant', () => {
         user_name: 'Alpha',
       },
     }));
-    const { result, waitFor } = renderHook(() => useActiveParticipant(), {
+    const { result } = renderHook(() => useActiveParticipant(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -63,7 +70,7 @@ describe('useActiveParticipant', () => {
         },
       }));
       const onActiveSpeakerChange = jest.fn();
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () => useActiveParticipant({ onActiveSpeakerChange }),
         {
           wrapper: createWrapper(daily),
@@ -100,7 +107,7 @@ describe('useActiveParticipant', () => {
           user_name: 'Alpha',
         },
       }));
-      const { result, waitFor } = renderHook(
+      const { result } = renderHook(
         () =>
           useActiveParticipant({
             ignoreLocal: true,

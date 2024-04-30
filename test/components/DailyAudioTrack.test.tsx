@@ -12,11 +12,15 @@ import { DailyProvider } from '../../src/DailyProvider';
 import { emitParticipantJoined } from '../.test-utils/event-emitter';
 
 jest.mock('../../src/DailyDevices', () => ({
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -32,7 +36,6 @@ describe('DailyAudioTrack', () => {
     const audio = container.querySelector('audio');
     expect(audio).toBeInTheDocument();
     expect(audio).toHaveAttribute('autoplay');
-    expect(audio).toHaveAttribute('playsinline');
     expect(audio).toHaveAttribute('data-audio-type', 'audio');
     expect(audio).toHaveAttribute('data-session-id', sessionId);
   });
