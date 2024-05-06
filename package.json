@@ -85,7 +85,7 @@
     "eslint-plugin-react-hooks": "^4.0.8",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-sort-destructure-keys": "^1.4.0",
-    "fake-mediastreamtrack": "^1.1.6",
+    "fake-mediastreamtrack": "^1.2.0",
     "faker": "^5.5.3",
     "fs-extra": "^10.1.0",
     "husky": "^7.0.2",
