@@ -11,7 +11,8 @@ interface DailyVideoDimensions {
   width: number;
 }
 
-interface Props extends React.VideoHTMLAttributes<HTMLVideoElement> {
+interface Props
+  extends Omit<React.VideoHTMLAttributes<HTMLVideoElement>, 'onResize'> {
   /**
    * For local user-facing camera streams, we'll automatically mirror the video.
    */

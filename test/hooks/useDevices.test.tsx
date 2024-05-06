@@ -7,7 +7,7 @@ import Daily, {
   DailyEventObjectSelectedDevicesUpdated,
   DailyParticipant,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import faker from 'faker';
 import React from 'react';
 
@@ -17,23 +17,33 @@ import { useDevices } from '../../src/hooks/useDevices';
 
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -43,7 +53,7 @@ describe('useDevices', () => {
   });
   it('returns initial state', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useDevices(), {
+    const { result } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
     await waitFor(() => {
@@ -70,7 +80,7 @@ describe('useDevices', () => {
       navigator.mediaDevices.getUserMedia = undefined;
     }
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useDevices(), {
+    const { result } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -91,7 +101,7 @@ describe('useDevices', () => {
       navigator.mediaDevices.enumerateDevices = undefined;
     }
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useDevices(), {
+    const { result } = renderHook(() => useDevices(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -152,7 +162,7 @@ describe('useDevices', () => {
       (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
         devices,
       }));
-      const { result, waitFor } = renderHook(() => useDevices(), {
+      const { result } = renderHook(() => useDevices(), {
         wrapper: createWrapper(daily),
       });
       act(() => {
@@ -234,7 +244,7 @@ describe('useDevices', () => {
       (daily.enumerateDevices as jest.Mock).mockImplementation(async () => ({
         devices,
       }));
-      const { result, waitFor } = renderHook(() => useDevices(), {
+      const { result } = renderHook(() => useDevices(), {
         wrapper: createWrapper(daily),
       });
       act(() => {
@@ -284,7 +294,7 @@ describe('useDevices', () => {
         mic: devices[0],
         speaker: devices[1],
       }));
-      const { result, waitFor } = renderHook(() => useDevices(), {
+      const { result } = renderHook(() => useDevices(), {
         wrapper: createWrapper(daily),
       });
       act(() => {
@@ -308,7 +318,7 @@ describe('useDevices', () => {
     describe('camera-error', () => {
       it('cam-in-use error updates general cam state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -333,7 +343,7 @@ describe('useDevices', () => {
       });
       it('mic-in-use error updates general mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -358,7 +368,7 @@ describe('useDevices', () => {
       });
       it('cam-mic-in-use error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -385,7 +395,7 @@ describe('useDevices', () => {
       });
       it('not-found error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -413,7 +423,7 @@ describe('useDevices', () => {
       });
       it('permissions error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -442,7 +452,7 @@ describe('useDevices', () => {
       });
       it('constraints (invalid) error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -470,7 +480,7 @@ describe('useDevices', () => {
       });
       it('constraints (none-specified) error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -498,7 +508,7 @@ describe('useDevices', () => {
       });
       it('undefined-mediadevices error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -525,7 +535,7 @@ describe('useDevices', () => {
       });
       it('unknown error updates general cam and mic state', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectCameraError = {
@@ -554,7 +564,7 @@ describe('useDevices', () => {
     describe('participant-updated', () => {
       it('remote updates are ignored', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -600,7 +610,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -649,7 +659,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -698,7 +708,7 @@ describe('useDevices', () => {
         (daily.participants as jest.Mock).mockImplementation(() => ({
           local,
         }));
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const payload: DailyEventObjectParticipant = {
@@ -762,7 +772,7 @@ describe('useDevices', () => {
           (daily.participants as jest.Mock).mockImplementation(() => ({
             local,
           }));
-          const { result, waitFor } = renderHook(() => useDevices(), {
+          const { result } = renderHook(() => useDevices(), {
             wrapper: createWrapper(daily),
           });
           act(() => {
@@ -838,12 +848,9 @@ describe('useDevices', () => {
           (daily.participants as jest.Mock).mockImplementation(() => ({
             local,
           }));
-          const { result, waitFor, waitForNextUpdate } = renderHook(
-            () => useDevices(),
-            {
-              wrapper: createWrapper(daily),
-            }
-          );
+          const { result } = renderHook(() => useDevices(), {
+            wrapper: createWrapper(daily),
+          });
           act(() => {
             result.current.setMicrophone(microphones[0].deviceId);
             const payload: DailyEventObjectSelectedDevicesUpdated = {
@@ -868,7 +875,6 @@ describe('useDevices', () => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
           });
-          await waitForNextUpdate();
           await waitFor(() => {
             expect(result.current.microphones[0].state).toBe('granted');
             expect(result.current.microphones[0].selected).toBe(true);
@@ -921,12 +927,9 @@ describe('useDevices', () => {
           (daily.participants as jest.Mock).mockImplementation(() => ({
             local,
           }));
-          const { result, waitFor, waitForNextUpdate } = renderHook(
-            () => useDevices(),
-            {
-              wrapper: createWrapper(daily),
-            }
-          );
+          const { result } = renderHook(() => useDevices(), {
+            wrapper: createWrapper(daily),
+          });
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
             const payload: DailyEventObjectSelectedDevicesUpdated = {
@@ -951,7 +954,6 @@ describe('useDevices', () => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
           });
-          await waitForNextUpdate();
           await waitFor(() => {
             expect(result.current.cameras[0].state).toBe('in-use');
             expect(result.current.cameras[0].selected).toBe(true);
@@ -1001,12 +1003,9 @@ describe('useDevices', () => {
           (daily.participants as jest.Mock).mockImplementation(() => ({
             local,
           }));
-          const { result, waitFor, waitForNextUpdate } = renderHook(
-            () => useDevices(),
-            {
-              wrapper: createWrapper(daily),
-            }
-          );
+          const { result } = renderHook(() => useDevices(), {
+            wrapper: createWrapper(daily),
+          });
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
             const payload: DailyEventObjectSelectedDevicesUpdated = {
@@ -1031,7 +1030,6 @@ describe('useDevices', () => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
           });
-          await waitForNextUpdate();
           await waitFor(() => {
             expect(result.current.cameras[0].state).toBe('granted');
             expect(result.current.cameras[0].selected).toBe(true);
@@ -1042,7 +1040,7 @@ describe('useDevices', () => {
     describe('setting devices', () => {
       it('setCamera calls setInputDevicesAsync', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const id = faker.random.alphaNumeric(12);
@@ -1058,7 +1056,7 @@ describe('useDevices', () => {
       });
       it('setMicrophone calls setInputDevicesAsync', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const id = faker.random.alphaNumeric(12);
@@ -1074,7 +1072,7 @@ describe('useDevices', () => {
       });
       it('setSpeaker calls setOutputDeviceAsync', async () => {
         const daily = Daily.createCallObject();
-        const { result, waitFor } = renderHook(() => useDevices(), {
+        const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
         const id = faker.random.alphaNumeric(12);

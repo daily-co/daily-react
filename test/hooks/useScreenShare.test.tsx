@@ -5,7 +5,7 @@ import Daily, {
   DailyEvent,
   DailyEventObject,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -13,27 +13,39 @@ import { useScreenShare } from '../../src/hooks/useScreenShare';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
-  DailyLiveStreaming: (({ children }) => <>{children}</>) as React.FC,
+  DailyLiveStreaming: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -48,7 +60,7 @@ describe('useScreenShare', () => {
   });
   it('calling startScreenShare calls startScreenShare', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useScreenShare(), {
+    const { result } = renderHook(() => useScreenShare(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -60,7 +72,7 @@ describe('useScreenShare', () => {
   });
   it('calling stopScreenShare calls stopScreenShare', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useScreenShare(), {
+    const { result } = renderHook(() => useScreenShare(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -73,12 +85,9 @@ describe('useScreenShare', () => {
   it('local-screen-share-started calls onLocalScreenShareStarted', async () => {
     const daily = Daily.createCallObject();
     const onLocalScreenShareStarted = jest.fn();
-    const { waitFor } = renderHook(
-      () => useScreenShare({ onLocalScreenShareStarted }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useScreenShare({ onLocalScreenShareStarted }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'local-screen-share-started';
     const payload: DailyEventObject = {
       action: 'local-screen-share-started',
@@ -94,12 +103,9 @@ describe('useScreenShare', () => {
   it('local-screen-share-stopped calls onLocalScreenShareStopped', async () => {
     const daily = Daily.createCallObject();
     const onLocalScreenShareStopped = jest.fn();
-    const { waitFor } = renderHook(
-      () => useScreenShare({ onLocalScreenShareStopped }),
-      {
-        wrapper: createWrapper(daily),
-      }
-    );
+    renderHook(() => useScreenShare({ onLocalScreenShareStopped }), {
+      wrapper: createWrapper(daily),
+    });
     const event: DailyEvent = 'local-screen-share-stopped';
     const payload: DailyEventObject = {
       action: 'local-screen-share-stopped',

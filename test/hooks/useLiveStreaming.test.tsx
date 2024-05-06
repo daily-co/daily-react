@@ -9,7 +9,7 @@ import Daily, {
   DailyLiveStreamingOptions,
   DailyStreamingLayoutConfig,
 } from '@daily-co/daily-js';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -17,23 +17,33 @@ import { useLiveStreaming } from '../../src/hooks/useLiveStreaming';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
-  DailyDevices: (({ children }) => <>{children}</>) as React.FC,
+  DailyDevices: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
-  DailyParticipants: (({ children }) => <>{children}</>) as React.FC,
+  DailyParticipants: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRecordings', () => ({
   ...jest.requireActual('../../src/DailyRecordings'),
-  DailyRecordings: (({ children }) => <>{children}</>) as React.FC,
+  DailyRecordings: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 jest.mock('../../src/DailyRoom', () => ({
   ...jest.requireActual('../../src/DailyRoom'),
-  DailyRoom: (({ children }) => <>{children}</>) as React.FC,
+  DailyRoom: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
 }));
 
 const createWrapper =
-  (callObject: DailyCall = Daily.createCallObject()): React.FC =>
+  (
+    callObject: DailyCall = Daily.createCallObject()
+  ): React.FC<React.PropsWithChildren> =>
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
@@ -50,7 +60,7 @@ describe('useLiveStreaming', () => {
   it('live-streaming-started calls onLiveStreamingStarted and updates state', async () => {
     const onLiveStreamingStarted = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useLiveStreaming({ onLiveStreamingStarted }),
       {
         wrapper: createWrapper(daily),
@@ -76,7 +86,7 @@ describe('useLiveStreaming', () => {
   it('live-streaming-stopped calls onLiveStreamingStopped and updates state', async () => {
     const onLiveStreamingStopped = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useLiveStreaming({ onLiveStreamingStopped }),
       {
         wrapper: createWrapper(daily),
@@ -99,7 +109,7 @@ describe('useLiveStreaming', () => {
   it('live-streaming-error calls onLiveStreamingError and updates state', async () => {
     const onLiveStreamingError = jest.fn();
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useLiveStreaming({ onLiveStreamingError }),
       {
         wrapper: createWrapper(daily),
@@ -122,7 +132,7 @@ describe('useLiveStreaming', () => {
   });
   it('startLiveStreaming calls daily method', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useLiveStreaming(), {
+    const { result } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
     const options: DailyLiveStreamingOptions = {
@@ -137,7 +147,7 @@ describe('useLiveStreaming', () => {
   });
   it('stopLiveStreaming calls daily method', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useLiveStreaming(), {
+    const { result } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
     act(() => {
@@ -149,7 +159,7 @@ describe('useLiveStreaming', () => {
   });
   it('updateLiveStreaming calls daily method', async () => {
     const daily = Daily.createCallObject();
-    const { result, waitFor } = renderHook(() => useLiveStreaming(), {
+    const { result } = renderHook(() => useLiveStreaming(), {
       wrapper: createWrapper(daily),
     });
     const layout: DailyStreamingLayoutConfig = {
