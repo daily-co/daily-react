@@ -1,6 +1,11 @@
 import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback, useDebugValue, useEffect, useState } from 'react';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import {
+  Snapshot,
+  useRecoilCallback,
+  useRecoilTransactionObserver_UNSTABLE,
+  useRecoilValue,
+} from 'recoil';
 
 import {
   ExtendedDailyParticipant,
@@ -150,50 +155,64 @@ export const useParticipantIds = ({
     })
   );
 
-  const getCustomFilteredIds = useRecoilCallback(
-    ({ snapshot }) =>
-      () => {
-        if (
-          // Ignore if both filter and sort are not functions.
-          typeof filter !== 'function' &&
-          typeof sort !== 'function'
-        )
-          return [];
+  const shouldUseCustomIds =
+    typeof filter === 'function' || typeof sort === 'function';
 
-        const participants: ExtendedDailyParticipant[] =
-          preFilteredSortedIds.map(
-            (id) =>
-              snapshot.getLoadable(participantState(id))
-                .contents as ExtendedDailyParticipant
-          );
+  const getCustomFilteredIds = useCallback(
+    (snapshot: Snapshot) => {
+      if (
+        // Ignore if both filter and sort are not functions.
+        typeof filter !== 'function' &&
+        typeof sort !== 'function'
+      )
+        return [];
 
-        return (
-          participants
-            // Make sure we don't accidentally try to filter/sort `null` participants
-            // This can happen when a participant's id is already present in store
-            // but the participant object is not stored, yet.
-            .filter(Boolean)
-            // Run custom filter, if it's a function. Otherwise don't filter any participants.
-            .filter(typeof filter === 'function' ? filter : () => true)
-            // Run custom sort, if it's a function. Otherwise don't sort.
-            .sort(typeof sort === 'function' ? sort : () => 0)
-            // Map back to session_id.
-            .map((p) => p.session_id)
-            // Filter any potential null/undefined ids.
-            // This shouldn't really happen, but better safe than sorry.
-            .filter(Boolean)
-        );
-      },
+      const participants: ExtendedDailyParticipant[] = preFilteredSortedIds.map(
+        (id) =>
+          snapshot.getLoadable(participantState(id))
+            .contents as ExtendedDailyParticipant
+      );
+
+      return (
+        participants
+          // Make sure we don't accidentally try to filter/sort `null` participants
+          // This can happen when a participant's id is already present in store
+          // but the participant object is not stored, yet.
+          .filter(Boolean)
+          // Run custom filter, if it's a function. Otherwise don't filter any participants.
+          .filter(typeof filter === 'function' ? filter : () => true)
+          // Run custom sort, if it's a function. Otherwise don't sort.
+          .sort(typeof sort === 'function' ? sort : () => 0)
+          // Map back to session_id.
+          .map((p) => p.session_id)
+          // Filter any potential null/undefined ids.
+          // This shouldn't really happen, but better safe than sorry.
+          .filter(Boolean)
+      );
+    },
     [filter, preFilteredSortedIds, sort]
   );
 
   const [customIds, setCustomIds] = useState<string[]>([]);
 
-  const maybeUpdateCustomIds = useCallback(() => {
-    const newIds = getCustomFilteredIds();
-    if (customDeepEqual(newIds, customIds)) return;
+  useRecoilTransactionObserver_UNSTABLE(({ previousSnapshot, snapshot }) => {
+    if (!shouldUseCustomIds) return;
+    const newIds = getCustomFilteredIds(snapshot);
+    const oldIds = getCustomFilteredIds(previousSnapshot);
+    if (customDeepEqual(newIds, oldIds)) return;
     setCustomIds(newIds);
-  }, [customIds, getCustomFilteredIds]);
+  });
+
+  const maybeUpdateCustomIds = useRecoilCallback(
+    ({ snapshot }) =>
+      () => {
+        if (!shouldUseCustomIds) return;
+        const newIds = getCustomFilteredIds(snapshot);
+        if (customDeepEqual(newIds, customIds)) return;
+        setCustomIds(newIds);
+      },
+    [customIds, getCustomFilteredIds, shouldUseCustomIds]
+  );
 
   useEffect(() => {
     maybeUpdateCustomIds();
