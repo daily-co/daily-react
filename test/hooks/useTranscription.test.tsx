@@ -3,8 +3,11 @@
 import Daily, {
   DailyCall,
   DailyEvent,
-  DailyEventObject,
+  DailyEventObjectAppMessage,
+  DailyEventObjectTranscriptionError,
+  DailyEventObjectTranscriptionMessage,
   DailyEventObjectTranscriptionStarted,
+  DailyEventObjectTranscriptionStopped,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
 import { act, renderHook, waitFor } from '@testing-library/react';
@@ -18,6 +21,7 @@ import {
   emitTranscriptionStarted,
   emitTranscriptionStopped,
 } from '../.test-utils/event-emitter';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -85,7 +89,7 @@ describe('useTranscription', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const payload: DailyEventObjectTranscriptionStarted = {
+    const payload: DailyEventObjectTranscriptionStarted = mockEvent({
       action: 'transcription-started',
       language: 'en',
       model: 'general',
@@ -95,7 +99,7 @@ describe('useTranscription', () => {
       redact: true,
       extra: { diarize: true },
       includeRawResponse: true,
-    };
+    });
     act(() => {
       emitTranscriptionStarted(daily, payload);
     });
@@ -128,10 +132,12 @@ describe('useTranscription', () => {
       emitTranscriptionStopped(daily, updatedBy);
     });
     await waitFor(() => {
-      expect(onTranscriptionStopped).toHaveBeenCalledWith({
-        action: 'transcription-stopped',
-        updatedBy,
-      });
+      expect(onTranscriptionStopped).toHaveBeenCalledWith(
+        mockEvent<DailyEventObjectTranscriptionStopped>({
+          action: 'transcription-stopped',
+          updatedBy,
+        })
+      );
       expect(result.current.isTranscribing).toBe(false);
       expect(result.current.updatedBy).toBe(updatedBy);
     });
@@ -146,10 +152,10 @@ describe('useTranscription', () => {
       }
     );
     const event: DailyEvent = 'transcription-error';
-    const payload: DailyEventObject = {
+    const payload: DailyEventObjectTranscriptionError = mockEvent({
       action: 'transcription-error',
       errorMsg: 'error while transcription',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -184,7 +190,7 @@ describe('useTranscription', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'app-message';
-    const payload: DailyEventObject = {
+    const payload: DailyEventObjectAppMessage = mockEvent({
       action: 'app-message',
       data: {
         session_id: faker.datatype.uuid(),
@@ -193,7 +199,7 @@ describe('useTranscription', () => {
         timestamp: new Date(),
       },
       fromId: 'transcription',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -209,13 +215,13 @@ describe('useTranscription', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'transcription-message';
-    const payload: DailyEventObject<'transcription-message'> = {
+    const payload: DailyEventObjectTranscriptionMessage = mockEvent({
       action: 'transcription-message',
       participantId: faker.datatype.uuid(),
       text: 'Transcription text',
       timestamp: new Date(),
       rawResponse: {},
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

@@ -10,6 +10,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useWaitingParticipants } from '../../src/hooks/useWaitingParticipants';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -65,7 +66,7 @@ describe('useWaitingParticipants', () => {
     );
     expect(result.current.waitingParticipants).toHaveLength(0);
     const event: DailyEvent = 'waiting-participant-added';
-    const payload: DailyEventObjectWaitingParticipant = {
+    const payload: DailyEventObjectWaitingParticipant = mockEvent({
       action: 'waiting-participant-added',
       participant: {
         awaitingAccess: {
@@ -74,7 +75,7 @@ describe('useWaitingParticipants', () => {
         id: 'abcdef',
         name: 'Test',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -99,16 +100,19 @@ describe('useWaitingParticipants', () => {
     // Add waiting participant first
     act(() => {
       // @ts-ignore
-      daily.emit('waiting-participant-added', {
-        action: 'waiting-participant-added',
-        participant: {
-          awaitingAccess: {
-            level: 'full',
+      daily.emit(
+        'waiting-participant-added',
+        mockEvent({
+          action: 'waiting-participant-added',
+          participant: {
+            awaitingAccess: {
+              level: 'full',
+            },
+            id: 'abcdef',
+            name: 'Test',
           },
-          id: 'abcdef',
-          name: 'Test',
-        },
-      });
+        })
+      );
     });
 
     await waitFor(() => {
@@ -116,7 +120,7 @@ describe('useWaitingParticipants', () => {
     });
 
     const event: DailyEvent = 'waiting-participant-updated';
-    const payload: DailyEventObjectWaitingParticipant = {
+    const payload: DailyEventObjectWaitingParticipant = mockEvent({
       action: 'waiting-participant-updated',
       participant: {
         awaitingAccess: {
@@ -125,7 +129,7 @@ describe('useWaitingParticipants', () => {
         id: 'abcdef',
         name: 'Updated',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -154,16 +158,19 @@ describe('useWaitingParticipants', () => {
     // Add waiting participant first
     act(() => {
       // @ts-ignore
-      daily.emit('waiting-participant-added', {
-        action: 'waiting-participant-added',
-        participant: {
-          awaitingAccess: {
-            level: 'full',
+      daily.emit(
+        'waiting-participant-added',
+        mockEvent({
+          action: 'waiting-participant-added',
+          participant: {
+            awaitingAccess: {
+              level: 'full',
+            },
+            id: 'abcdef',
+            name: 'Test',
           },
-          id: 'abcdef',
-          name: 'Test',
-        },
-      });
+        })
+      );
     });
 
     await waitFor(() => {
@@ -171,7 +178,7 @@ describe('useWaitingParticipants', () => {
     });
 
     const event: DailyEvent = 'waiting-participant-removed';
-    const payload: DailyEventObjectWaitingParticipant = {
+    const payload: DailyEventObjectWaitingParticipant = mockEvent({
       action: 'waiting-participant-removed',
       participant: {
         awaitingAccess: {
@@ -180,7 +187,7 @@ describe('useWaitingParticipants', () => {
         id: 'abcdef',
         name: 'Test',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

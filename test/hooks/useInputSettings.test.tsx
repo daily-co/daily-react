@@ -12,6 +12,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useInputSettings } from '../../src/hooks/useInputSettings';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -93,10 +94,10 @@ describe('useInputSettings', () => {
       expect(result.current.inputSettings).toEqual(initialSettings);
     });
     const event: DailyEvent = 'input-settings-updated';
-    const payload: DailyEventObjectInputSettingsUpdated = {
+    const payload: DailyEventObjectInputSettingsUpdated = mockEvent({
       action: 'input-settings-updated',
       inputSettings: updatedSettings,
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -123,11 +124,11 @@ describe('useInputSettings', () => {
       expect(result.current.inputSettings).toEqual(initialSettings);
     });
     const event: DailyEvent = 'nonfatal-error';
-    const payload: DailyEventObjectNonFatalError = {
+    const payload: DailyEventObjectNonFatalError = mockEvent({
       action: 'nonfatal-error',
       errorMsg: 'an error occurred',
       type: 'input-settings-error',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

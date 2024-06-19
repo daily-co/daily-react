@@ -4,12 +4,14 @@ import Daily, {
   DailyCall,
   DailyEvent,
   DailyEventObject,
+  DailyEventObjectBase,
 } from '@daily-co/daily-js';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useScreenShare } from '../../src/hooks/useScreenShare';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -89,9 +91,9 @@ describe('useScreenShare', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'local-screen-share-started';
-    const payload: DailyEventObject = {
+    const payload: DailyEventObjectBase = mockEvent({
       action: 'local-screen-share-started',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -107,9 +109,9 @@ describe('useScreenShare', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'local-screen-share-stopped';
-    const payload: DailyEventObject = {
+    const payload: DailyEventObject = mockEvent({
       action: 'local-screen-share-stopped',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

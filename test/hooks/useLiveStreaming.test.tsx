@@ -14,6 +14,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useLiveStreaming } from '../../src/hooks/useLiveStreaming';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -67,12 +68,12 @@ describe('useLiveStreaming', () => {
       }
     );
     const event: DailyEvent = 'live-streaming-started';
-    const payload: DailyEventObjectLiveStreamingStarted = {
+    const payload: DailyEventObjectLiveStreamingStarted = mockEvent({
       action: 'live-streaming-started',
       layout: {
         preset: 'default',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -93,9 +94,9 @@ describe('useLiveStreaming', () => {
       }
     );
     const event: DailyEvent = 'live-streaming-stopped';
-    const payload: DailyEventObject = {
+    const payload: DailyEventObject = mockEvent({
       action: 'live-streaming-stopped',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -116,10 +117,10 @@ describe('useLiveStreaming', () => {
       }
     );
     const event: DailyEvent = 'live-streaming-error';
-    const payload: DailyEventObjectLiveStreamingError = {
+    const payload: DailyEventObjectLiveStreamingError = mockEvent({
       action: 'live-streaming-error',
       errorMsg: 'An error occurred',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

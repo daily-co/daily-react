@@ -9,6 +9,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useThrottledDailyEvent } from '../../src/hooks/useThrottledDailyEvent';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -119,11 +120,11 @@ describe('useThrottledDailyEvent', () => {
     );
     let evts: Array<DailyEventObjectAppMessage> = [];
     act(() => {
-      const payload: DailyEventObjectAppMessage = {
+      const payload: DailyEventObjectAppMessage = mockEvent({
         action: 'app-message',
         data: {},
         fromId: 'abcdef',
-      };
+      });
       for (let i = 0; i < 10; i++) {
         // @ts-ignore
         daily.emit('app-message', payload);

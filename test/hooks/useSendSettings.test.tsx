@@ -11,6 +11,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useSendSettings } from '../../src/hooks/useSendSettings';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -81,12 +82,12 @@ describe('useSendSettings', () => {
       }
     );
     const action: DailyEvent = 'send-settings-updated';
-    const payload: DailyEventObjectSendSettingsUpdated = {
+    const payload: DailyEventObjectSendSettingsUpdated = mockEvent({
       action: 'send-settings-updated',
       sendSettings: {
         video: 'bandwidth-and-quality-balanced',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);
@@ -101,12 +102,12 @@ describe('useSendSettings', () => {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'send-settings-updated';
-    const payload: DailyEventObjectSendSettingsUpdated = {
+    const payload: DailyEventObjectSendSettingsUpdated = mockEvent({
       action: 'send-settings-updated',
       sendSettings: {
         video: 'bandwidth-and-quality-balanced',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);

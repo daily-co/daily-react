@@ -14,6 +14,7 @@ import React from 'react';
 import { StatefulDevice } from '../../src/DailyDevices';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useDevices } from '../../src/hooks/useDevices';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyParticipants', () => ({
   ...jest.requireActual('../../src/DailyParticipants'),
@@ -321,7 +322,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -330,7 +331,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'cam-in-use',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -346,7 +347,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -355,7 +356,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'mic-in-use',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -371,7 +372,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -380,7 +381,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'cam-mic-in-use',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -398,7 +399,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -408,7 +409,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'not-found',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -426,7 +427,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -437,7 +438,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'permissions',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -455,7 +456,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -465,7 +466,7 @@ describe('useDevices', () => {
             reason: 'invalid',
             type: 'constraints',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -483,7 +484,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -493,7 +494,7 @@ describe('useDevices', () => {
             reason: 'none-specified',
             type: 'constraints',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -511,7 +512,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -520,7 +521,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'undefined-mediadevices',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -538,7 +539,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectCameraError = {
+        const payload: DailyEventObjectCameraError = mockEvent({
           action: 'camera-error',
           errorMsg: {
             errorMsg: '',
@@ -547,7 +548,7 @@ describe('useDevices', () => {
             msg: '',
             type: 'unknown',
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('camera-error', payload);
@@ -567,13 +568,13 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectParticipant = {
+        const payload: DailyEventObjectParticipant = mockEvent({
           action: 'participant-updated',
           // @ts-ignore
           participant: {
             local: false,
           },
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
@@ -613,10 +614,10 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectParticipant = {
+        const payload: DailyEventObjectParticipant = mockEvent({
           action: 'participant-updated',
           participant: local,
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
@@ -662,10 +663,10 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectParticipant = {
+        const payload: DailyEventObjectParticipant = mockEvent({
           action: 'participant-updated',
           participant: local,
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
@@ -711,10 +712,10 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const payload: DailyEventObjectParticipant = {
+        const payload: DailyEventObjectParticipant = mockEvent({
           action: 'participant-updated',
           participant: local,
-        };
+        });
         act(() => {
           // @ts-ignore
           daily.emit('participant-updated', payload);
@@ -777,24 +778,24 @@ describe('useDevices', () => {
           });
           act(() => {
             result.current.setMicrophone(microphones[0].deviceId);
-            const payload: DailyEventObjectSelectedDevicesUpdated = {
+            const payload: DailyEventObjectSelectedDevicesUpdated = mockEvent({
               action: 'selected-devices-updated',
               devices: {
                 camera: {},
                 mic: microphones[0],
                 speaker: {},
               },
-            };
+            });
             // @ts-ignore
             daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.microphones).toHaveLength(1);
           });
-          const payload: DailyEventObjectParticipant = {
+          const payload: DailyEventObjectParticipant = mockEvent({
             action: 'participant-updated',
             participant: local,
-          };
+          });
           act(() => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
@@ -853,24 +854,24 @@ describe('useDevices', () => {
           });
           act(() => {
             result.current.setMicrophone(microphones[0].deviceId);
-            const payload: DailyEventObjectSelectedDevicesUpdated = {
+            const payload: DailyEventObjectSelectedDevicesUpdated = mockEvent({
               action: 'selected-devices-updated',
               devices: {
                 camera: {},
                 mic: microphones[0],
                 speaker: {},
               },
-            };
+            });
             // @ts-ignore
             daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.microphones).toHaveLength(1);
           });
-          const payload: DailyEventObjectParticipant = {
+          const payload: DailyEventObjectParticipant = mockEvent({
             action: 'participant-updated',
             participant: local,
-          };
+          });
           act(() => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
@@ -932,24 +933,24 @@ describe('useDevices', () => {
           });
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
-            const payload: DailyEventObjectSelectedDevicesUpdated = {
+            const payload: DailyEventObjectSelectedDevicesUpdated = mockEvent({
               action: 'selected-devices-updated',
               devices: {
                 camera: cameras[0],
                 mic: {},
                 speaker: {},
               },
-            };
+            });
             // @ts-ignore
             daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.cameras).toHaveLength(1);
           });
-          const payload: DailyEventObjectParticipant = {
+          const payload: DailyEventObjectParticipant = mockEvent({
             action: 'participant-updated',
             participant: local,
-          };
+          });
           act(() => {
             // @ts-ignore
             daily.emit('participant-updated', payload);
@@ -1008,24 +1009,24 @@ describe('useDevices', () => {
           });
           act(() => {
             result.current.setCamera(cameras[0].deviceId);
-            const payload: DailyEventObjectSelectedDevicesUpdated = {
+            const payload: DailyEventObjectSelectedDevicesUpdated = mockEvent({
               action: 'selected-devices-updated',
               devices: {
                 camera: cameras[0],
                 mic: {},
                 speaker: {},
               },
-            };
+            });
             // @ts-ignore
             daily.emit('selected-devices-updated', payload);
           });
           await waitFor(() => {
             expect(result.current.cameras).toHaveLength(1);
           });
-          const payload: DailyEventObjectParticipant = {
+          const payload: DailyEventObjectParticipant = mockEvent({
             action: 'participant-updated',
             participant: local,
-          };
+          });
           act(() => {
             // @ts-ignore
             daily.emit('participant-updated', payload);

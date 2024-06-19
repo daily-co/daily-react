@@ -9,6 +9,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useActiveParticipant } from '../../src/hooks/useActiveParticipant';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
@@ -77,12 +78,12 @@ describe('useActiveParticipant', () => {
         }
       );
       const event: DailyEvent = 'active-speaker-change';
-      const payload: DailyEventObjectActiveSpeakerChange = {
+      const payload: DailyEventObjectActiveSpeakerChange = mockEvent({
         action: event,
         activeSpeaker: {
           peerId: 'local',
         },
-      };
+      });
       act(() => {
         // @ts-ignore
         daily.emit(event, payload);
@@ -117,12 +118,12 @@ describe('useActiveParticipant', () => {
         }
       );
       const event: DailyEvent = 'active-speaker-change';
-      const payload: DailyEventObjectActiveSpeakerChange = {
+      const payload: DailyEventObjectActiveSpeakerChange = mockEvent({
         action: event,
         activeSpeaker: {
           peerId: 'local',
         },
-      };
+      });
       act(() => {
         // @ts-ignore
         daily.emit(event, payload);

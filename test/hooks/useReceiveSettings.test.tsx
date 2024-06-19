@@ -13,6 +13,7 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import * as useMeetingStateModule from '../../src/hooks/useMeetingState';
 import { useReceiveSettings } from '../../src/hooks/useReceiveSettings';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -83,7 +84,7 @@ describe('useReceiveSettings', () => {
       }
     );
     const action: DailyEvent = 'receive-settings-updated';
-    const payload: DailyEventObjectReceiveSettingsUpdated = {
+    const payload: DailyEventObjectReceiveSettingsUpdated = mockEvent({
       action: 'receive-settings-updated',
       receiveSettings: {
         base: {
@@ -95,7 +96,7 @@ describe('useReceiveSettings', () => {
           },
         },
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);
@@ -110,7 +111,7 @@ describe('useReceiveSettings', () => {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
-    const payload: DailyEventObjectReceiveSettingsUpdated = {
+    const payload: DailyEventObjectReceiveSettingsUpdated = mockEvent({
       action: 'receive-settings-updated',
       receiveSettings: {
         base: {
@@ -122,7 +123,7 @@ describe('useReceiveSettings', () => {
           },
         },
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);
@@ -140,7 +141,7 @@ describe('useReceiveSettings', () => {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
-    const payload: DailyEventObjectReceiveSettingsUpdated = {
+    const payload: DailyEventObjectReceiveSettingsUpdated = mockEvent({
       action: 'receive-settings-updated',
       receiveSettings: {
         base: {
@@ -157,7 +158,7 @@ describe('useReceiveSettings', () => {
           },
         },
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);
@@ -175,7 +176,7 @@ describe('useReceiveSettings', () => {
       wrapper: createWrapper(daily),
     });
     const action: DailyEvent = 'receive-settings-updated';
-    const payload: DailyEventObjectReceiveSettingsUpdated = {
+    const payload: DailyEventObjectReceiveSettingsUpdated = mockEvent({
       action: 'receive-settings-updated',
       receiveSettings: {
         base: {
@@ -187,7 +188,7 @@ describe('useReceiveSettings', () => {
           },
         },
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(action, payload);
