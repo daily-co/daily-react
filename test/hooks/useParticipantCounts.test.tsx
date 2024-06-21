@@ -10,6 +10,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useParticipantCounts } from '../../src/hooks/useParticipantCounts';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -83,13 +84,13 @@ describe('useParticipantCounts', () => {
       expect(result.current.present).toEqual(0);
     });
     const event: DailyEvent = 'participant-counts-updated';
-    const payload: DailyEventObjectParticipantCounts = {
+    const payload: DailyEventObjectParticipantCounts = mockEvent({
       action: 'participant-counts-updated',
       participantCounts: {
         hidden: 10,
         present: 5,
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       callObject.emit(event, payload);

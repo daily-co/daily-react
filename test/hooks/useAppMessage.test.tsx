@@ -10,6 +10,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useAppMessage } from '../../src/hooks/useAppMessage';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -64,11 +65,11 @@ describe('useAppMessage', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'app-message';
-    const payload: DailyEventObjectAppMessage = {
+    const payload: DailyEventObjectAppMessage = mockEvent({
       action: 'app-message',
       data: {},
       fromId: 'abcdef',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

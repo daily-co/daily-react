@@ -12,6 +12,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useMediaTrack } from '../../src/hooks/useMediaTrack';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -88,14 +89,14 @@ describe('useMediaTrack', () => {
     const { result } = renderHook(() => useMediaTrack(participantId), {
       wrapper: createWrapper(daily),
     });
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipant = mockEvent({
       action: 'participant-joined',
       participant: {
         ...participantBase,
         session_id: participantId,
         user_id: participantId,
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit('participant-joined', payload);
@@ -114,14 +115,14 @@ describe('useMediaTrack', () => {
     const { result } = renderHook(() => useMediaTrack(participantId, 'audio'), {
       wrapper: createWrapper(daily),
     });
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipant = mockEvent({
       action: 'participant-updated',
       participant: {
         ...participantBase,
         session_id: participantId,
         user_id: participantId,
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit('participant-updated', payload);
@@ -156,7 +157,7 @@ describe('useMediaTrack', () => {
     const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
       wrapper: createWrapper(daily),
     });
-    const payload: DailyEventObjectParticipants = {
+    const payload: DailyEventObjectParticipants = mockEvent({
       action: 'joined-meeting',
       participants: {
         local: {
@@ -166,7 +167,7 @@ describe('useMediaTrack', () => {
           user_id: participantId,
         },
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit('joined-meeting', payload);
@@ -186,7 +187,7 @@ describe('useMediaTrack', () => {
     const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
       wrapper: createWrapper(daily),
     });
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipant = mockEvent({
       action: 'participant-joined',
       participant: {
         ...participantBase,
@@ -200,7 +201,7 @@ describe('useMediaTrack', () => {
         session_id: otherId,
         user_id: otherId,
       },
-    };
+    });
     const valueBefore = { ...result.current };
     act(() => {
       // @ts-ignore

@@ -10,6 +10,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useMeetingState } from '../../src/hooks/useMeetingState';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -67,9 +68,9 @@ describe('useMeetingState', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'joining-meeting';
-    const payload: DailyEventObjectNoPayload = {
+    const payload: DailyEventObjectNoPayload = mockEvent({
       action: 'joining-meeting',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

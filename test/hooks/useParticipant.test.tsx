@@ -11,6 +11,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useParticipant } from '../../src/hooks/useParticipant';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -75,14 +76,14 @@ describe('useParticipant', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'participant-updated';
-    const payload: DailyEventObjectParticipant = {
+    const payload: DailyEventObjectParticipant = mockEvent({
       action: event,
       // @ts-ignore
       participant: {
         session_id: 'a',
         user_name: 'Beta',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -98,14 +99,14 @@ describe('useParticipant', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'participant-left';
-    const payload: DailyEventObjectParticipantLeft = {
+    const payload: DailyEventObjectParticipantLeft = mockEvent({
       action: event,
       // @ts-ignore
       participant: {
         session_id: 'a',
         user_name: 'Alpha',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

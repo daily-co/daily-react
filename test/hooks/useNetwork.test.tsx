@@ -13,6 +13,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useNetwork } from '../../src/hooks/useNetwork';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -156,11 +157,11 @@ describe('useNetwork', () => {
         wrapper: createWrapper(daily),
       });
       const event: DailyEvent = 'network-connection';
-      const payload: DailyEventObjectNetworkConnectionEvent = {
+      const payload: DailyEventObjectNetworkConnectionEvent = mockEvent({
         action: 'network-connection',
         event: 'connected',
         type,
-      };
+      });
       act(() => {
         // @ts-ignore
         daily.emit(event, payload);
@@ -181,11 +182,11 @@ describe('useNetwork', () => {
       }
     );
     const event: DailyEvent = 'network-quality-change';
-    const payload: DailyEventObjectNetworkQualityEvent = {
+    const payload: DailyEventObjectNetworkQualityEvent = mockEvent({
       action: 'network-quality-change',
       quality: 80,
       threshold: 'low',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
