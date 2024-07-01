@@ -17,6 +17,7 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRecording } from '../../src/hooks/useRecording';
 import { emitLeftMeeting } from '../.test-utils/event-emitter';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -77,7 +78,7 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-started';
-    const payload: DailyEventObjectRecordingStarted = {
+    const payload: DailyEventObjectRecordingStarted = mockEvent({
       action: 'recording-started',
       layout: {
         preset: 'default',
@@ -86,7 +87,7 @@ describe('useRecording', () => {
       recordingId: faker.datatype.uuid(),
       startedBy: faker.datatype.uuid(),
       type: 'cloud-beta',
-    };
+    });
 
     act(() => {
       // @ts-ignore
@@ -111,9 +112,9 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-stopped';
-    const payload: DailyEventObjectRecordingStopped = {
+    const payload: DailyEventObjectRecordingStopped = mockEvent({
       action: 'recording-stopped',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -130,10 +131,10 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-error';
-    const payload: DailyEventObjectRecordingError = {
+    const payload: DailyEventObjectRecordingError = mockEvent({
       action: 'recording-error',
       errorMsg: 'error while recording',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -150,11 +151,11 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-data';
-    const payload: DailyEventObjectRecordingData = {
+    const payload: DailyEventObjectRecordingData = mockEvent({
       action: 'recording-data',
       data: new Uint8Array(),
       finished: false,
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -222,7 +223,7 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-started';
-    const payload: DailyEventObjectRecordingStarted = {
+    const payload: DailyEventObjectRecordingStarted = mockEvent({
       action: 'recording-started',
       layout: {
         preset: 'single-participant',
@@ -232,7 +233,7 @@ describe('useRecording', () => {
       recordingId: faker.datatype.uuid(),
       startedBy: localId,
       type: 'cloud',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -282,7 +283,7 @@ describe('useRecording', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'recording-started';
-    const payload: DailyEventObjectRecordingStarted = {
+    const payload: DailyEventObjectRecordingStarted = mockEvent({
       action: 'recording-started',
       layout: {
         preset: 'default',
@@ -291,7 +292,7 @@ describe('useRecording', () => {
       recordingId: faker.datatype.uuid(),
       startedBy: faker.datatype.uuid(),
       type: 'cloud-beta',
-    };
+    });
 
     act(() => {
       // @ts-ignore

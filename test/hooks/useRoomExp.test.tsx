@@ -12,6 +12,7 @@ import React from 'react';
 import { DailyProvider } from '../../src/DailyProvider';
 import { useRoom } from '../../src/hooks/useRoom';
 import { useRoomExp } from '../../src/hooks/useRoomExp';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -101,9 +102,9 @@ describe('useRoomExp', () => {
 
       act(() => {
         const action: DailyEvent = 'joining-meeting';
-        const payload: DailyEventObjectNoPayload = {
+        const payload: DailyEventObjectNoPayload = mockEvent({
           action,
-        };
+        });
         // @ts-ignore
         daily.emit(action, payload);
         localJoinDate = new Date();
@@ -137,9 +138,9 @@ describe('useRoomExp', () => {
 
       act(() => {
         const action: DailyEvent = 'joining-meeting';
-        const payload: DailyEventObjectNoPayload = {
+        const payload: DailyEventObjectNoPayload = mockEvent({
           action,
-        };
+        });
         // @ts-ignore
         daily.emit(action, payload);
       });

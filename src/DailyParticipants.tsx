@@ -346,6 +346,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
                 case 'call-instance-destroyed':
                 case 'left-meeting': {
                   reset(localIdState);
+                  reset(activeIdState);
                   const ids = get(participantIdsState);
                   if (Array.isArray(ids))
                     ids.forEach((id) => reset(participantState(id)));

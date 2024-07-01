@@ -1,5 +1,5 @@
 import faker from 'faker';
-import { DailyParticipant, DailyTrackState } from "@daily-co/daily-js";
+import { DailyEventObject, DailyParticipant, DailyTrackState } from "@daily-co/daily-js";
 
 export const mockTrackState = (t: Partial<DailyTrackState> = {}): DailyTrackState => ({
   state: 'off',
@@ -36,4 +36,14 @@ export const mockParticipant = (p: Partial<DailyParticipant> = {}): DailyPartici
     will_eject_at: new Date(0),
     ...p
   };
+}
+
+type EventPayload<T extends DailyEventObject> = Omit<T, 'callClientId'>;
+export function mockEvent<T extends DailyEventObject>(payload: EventPayload<T>): T {
+  const callClientId = 'imjustaclientintheworld';
+
+  return {
+    callClientId,
+    ...payload
+  } as T;
 }

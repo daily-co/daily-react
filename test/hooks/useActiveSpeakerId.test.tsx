@@ -1,10 +1,6 @@
 /// <reference types="@types/jest" />
 
-import Daily, {
-  DailyCall,
-  DailyEvent,
-  DailyEventObjectActiveSpeakerChange,
-} from '@daily-co/daily-js';
+import Daily, { DailyCall } from '@daily-co/daily-js';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
@@ -13,6 +9,7 @@ import { useActiveSpeakerId } from '../../src/hooks/useActiveSpeakerId';
 import {
   emitActiveSpeakerChange,
   emitJoinedMeeting,
+  emitLeftMeeting,
 } from '../.test-utils/event-emitter';
 import { mockParticipant } from '../.test-utils/mocks';
 
@@ -62,6 +59,34 @@ describe('useActiveSpeakerId', () => {
       expect(result.current).toBeNull();
     });
   });
+  it('reset to null when leaving meeting', async () => {
+    const daily = Daily.createCallObject();
+    (daily.participants as jest.Mock).mockImplementation(() => ({
+      local: {
+        session_id: 'local',
+        user_name: '',
+      },
+      a: {
+        session_id: 'a',
+        user_name: 'Alpha',
+      },
+    }));
+    const { result } = renderHook(() => useActiveSpeakerId(), {
+      wrapper: createWrapper(daily),
+    });
+    act(() => {
+      emitActiveSpeakerChange(daily, 'local');
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual('local');
+    });
+    act(() => {
+      emitLeftMeeting(daily);
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual(null);
+    });
+  });
   describe('active-speaker-change event', () => {
     it('changes returned participant session id (local)', async () => {
       const daily = Daily.createCallObject();
@@ -78,16 +103,8 @@ describe('useActiveSpeakerId', () => {
       const { result } = renderHook(() => useActiveSpeakerId(), {
         wrapper: createWrapper(daily),
       });
-      const event: DailyEvent = 'active-speaker-change';
-      const payload: DailyEventObjectActiveSpeakerChange = {
-        action: event,
-        activeSpeaker: {
-          peerId: 'local',
-        },
-      };
       act(() => {
-        // @ts-ignore
-        daily.emit(event, payload);
+        emitActiveSpeakerChange(daily, 'local');
       });
       await waitFor(() => {
         expect(result.current).toEqual('local');

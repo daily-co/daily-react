@@ -10,6 +10,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useCPULoad } from '../../src/hooks/useCPULoad';
+import { mockEvent } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -74,11 +75,11 @@ describe('useCPULoad', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'cpu-load-change';
-    const payload: DailyEventObjectCpuLoadEvent = {
+    const payload: DailyEventObjectCpuLoadEvent = mockEvent({
       action: 'cpu-load-change',
       cpuLoadState: 'high',
       cpuLoadStateReason: 'encode',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);

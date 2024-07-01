@@ -12,7 +12,7 @@ import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
 import { useMeetingSessionState } from '../../src/hooks/useMeetingSessionState';
-import { mockParticipant } from '../.test-utils/mocks';
+import { mockEvent, mockParticipant } from '../.test-utils/mocks';
 
 jest.mock('../../src/DailyDevices', () => ({
   ...jest.requireActual('../../src/DailyDevices'),
@@ -70,14 +70,14 @@ describe('useMeetingSessionState', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'joined-meeting';
-    const payload: DailyEventObjectParticipants = {
+    const payload: DailyEventObjectParticipants = mockEvent({
       action: 'joined-meeting',
       participants: {
         local: mockParticipant({
           local: true,
         }),
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -93,7 +93,7 @@ describe('useMeetingSessionState', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'meeting-session-state-updated';
-    const payload: DailyEventObjectMeetingSessionStateUpdated = {
+    const payload: DailyEventObjectMeetingSessionStateUpdated = mockEvent({
       action: 'meeting-session-state-updated',
       meetingSessionState: {
         data: {
@@ -101,7 +101,7 @@ describe('useMeetingSessionState', () => {
         },
         topology: 'peer',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -119,7 +119,7 @@ describe('useMeetingSessionState', () => {
       wrapper: createWrapper(daily),
     });
     const event: DailyEvent = 'meeting-session-state-updated';
-    const payload: DailyEventObjectMeetingSessionStateUpdated = {
+    const payload: DailyEventObjectMeetingSessionStateUpdated = mockEvent({
       action: 'meeting-session-state-updated',
       meetingSessionState: {
         data: {
@@ -127,7 +127,7 @@ describe('useMeetingSessionState', () => {
         },
         topology: 'peer',
       },
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
@@ -139,9 +139,9 @@ describe('useMeetingSessionState', () => {
       );
     });
     const leftEvent: DailyEvent = 'left-meeting';
-    const leftPayload: DailyEventObjectNoPayload = {
+    const leftPayload: DailyEventObjectNoPayload = mockEvent({
       action: 'left-meeting',
-    };
+    });
     act(() => {
       // @ts-ignore
       daily.emit(leftEvent, leftPayload);
