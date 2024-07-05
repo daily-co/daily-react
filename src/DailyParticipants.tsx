@@ -112,7 +112,7 @@ export const allWaitingParticipantsSelector = equalSelector({
   },
 });
 
-export const DailyParticipants: React.FC<React.PropsWithChildren<{}>> = ({
+export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
 }) => {
   const daily = useDaily();

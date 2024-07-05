@@ -9,6 +9,7 @@ export { useActiveParticipant } from './hooks/useActiveParticipant';
 export { useActiveSpeakerId } from './hooks/useActiveSpeakerId';
 export { useAppMessage } from './hooks/useAppMessage';
 export { useAudioLevel } from './hooks/useAudioLevel';
+export { useAudioLevelObserver } from './hooks/useAudioLevelObserver';
 export { useAudioTrack } from './hooks/useAudioTrack';
 export { useCallFrame } from './hooks/useCallFrame';
 export { useCallObject } from './hooks/useCallObject';

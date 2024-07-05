@@ -5,6 +5,7 @@ import { inlineAudioWorklet } from '../lib/inlineAudioWorklet';
  * Returns the volume level of a given MediaStreamTrack.
  * @param mediaTrack The MediaStreamTrack to be analysed.
  * @param onVolumeChange The function to execute when the volume changes. Can be used to visualise audio output.
+ * @deprecated Use useAudioLevelObserver() instead.
  */
 export const useAudioLevel = (
   mediaTrack: MediaStreamTrack | undefined,
