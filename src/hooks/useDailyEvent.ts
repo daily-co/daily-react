@@ -12,7 +12,9 @@ import { DailyEventContext } from '../DailyEventContext';
 
 type EventCallback<T extends DailyEvent> = (event: DailyEventObject<T>) => void;
 
-let uniqueCounter = 0;
+let priorityCounter = 0;
+export const getPriorityUnique = () => priorityCounter++;
+let uniqueCounter = 1000000;
 export const getUnique = () => uniqueCounter++;
 
 /**
@@ -27,13 +29,17 @@ export const getUnique = () => uniqueCounter++;
  */
 export const useDailyEvent = <T extends DailyEvent>(
   ev: T,
-  callback: EventCallback<T>
+  callback: EventCallback<T>,
+  INTERNAL_priority = false
 ) => {
   const { off, on } = useContext(DailyEventContext);
   const [isBlocked, setIsBlocked] = useState(false);
   const reassignCount = useRef<number>(0);
 
-  const eventId = useMemo(() => getUnique(), []);
+  const eventId = useMemo(
+    () => (INTERNAL_priority ? getPriorityUnique() : getUnique()),
+    [INTERNAL_priority]
+  );
 
   useEffect(() => {
     if (!ev || isBlocked) return;

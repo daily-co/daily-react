@@ -173,8 +173,8 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
     if (!participants.local) return;
     initParticipants(participants);
   }, [daily, initParticipants]);
-  useDailyEvent('started-camera', handleInitEvent);
-  useDailyEvent('access-state-updated', handleInitEvent);
+  useDailyEvent('started-camera', handleInitEvent, true);
+  useDailyEvent('access-state-updated', handleInitEvent, true);
   useDailyEvent(
     'joining-meeting',
     useRecoilCallback(
@@ -184,7 +184,8 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
           handleInitEvent();
         },
       [handleInitEvent]
-    )
+    ),
+    true
   );
   useDailyEvent(
     'joined-meeting',
@@ -193,14 +194,31 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
         initParticipants(ev.participants);
       },
       [initParticipants]
-    )
+    ),
+    true
   );
+
+  /**
+   * Reset stored participants, when meeting has ended.
+   */
+  const handleCleanup = useRecoilCallback(
+    ({ reset, snapshot }) =>
+      async () => {
+        reset(localIdState);
+        reset(activeIdState);
+        const ids = await snapshot.getPromise(participantIdsState);
+        if (Array.isArray(ids))
+          ids.forEach((id) => reset(participantState(id)));
+        reset(participantIdsState);
+      },
+    []
+  );
+  useDailyEvent('call-instance-destroyed', handleCleanup, true);
+  useDailyEvent('left-meeting', handleCleanup, true);
 
   useThrottledDailyEvent(
     [
       'active-speaker-change',
-      'call-instance-destroyed',
-      'left-meeting',
       'participant-joined',
       'participant-updated',
       'participant-left',
@@ -208,6 +226,7 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
     useRecoilCallback(
       ({ transact_UNSTABLE }) =>
         (evts) => {
+          if (!evts.length) return;
           transact_UNSTABLE(({ get, reset, set }) => {
             evts.forEach((ev) => {
               switch (ev.action) {
@@ -340,25 +359,14 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
                   );
                   break;
                 }
-                /**
-                 * Reset stored participants, when meeting has ended.
-                 */
-                case 'call-instance-destroyed':
-                case 'left-meeting': {
-                  reset(localIdState);
-                  reset(activeIdState);
-                  const ids = get(participantIdsState);
-                  if (Array.isArray(ids))
-                    ids.forEach((id) => reset(participantState(id)));
-                  reset(participantIdsState);
-                  break;
-                }
               }
             });
           });
         },
       []
-    )
+    ),
+    100,
+    true
   );
 
   useThrottledDailyEvent(
@@ -402,7 +410,9 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
           });
         },
       []
-    )
+    ),
+    100,
+    true
   );
 
   return <>{children}</>;

@@ -1,11 +1,6 @@
 import { DailyEventObject } from '@daily-co/daily-js';
 import { useCallback, useDebugValue, useEffect, useState } from 'react';
-import {
-  Snapshot,
-  useRecoilCallback,
-  useRecoilTransactionObserver_UNSTABLE,
-  useRecoilValue,
-} from 'recoil';
+import { Snapshot, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
   ExtendedDailyParticipant,
@@ -194,14 +189,6 @@ export const useParticipantIds = ({
   );
 
   const [customIds, setCustomIds] = useState<string[]>([]);
-
-  useRecoilTransactionObserver_UNSTABLE(({ previousSnapshot, snapshot }) => {
-    if (!shouldUseCustomIds) return;
-    const newIds = getCustomFilteredIds(snapshot);
-    const oldIds = getCustomFilteredIds(previousSnapshot);
-    if (customDeepEqual(newIds, oldIds)) return;
-    setCustomIds(newIds);
-  });
 
   const maybeUpdateCustomIds = useRecoilCallback(
     ({ snapshot }) =>

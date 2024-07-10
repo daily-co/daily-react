@@ -10,7 +10,7 @@ import {
 } from 'react';
 
 import { DailyEventContext } from '../DailyEventContext';
-import { getUnique, useDailyEvent } from './useDailyEvent';
+import { getPriorityUnique, getUnique, useDailyEvent } from './useDailyEvent';
 
 type EnsureArray<T> = T extends DailyEvent ? [T] : T;
 
@@ -35,22 +35,23 @@ type EventCallback<T extends DailyEvent | DailyEvent[]> = (
  *
  * @param ev The DailyEvent to register or an array of DailyEvent to register.
  * @param callback A memoized callback reference to run when throttled events are emitted.
- * @param throttleTimeout The minimum waiting time until the callback is called again. Default: 100
+ * @param throttleTimeout The minimum waiting time until the callback is called again. Default: 500
  */
 export const useThrottledDailyEvent = <T extends DailyEvent>(
   ev: T | T[],
   callback: EventCallback<EnsureArray<T>>,
-  throttleTimeout = 500
+  throttleTimeout = 500,
+  INTERNAL_priority = false
 ) => {
   const { off, on } = useContext(DailyEventContext);
   const eventId = useMemo(() => {
     if (Array.isArray(ev))
       return ev.reduce<Record<string, number>>((r, e) => {
-        r[e] = getUnique();
+        r[e] = INTERNAL_priority ? getPriorityUnique() : getUnique();
         return r;
       }, {});
-    return { [ev]: getUnique() };
-  }, [ev]);
+    return { [ev]: INTERNAL_priority ? getPriorityUnique() : getUnique() };
+  }, [ev, INTERNAL_priority]);
 
   const throttledEvents = useRef<EventObjectsFor<T>[]>([]);
 
