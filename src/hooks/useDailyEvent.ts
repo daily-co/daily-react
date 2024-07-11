@@ -12,9 +12,9 @@ import { DailyEventContext } from '../DailyEventContext';
 
 type EventCallback<T extends DailyEvent> = (event: DailyEventObject<T>) => void;
 
-let priorityCounter = 0;
-export const getPriorityUnique = () => priorityCounter++;
-let uniqueCounter = 1000000;
+let priorityCounter = -1;
+export const getPriorityUnique = () => priorityCounter--;
+let uniqueCounter = 1;
 export const getUnique = () => uniqueCounter++;
 
 /**

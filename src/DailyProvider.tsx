@@ -50,9 +50,10 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   const handleEvent = useCallback((ev: DailyEventObject) => {
     if (!('action' in ev)) return;
     const event = ev.action as DailyEvent;
-    const sortedHandlers = Array.from(eventsMap.current?.[event] ?? []).sort(
-      (a, b) => a[0] - b[0]
-    );
+    const allHandlers = Array.from(eventsMap.current?.[event] ?? []);
+    const priorityHandlers = allHandlers.filter(([key]) => key < 0);
+    const normalHandlers = allHandlers.filter(([key]) => key > 0);
+    const sortedHandlers = [...priorityHandlers, ...normalHandlers];
     for (let [, cb] of sortedHandlers) {
       cb(ev);
     }
