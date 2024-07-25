@@ -1,5 +1,5 @@
 {
-  "version": "0.19.1",
+  "version": "0.20.0",
   "license": "BSD-2-Clause",
   "keywords": [
     "daily",
@@ -32,7 +32,7 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "@daily-co/daily-js": ">=0.45.0 <1",
+    "@daily-co/daily-js": ">=0.68.0 <1",
     "react": ">=16.13.1",
     "recoil": "^0.7.0"
   },
