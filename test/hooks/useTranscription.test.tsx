@@ -91,6 +91,7 @@ describe('useTranscription', () => {
     );
     const payload: DailyEventObjectTranscriptionStarted = mockEvent({
       action: 'transcription-started',
+      instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
       language: 'en',
       model: 'general',
       startedBy: faker.datatype.uuid(),
@@ -135,6 +136,7 @@ describe('useTranscription', () => {
       expect(onTranscriptionStopped).toHaveBeenCalledWith(
         mockEvent<DailyEventObjectTranscriptionStopped>({
           action: 'transcription-stopped',
+          instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
           updatedBy,
         })
       );
@@ -154,6 +156,7 @@ describe('useTranscription', () => {
     const event: DailyEvent = 'transcription-error';
     const payload: DailyEventObjectTranscriptionError = mockEvent({
       action: 'transcription-error',
+      instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
       errorMsg: 'error while transcription',
     });
     act(() => {

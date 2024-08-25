@@ -97,6 +97,7 @@ export const emitTranscriptionStarted = (
 ) => {
   const payload: DailyEventObjectTranscriptionStarted = mockEvent({
     action: 'transcription-started',
+    instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
     language: 'en',
     model: 'general',
     startedBy: faker.datatype.uuid(),
@@ -116,6 +117,7 @@ export const emitTranscriptionStopped = (
 ) => {
   const payload: DailyEventObjectTranscriptionStopped = mockEvent({
     action: 'transcription-stopped',
+    instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
     updatedBy: updatedBy ?? faker.datatype.uuid(),
   });
   // @ts-ignore
