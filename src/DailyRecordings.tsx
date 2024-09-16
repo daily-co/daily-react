@@ -1,11 +1,12 @@
 import { DailyStreamingLayoutConfig } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
-import { atom, useRecoilCallback, useSetRecoilState } from 'recoil';
+import { atom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
+import React, { useCallback, useEffect } from 'react';
 
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useLocalSessionId } from './hooks/useLocalSessionId';
 import { useParticipantIds } from './hooks/useParticipantIds';
-import { RECOIL_PREFIX } from './lib/constants';
+import { customDeepEqual } from './lib/customDeepEqual';
 
 interface RecordingState {
   /**
@@ -50,23 +51,65 @@ interface RecordingState {
 }
 
 export const recordingState = atom<RecordingState>({
-  key: RECOIL_PREFIX + 'recording',
-  default: {
-    isLocalParticipantRecorded: false,
-    isRecording: false,
-  },
+  isLocalParticipantRecorded: false,
+  isRecording: false,
 });
 
 export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
 }) => {
-  const setState = useSetRecoilState(recordingState);
-
   const localSessionId = useLocalSessionId();
 
   const recordingParticipantIds = useParticipantIds({
     filter: 'record',
   });
+
+  const maybeUpdateRecordingState = useAtomCallback(
+    useCallback(
+      (
+        get,
+        set,
+        hasRecordingParticipants: boolean,
+        isLocalParticipantRecording: boolean
+      ) => {
+        const oldState = get(recordingState);
+        const s: RecordingState = {
+          isLocalParticipantRecorded: oldState.isLocalParticipantRecorded,
+          isRecording: oldState.isRecording,
+          local: oldState.local,
+          type: oldState.type,
+        };
+        const newState: RecordingState = {
+          // In case type is local or not set, determine based on recording participants
+          isLocalParticipantRecorded:
+            s?.type === 'local' || !s?.type
+              ? hasRecordingParticipants
+              : s.isLocalParticipantRecorded,
+          isRecording:
+            s?.type === 'local' || !s?.type
+              ? hasRecordingParticipants
+              : s.isRecording,
+          local:
+            (s?.type === 'local' || !s?.type) && hasRecordingParticipants
+              ? isLocalParticipantRecording
+              : s?.local,
+          /**
+           * Set type in case recording participants are detected.
+           * We only set `record` on participants, when recording type is 'local'.
+           */
+          type: hasRecordingParticipants ? 'local' : oldState?.type,
+        };
+
+        if (customDeepEqual(s, newState)) return;
+        set(recordingState, {
+          ...s,
+          ...newState,
+        });
+      },
+      []
+    )
+  );
+
   /**
    * Update recording state, whenever amount of recording participants changes.
    */
@@ -75,34 +118,17 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
     const isLocalParticipantRecording = recordingParticipantIds.includes(
       localSessionId || 'local'
     );
-    setState((s) => ({
-      ...s,
-      // In case type is local or not set, determine based on recording participants
-      isLocalParticipantRecorded:
-        s?.type === 'local' || !s?.type
-          ? hasRecordingParticipants
-          : s.isLocalParticipantRecorded,
-      isRecording:
-        s?.type === 'local' || !s?.type
-          ? hasRecordingParticipants
-          : s.isRecording,
-      local:
-        (s?.type === 'local' || !s?.type) && hasRecordingParticipants
-          ? isLocalParticipantRecording
-          : s?.local,
-      /**
-       * Set type in case recording participants are detected.
-       * We only set `record` on participants, when recording type is 'local'.
-       */
-      type: hasRecordingParticipants ? 'local' : s?.type,
-    }));
-  }, [localSessionId, recordingParticipantIds, setState]);
+    maybeUpdateRecordingState(
+      hasRecordingParticipants,
+      isLocalParticipantRecording
+    );
+  }, [localSessionId, maybeUpdateRecordingState, recordingParticipantIds]);
 
   useDailyEvent(
     'recording-started',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
+    useAtomCallback(
+      useCallback(
+        (_get, set, ev) => {
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
             case 'cloud-beta':
@@ -129,46 +155,44 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
             type: ev?.type,
           });
         },
-      [localSessionId]
+        [localSessionId]
+      )
     )
   );
   useDailyEvent(
     'recording-stopped',
-    useRecoilCallback(
-      ({ set }) =>
-        () => {
-          set(recordingState, (prevState) => ({
-            ...prevState,
-            isLocalParticipantRecorded: false,
-            isRecording: false,
-          }));
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(recordingState, (prevState) => ({
+          ...prevState,
+          isLocalParticipantRecorded: false,
+          isRecording: false,
+        }));
+      }, [])
     )
   );
   useDailyEvent(
     'recording-error',
-    useRecoilCallback(
-      ({ set }) =>
-        () => {
-          set(recordingState, (prevState) => ({
-            ...prevState,
-            error: true,
-            isLocalParticipantRecorded: false,
-            isRecording: false,
-          }));
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(recordingState, (prevState: RecordingState) => ({
+          ...prevState,
+          error: true,
+          isLocalParticipantRecorded: false,
+          isRecording: false,
+        }));
+      }, [])
     )
   );
   useDailyEvent(
     'left-meeting',
-    useRecoilCallback(
-      ({ reset }) =>
-        () => {
-          reset(recordingState);
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(recordingState, {
+          isLocalParticipantRecorded: false,
+          isRecording: false,
+        });
+      }, [])
     )
   );
   return <>{children}</>;

@@ -1,21 +1,22 @@
 import { DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
+import { Atom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect, useState } from 'react';
-import { Snapshot, useRecoilCallback, useRecoilValue } from 'recoil';
 
 import {
   ExtendedDailyParticipant,
   participantIdsState,
   participantState,
 } from '../DailyParticipants';
-import { RECOIL_PREFIX } from '../lib/constants';
 import { customDeepEqual } from '../lib/customDeepEqual';
-import { equalSelectorFamily } from '../lib/recoil-custom';
+import { equalAtomFamily } from '../lib/jotai-custom';
 import { isTrackOff } from '../utils/isTrackOff';
-import {
-  participantPropertiesState,
-  participantPropertyState,
-} from './useParticipantProperty';
+import { getParticipantPropertyAtom } from './useParticipantProperty';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
+
+// Define the type for the get function
+type GetFunction = <T>(atom: Atom<T>) => T;
 
 type FilterParticipantsFunction = (
   p: ExtendedDailyParticipant,
@@ -43,79 +44,73 @@ type SerializableSortParticipants =
   | 'user_name';
 type SortParticipants = SerializableSortParticipants | SortParticipantsFunction;
 
+const SERIALIZABLE_DELIM = ';';
+export const getParticipantIdsFilterSortParam = (
+  filter: string | null,
+  sort: string | null
+) => `${filter}${SERIALIZABLE_DELIM}${sort}`;
+
 /**
  * Short-cut state selector for useParticipantIds({ filter: 'local' })
  */
-export const participantIdsFilteredAndSortedState = equalSelectorFamily<
+export const participantIdsFilteredAndSortedState = equalAtomFamily<
   string[],
-  {
-    filter: SerializableFilterParticipants | null;
-    sort: SerializableSortParticipants | null;
-  }
+  string
 >({
-  key: RECOIL_PREFIX + 'participant-ids-filtered-sorted',
   equals: customDeepEqual,
-  get:
-    ({ filter, sort }) =>
-    ({ get }) => {
-      const ids = get(participantIdsState);
-      return ids
-        .filter((id) => {
-          switch (filter) {
-            /**
-             * Simple boolean fields first.
-             */
-            case 'local':
-            case 'owner':
-            case 'record': {
-              return get(participantPropertyState({ id, property: filter }));
-            }
-            case 'remote': {
-              return !get(participantPropertyState({ id, property: 'local' }));
-            }
-            case 'screen': {
-              const [screenAudioState, screenVideoState] = get(
-                participantPropertiesState({
-                  id,
-                  properties: [
-                    'tracks.screenAudio.state',
-                    'tracks.screenVideo.state',
-                  ],
-                })
-              );
-              return (
-                !isTrackOff(screenAudioState) || !isTrackOff(screenVideoState)
-              );
-            }
-            default:
-              return true;
+  get: (param) => (get) => {
+    const [filter, sort] = param.split(SERIALIZABLE_DELIM);
+    const ids = get(participantIdsState);
+    return ids
+      .filter((id) => {
+        switch (filter) {
+          /**
+           * Simple boolean fields first.
+           */
+          case 'local':
+          case 'owner':
+          case 'record': {
+            return get(getParticipantPropertyAtom(id, filter));
           }
-        })
-        .sort((idA, idB) => {
-          switch (sort) {
-            case 'joined_at':
-            case 'session_id':
-            case 'user_id':
-            case 'user_name': {
-              const [aSort] = get(
-                participantPropertiesState({ id: idA, properties: [sort] })
-              );
-              const [bSort] = get(
-                participantPropertiesState({ id: idB, properties: [sort] })
-              );
-              if (aSort !== undefined || bSort !== undefined) {
-                if (aSort === undefined) return -1;
-                if (bSort === undefined) return 1;
-                if (aSort > bSort) return 1;
-                if (aSort < bSort) return -1;
-              }
-              return 0;
-            }
-            default:
-              return 0;
+          case 'remote': {
+            return !get(getParticipantPropertyAtom(id, 'local'));
           }
-        });
-    },
+          case 'screen': {
+            const screenAudioState = get(
+              getParticipantPropertyAtom(id, 'tracks.screenAudio.state')
+            );
+            const screenVideoState = get(
+              getParticipantPropertyAtom(id, 'tracks.screenVideo.state')
+            );
+            return (
+              !isTrackOff(screenAudioState) || !isTrackOff(screenVideoState)
+            );
+          }
+          default:
+            return true;
+        }
+      })
+      .sort((idA, idB) => {
+        switch (sort) {
+          case 'joined_at':
+          case 'session_id':
+          case 'user_id':
+          case 'user_name': {
+            const aSort = get(getParticipantPropertyAtom(idA, sort));
+            const bSort = get(getParticipantPropertyAtom(idB, sort));
+            if (aSort !== undefined || bSort !== undefined) {
+              if (aSort === undefined) return -1;
+              if (bSort === undefined) return 1;
+              if (aSort > bSort) return 1;
+              if (aSort < bSort) return -1;
+            }
+            return 0;
+          }
+          default:
+            return 0;
+        }
+      });
+  },
 });
 
 interface UseParticipantIdsArgs {
@@ -141,20 +136,22 @@ export const useParticipantIds = ({
 }: UseParticipantIdsArgs = {}) => {
   /**
    * For instances of useParticipantIds with string-based filter and sort,
-   * we can immediately return the correct ids from Recoil's state.
+   * we can immediately return the correct ids from Jotai's state.
    */
-  const preFilteredSortedIds = useRecoilValue(
-    participantIdsFilteredAndSortedState({
-      filter: typeof filter === 'string' ? filter : null,
-      sort: typeof sort === 'string' ? sort : null,
-    })
+  const preFilteredSortedIds = useAtomValue(
+    participantIdsFilteredAndSortedState(
+      getParticipantIdsFilterSortParam(
+        typeof filter === 'string' ? filter : null,
+        typeof sort === 'string' ? sort : null
+      )
+    )
   );
 
   const shouldUseCustomIds =
     typeof filter === 'function' || typeof sort === 'function';
 
   const getCustomFilteredIds = useCallback(
-    (snapshot: Snapshot) => {
+    (get: GetFunction) => {
       if (
         // Ignore if both filter and sort are not functions.
         typeof filter !== 'function' &&
@@ -162,18 +159,15 @@ export const useParticipantIds = ({
       )
         return [];
 
-      const participants: ExtendedDailyParticipant[] = preFilteredSortedIds.map(
-        (id) =>
-          snapshot.getLoadable(participantState(id))
-            .contents as ExtendedDailyParticipant
-      );
+      const participants: (ExtendedDailyParticipant | null)[] =
+        preFilteredSortedIds.map((id) => get(participantState(id)));
 
       return (
         participants
           // Make sure we don't accidentally try to filter/sort `null` participants
           // This can happen when a participant's id is already present in store
           // but the participant object is not stored, yet.
-          .filter(Boolean)
+          .filter((p): p is ExtendedDailyParticipant => Boolean(p))
           // Run custom filter, if it's a function. Otherwise don't filter any participants.
           .filter(typeof filter === 'function' ? filter : () => true)
           // Run custom sort, if it's a function. Otherwise don't sort.
@@ -190,15 +184,16 @@ export const useParticipantIds = ({
 
   const [customIds, setCustomIds] = useState<string[]>([]);
 
-  const maybeUpdateCustomIds = useRecoilCallback(
-    ({ snapshot }) =>
-      () => {
+  const maybeUpdateCustomIds = useAtomCallback(
+    useCallback(
+      (get) => {
         if (!shouldUseCustomIds) return;
-        const newIds = getCustomFilteredIds(snapshot);
+        const newIds = getCustomFilteredIds(get);
         if (customDeepEqual(newIds, customIds)) return;
         setCustomIds(newIds);
       },
-    [customIds, getCustomFilteredIds, shouldUseCustomIds]
+      [customIds, getCustomFilteredIds, shouldUseCustomIds]
+    )
   );
 
   useEffect(() => {

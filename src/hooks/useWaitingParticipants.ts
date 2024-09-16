@@ -1,6 +1,6 @@
 import { DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { allWaitingParticipantsSelector } from '../DailyParticipants';
 import { useDaily } from './useDaily';
@@ -28,7 +28,9 @@ export const useWaitingParticipants = ({
 }: UseWaitingParticipantsArgs = {}) => {
   const daily = useDaily();
 
-  const waitingParticipants = useRecoilValue(allWaitingParticipantsSelector);
+  const waitingParticipants = useAtomValue(
+    allWaitingParticipantsSelector(undefined)
+  );
 
   useDailyEvent(
     'waiting-participant-added',

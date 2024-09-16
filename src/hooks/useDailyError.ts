@@ -1,5 +1,5 @@
+import { useAtomValue } from 'jotai';
 import { useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { meetingErrorState, nonFatalErrorState } from '../DailyMeeting';
 
@@ -7,8 +7,8 @@ import { meetingErrorState, nonFatalErrorState } from '../DailyMeeting';
  * Returns a meeting's last known errors.
  */
 export const useDailyError = () => {
-  const meetingError = useRecoilValue(meetingErrorState);
-  const nonFatalError = useRecoilValue(nonFatalErrorState);
+  const meetingError = useAtomValue(meetingErrorState);
+  const nonFatalError = useAtomValue(nonFatalErrorState);
   const result = {
     meetingError,
     nonFatalError,

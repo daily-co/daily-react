@@ -1,6 +1,6 @@
 import { DailyRoomInfo } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { roomState } from '../DailyRoom';
 
@@ -9,7 +9,7 @@ import { roomState } from '../DailyRoom';
  * Includes room default values.
  */
 export const useRoom = (): DailyRoomInfo | null => {
-  const room = useRecoilValue(roomState);
+  const room = useAtomValue(roomState);
   useDebugValue(room);
   return room;
 };

@@ -4,20 +4,30 @@ import {
   DailyReceiveSettings,
   DailySingleParticipantReceiveSettings,
 } from '@daily-co/daily-js';
+import { atom, Getter, Setter, useAtom, WritableAtom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
+import { atomFamily } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect } from 'react';
-import { atomFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 
-import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useMeetingState } from './useMeetingState';
 
 const participantReceiveSettingsState = atomFamily<
-  DailySingleParticipantReceiveSettings,
-  string
->({
-  key: RECOIL_PREFIX + 'participant-receive-settings',
-  default: {},
+  string,
+  WritableAtom<
+    DailySingleParticipantReceiveSettings,
+    [DailySingleParticipantReceiveSettings],
+    void
+  >
+>((id) => {
+  return atom<
+    DailySingleParticipantReceiveSettings,
+    [DailySingleParticipantReceiveSettings],
+    void
+  >({}, (_get, set, newValue) => {
+    set(participantReceiveSettingsState(id), newValue);
+  });
 });
 
 interface UseReceiveSettingsArgs {
@@ -37,26 +47,26 @@ export const useReceiveSettings = ({
   id = 'base',
   onReceiveSettingsUpdated,
 }: UseReceiveSettingsArgs = {}) => {
-  const baseSettings = useRecoilValue(participantReceiveSettingsState('base'));
-  const receiveSettings = useRecoilValue(participantReceiveSettingsState(id));
+  const [baseSettings] = useAtom(participantReceiveSettingsState('base'));
+  const [receiveSettings] = useAtom(participantReceiveSettingsState(id));
   const daily = useDaily();
   const meetingState = useMeetingState();
 
-  const updateReceiveSettingsState = useRecoilCallback(
-    ({ transact_UNSTABLE }) =>
-      (receiveSettings: DailyReceiveSettings) => {
-        transact_UNSTABLE(({ reset, set }) => {
-          const { ...ids } = receiveSettings;
-          for (let [id, settings] of Object.entries(ids)) {
-            set(participantReceiveSettingsState(id), settings);
-          }
-          if (!(id in ids)) {
-            reset(participantReceiveSettingsState(id));
-          }
-        });
+  const updateReceiveSettingsState = useAtomCallback(
+    useCallback(
+      (_get: Getter, set: Setter, receiveSettings: DailyReceiveSettings) => {
+        const { ...ids } = receiveSettings;
+        for (let [id, settings] of Object.entries(ids)) {
+          set(participantReceiveSettingsState(id), settings);
+        }
+        if (!(id in ids)) {
+          participantReceiveSettingsState.remove(id);
+        }
       },
-    [id]
+      [id] // Dependencies
+    )
   );
+
   useDailyEvent(
     'receive-settings-updated',
     useCallback(

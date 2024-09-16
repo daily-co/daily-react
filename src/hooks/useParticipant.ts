@@ -1,6 +1,6 @@
 import { DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { participantState } from '../DailyParticipants';
 import { useThrottledDailyEvent } from './useThrottledDailyEvent';
@@ -19,7 +19,7 @@ export const useParticipant = (
   sessionId: string,
   { onParticipantLeft, onParticipantUpdated }: UseParticipantArgs = {}
 ) => {
-  const participant = useRecoilValue(participantState(sessionId));
+  const participant = useAtomValue(participantState(sessionId));
 
   useThrottledDailyEvent(
     ['participant-updated', 'participant-left'],

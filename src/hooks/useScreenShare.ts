@@ -3,17 +3,19 @@ import {
   DailyEventObjectNonFatalError,
   DailyTrackState,
 } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
-import { RECOIL_PREFIX } from '../lib/constants';
 import { customDeepEqual } from '../lib/customDeepEqual';
-import { equalSelector } from '../lib/recoil-custom';
+import { equalAtomFamily } from '../lib/jotai-custom';
 import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
-import { participantIdsFilteredAndSortedState } from './useParticipantIds';
-import { participantPropertyState } from './useParticipantProperty';
+import {
+  getParticipantIdsFilterSortParam,
+  participantIdsFilteredAndSortedState,
+} from './useParticipantIds';
+import { getParticipantPropertyAtom } from './useParticipantProperty';
 
 export interface ScreenShare {
   local: boolean;
@@ -23,22 +25,19 @@ export interface ScreenShare {
   session_id: string;
 }
 
-const screenSharesState = equalSelector({
-  key: RECOIL_PREFIX + 'screen-shares',
+const screenSharesState = equalAtomFamily<ScreenShare[], void>({
   equals: customDeepEqual,
-  get: ({ get }) => {
+  get: () => (get) => {
     const screenIds = get(
-      participantIdsFilteredAndSortedState({ filter: 'screen', sort: null })
+      participantIdsFilteredAndSortedState(
+        getParticipantIdsFilterSortParam('screen', null)
+      )
     );
     return screenIds.map<ScreenShare>((id) => {
       return {
-        local: get(participantPropertyState({ id, property: 'local' })),
-        screenAudio: get(
-          participantPropertyState({ id, property: 'tracks.screenAudio' })
-        ),
-        screenVideo: get(
-          participantPropertyState({ id, property: 'tracks.screenVideo' })
-        ),
+        local: get(getParticipantPropertyAtom(id, 'local')),
+        screenAudio: get(getParticipantPropertyAtom(id, 'tracks.screenAudio')),
+        screenVideo: get(getParticipantPropertyAtom(id, 'tracks.screenVideo')),
         screenId: `${id}-screen`,
         session_id: id,
       };
@@ -107,7 +106,7 @@ export const useScreenShare = ({
     )
   );
 
-  const screens = useRecoilValue(screenSharesState);
+  const screens = useAtomValue(screenSharesState(undefined));
 
   const result = {
     isSharingScreen: screens.some((s) => s.local),

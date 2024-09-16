@@ -26,7 +26,13 @@ module.exports = {
     },
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'simple-import-sort', 'sort-destructure-keys', 'prettier', 'jest'],
+  plugins: [
+    '@typescript-eslint',
+    'simple-import-sort',
+    'sort-destructure-keys',
+    'prettier',
+    'jest',
+  ],
   rules: {
     // Unused vars are checked by @typescript-eslint/no-unused-vars
     'no-unused-vars': 0,
@@ -35,7 +41,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'warn',
       {
-        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+        additionalHooks: '(useAtomCallback)', // Add useAtomCallback for Jotai
       },
     ],
     // PropTypes are defined and checked via TypeScript
@@ -47,9 +53,9 @@ module.exports = {
     'sort-destructure-keys/sort-destructure-keys': [
       'error',
       {
-        caseSensitive: false
-      }
-    ]
+        caseSensitive: false,
+      },
+    ],
   },
   overrides: [
     {

@@ -1,6 +1,6 @@
 import { DailyEventObjectNonFatalError } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { meetingSessionDataState } from '../DailyMeeting';
 import { Reconstruct } from '../types/Reconstruct';
@@ -20,7 +20,7 @@ interface Props {
  * Returns a meeting's current session data and topology.
  */
 export const useMeetingSessionState = <T = any>({ onError }: Props = {}) => {
-  const meetingSessionState = useRecoilValue(meetingSessionDataState);
+  const meetingSessionState = useAtomValue(meetingSessionDataState);
 
   useDailyEvent(
     'nonfatal-error',

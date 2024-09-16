@@ -1,88 +1,73 @@
 import { DailyNetworkStats, DailyNetworkTopology } from '@daily-co/daily-js';
-import React, { useEffect } from 'react';
-import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
+import { atom, useAtomValue } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
+import React, { useCallback, useEffect } from 'react';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
-import { RECOIL_PREFIX } from './lib/constants';
 
-export const topologyState = atom<DailyNetworkTopology | 'none'>({
-  key: RECOIL_PREFIX + 'topology',
-  default: 'none',
-});
-export const networkQualityState = atom<DailyNetworkStats['quality']>({
-  key: RECOIL_PREFIX + 'networkQuality',
-  default: 100,
-});
-export const networkThresholdState = atom<DailyNetworkStats['threshold']>({
-  key: RECOIL_PREFIX + 'networkThreshold',
-  default: 'good',
-});
+export const topologyState = atom<DailyNetworkTopology | 'none'>('none');
+export const networkQualityState = atom<DailyNetworkStats['quality']>(100);
+export const networkThresholdState =
+  atom<DailyNetworkStats['threshold']>('good');
 
 export const DailyNetwork: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const daily = useDaily();
 
-  const topology = useRecoilValue(topologyState);
+  const topology = useAtomValue(topologyState);
 
-  const initTopology = useRecoilCallback(
-    ({ set }) =>
-      async () => {
+  const initTopology = useAtomCallback(
+    useCallback(
+      async (_get, set) => {
         if (!daily) return;
         const topology = await daily.getNetworkTopology();
         if (!topology || topology?.topology === 'none') return;
         set(topologyState, topology.topology);
       },
-    [daily]
+      [daily]
+    )
   );
 
   useDailyEvent('joined-meeting', initTopology);
   useDailyEvent(
     'network-connection',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
-          switch (ev.event) {
-            case 'connected':
-              if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
-              if (ev.type === 'sfu') set(topologyState, 'sfu');
-              break;
-          }
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        switch (ev.event) {
+          case 'connected':
+            if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
+            if (ev.type === 'sfu') set(topologyState, 'sfu');
+            break;
+        }
+      }, [])
     )
   );
   useDailyEvent(
     'network-quality-change',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        (ev) => {
-          transact_UNSTABLE(({ set }) => {
-            set(networkQualityState, (prevQuality) =>
-              prevQuality !== ev.quality ? ev.quality : prevQuality
-            );
-            set(networkThresholdState, (prevThreshold) =>
-              prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
-            );
-          });
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        set(networkQualityState, (prevQuality: DailyNetworkStats['quality']) =>
+          prevQuality !== ev.quality ? ev.quality : prevQuality
+        );
+        set(
+          networkThresholdState,
+          (prevThreshold: DailyNetworkStats['threshold']) =>
+            prevThreshold !== ev.threshold ? ev.threshold : prevThreshold
+        );
+      }, [])
     )
   );
 
   useDailyEvent(
     'left-meeting',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        () => {
-          transact_UNSTABLE(({ reset }) => {
-            reset(topologyState);
-            reset(networkQualityState);
-            reset(networkThresholdState);
-          });
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(topologyState, 'none');
+        set(networkQualityState, 100);
+        set(networkThresholdState, 'good');
+      }, [])
     )
   );
 

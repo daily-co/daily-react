@@ -1,6 +1,6 @@
 import { DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import {
   networkQualityState,
@@ -25,9 +25,9 @@ export const useNetwork = ({
 }: UseNetworkArgs = {}) => {
   const daily = useDaily();
 
-  const topology = useRecoilValue(topologyState);
-  const quality = useRecoilValue(networkQualityState);
-  const threshold = useRecoilValue(networkThresholdState);
+  const topology = useAtomValue(topologyState);
+  const quality = useAtomValue(networkQualityState);
+  const threshold = useAtomValue(networkThresholdState);
 
   useDailyEvent(
     'network-connection',

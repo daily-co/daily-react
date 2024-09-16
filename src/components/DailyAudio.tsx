@@ -1,3 +1,4 @@
+import { useAtomCallback } from 'jotai/utils';
 import React, {
   forwardRef,
   memo,
@@ -6,14 +7,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useRecoilCallback } from 'recoil';
 
 import { ExtendedDailyParticipant } from '../DailyParticipants';
 import { useActiveSpeakerId } from '../hooks/useActiveSpeakerId';
 import { useDaily } from '../hooks/useDaily';
 import { useLocalSessionId } from '../hooks/useLocalSessionId';
 import { useParticipantIds } from '../hooks/useParticipantIds';
-import { participantPropertyState } from '../hooks/useParticipantProperty';
+import { getParticipantPropertyAtom } from '../hooks/useParticipantProperty';
 import { useScreenShare } from '../hooks/useScreenShare';
 import { useThrottledDailyEvent } from '../hooks/useThrottledDailyEvent';
 import { isTrackOff } from '../utils/isTrackOff';
@@ -146,9 +146,9 @@ export const DailyAudio = memo(
         [activeSpeakerId]
       );
 
-      const assignSpeaker = useRecoilCallback(
-        ({ snapshot }) =>
-          async (sessionId: string) => {
+      const assignSpeaker = useAtomCallback(
+        useCallback(
+          async (get, _set, sessionId: string) => {
             /**
              * Only consider remote participants with subscribed or staged audio.
              */
@@ -212,19 +212,13 @@ export const DailyAudio = memo(
                 )
                 .sort((a, b) => {
                   const lastActiveA =
-                    snapshot.getLoadable(
-                      participantPropertyState({
-                        id: a.session_id,
-                        property: 'last_active',
-                      })
-                    ).contents ?? new Date('1970-01-01');
+                    get(
+                      getParticipantPropertyAtom(a.session_id, 'last_active')
+                    ) ?? new Date('1970-01-01');
                   const lastActiveB =
-                    snapshot.getLoadable(
-                      participantPropertyState({
-                        id: b.session_id,
-                        property: 'last_active',
-                      })
-                    ).contents ?? new Date('1970-01-01');
+                    get(
+                      getParticipantPropertyAtom(b.session_id, 'last_active')
+                    ) ?? new Date('1970-01-01');
                   if (lastActiveA > lastActiveB) return 1;
                   if (lastActiveA < lastActiveB) return -1;
                   return 0;
@@ -248,7 +242,8 @@ export const DailyAudio = memo(
               return [...prevSpeakers];
             });
           },
-        [activeSpeakerId, autoSubscribeActiveSpeaker, daily]
+          [activeSpeakerId, autoSubscribeActiveSpeaker, daily]
+        )
       );
 
       /**

@@ -1,55 +1,62 @@
+import { atom, useAtomValue } from 'jotai';
+import { atomFamily } from 'jotai/utils';
 import { useDebugValue } from 'react';
-import { atomFamily, selectorFamily, useRecoilValue } from 'recoil';
 
 import { ExtendedDailyParticipant } from '../DailyParticipants';
-import { RECOIL_PREFIX } from '../lib/constants';
+import { customDeepEqual } from '../lib/customDeepEqual';
+import { equalAtomFamily } from '../lib/jotai-custom';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
 
-type PropertyType = {
-  id: string;
-  property: Paths<ExtendedDailyParticipant>;
-};
+const DELIM = '::';
+const PATHS_DELIM = ';';
+export const getPropertyParam = (
+  id: string,
+  property: Paths<ExtendedDailyParticipant>
+) => `${id}${DELIM}${property}`;
+const getPropertiesParam = (
+  id: string,
+  properties: Paths<ExtendedDailyParticipant>[]
+) => `${id}${DELIM}${properties.join(PATHS_DELIM)}`;
 
-type PropertiesType = {
-  id: string;
-  properties: Paths<ExtendedDailyParticipant>[];
-};
+export const getParticipantPropertyAtom = (
+  id: string,
+  property: Paths<ExtendedDailyParticipant>
+) => participantPropertyState(getPropertyParam(id, property));
 
 /**
  * Stores all property paths for a given participant.
  */
-export const participantPropertyPathsState = atomFamily<
-  Paths<ExtendedDailyParticipant>[],
-  string
->({
-  key: RECOIL_PREFIX + 'participant-property-paths',
-  default: [],
-});
+export const participantPropertyPathsState = atomFamily(
+  (_id: string) => atom<Paths<ExtendedDailyParticipant>[]>([]),
+  customDeepEqual
+);
 
 /**
  * Stores resolved values for each participant and property path.
  */
-export const participantPropertyState = atomFamily<any, PropertyType>({
-  key: RECOIL_PREFIX + 'participant-property',
-  default: null,
-  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
-});
+export const participantPropertyState = atomFamily(
+  (_param: string) => atom<any>(null),
+  customDeepEqual
+);
 
 /**
  * Stores resolved values for each participant and property path.
  */
-export const participantPropertiesState = selectorFamily<any, PropertiesType>({
-  key: RECOIL_PREFIX + 'participant-properties',
-  get:
-    ({ id, properties }) =>
-    ({ get }) => {
-      return properties.map((path) =>
-        get(participantPropertyState({ id, property: path }))
-      );
-    },
-  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
+const participantPropertiesState = equalAtomFamily<any[], string>({
+  equals: customDeepEqual,
+  get: (param: string) => (get) => {
+    const [id, paths] = param.split(DELIM);
+    const properties = paths.split(PATHS_DELIM);
+    return properties.map((path) =>
+      get(
+        participantPropertyState(
+          getPropertyParam(id, path as Paths<ExtendedDailyParticipant>)
+        )
+      )
+    );
+  },
 });
 
 type UseParticipantPropertyReturnType<
@@ -75,16 +82,20 @@ export const useParticipantProperty = <
   participantId: string,
   propertyPaths: P
 ): UseParticipantPropertyReturnType<T, P> => {
-  const properties = useRecoilValue(
+  const properties = useAtomValue(
     Array.isArray(propertyPaths)
-      ? participantPropertiesState({
-          id: participantId,
-          properties: propertyPaths as Paths<ExtendedDailyParticipant>[],
-        })
-      : participantPropertyState({
-          id: participantId,
-          property: propertyPaths as Paths<ExtendedDailyParticipant>,
-        })
+      ? participantPropertiesState(
+          getPropertiesParam(
+            participantId,
+            propertyPaths as Paths<ExtendedDailyParticipant>[]
+          )
+        )
+      : participantPropertyState(
+          getPropertyParam(
+            participantId,
+            propertyPaths as Paths<ExtendedDailyParticipant>
+          )
+        )
   );
 
   useDebugValue(

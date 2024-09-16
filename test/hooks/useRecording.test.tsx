@@ -66,10 +66,12 @@ describe('useRecording', () => {
     const { result } = renderHook(() => useRecording(), {
       wrapper: createWrapper(daily),
     });
-    expect(result.current.isRecording).toBe(false);
-    expect(typeof result.current.startRecording).toBe('function');
-    expect(typeof result.current.stopRecording).toBe('function');
-    expect(typeof result.current.updateRecording).toBe('function');
+    await waitFor(() => {
+      expect(result.current.isRecording).toBe(false);
+      expect(typeof result.current.startRecording).toBe('function');
+      expect(typeof result.current.stopRecording).toBe('function');
+      expect(typeof result.current.updateRecording).toBe('function');
+    });
   });
   it('recording-started calls onRecordingStarted and updates state', async () => {
     const onRecordingStarted = jest.fn();

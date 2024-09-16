@@ -1,5 +1,5 @@
+import { useAtomValue } from 'jotai';
 import { useDebugValue, useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { localJoinDateState } from '../DailyParticipants';
 import { useRoom } from './useRoom';
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const useRoomExp = ({ onCountdown }: Props = {}) => {
-  const localJoinDate = useRecoilValue(localJoinDateState);
+  const localJoinDate = useAtomValue(localJoinDateState);
   const room = useRoom();
 
   const [ejectDate, setEjectDate] = useState<Date | null>(null);

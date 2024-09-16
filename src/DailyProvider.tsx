@@ -4,8 +4,9 @@ import {
   DailyEventObject,
   DailyFactoryOptions,
 } from '@daily-co/daily-js';
+// Import Jotai Provider if you are using middleware that requires it
+import { Provider } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { RecoilRoot, RecoilRootProps } from 'recoil';
 
 import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
@@ -19,27 +20,16 @@ import { DailyRoom } from './DailyRoom';
 import { DailyTranscriptions } from './DailyTranscriptions';
 import { useCallObject } from './hooks/useCallObject';
 
-type BaseProps =
+type Props =
   | DailyFactoryOptions
   | {
       callObject: DailyCall | null;
     };
 
-type Props = BaseProps & {
-  /**
-   * Allows to override props for [RecoilRoot](https://recoiljs.org/docs/api-reference/core/RecoilRoot/).
-   * In case you use Recoil in your own application, you can pass `override: false` to allow
-   * daily-react to store its state in your application's RecoilRoot.
-   * Default value: {}
-   */
-  recoilRootProps?: Omit<RecoilRootProps, 'children'>;
-};
-
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   children,
-  recoilRootProps = {},
   ...props
 }) => {
   const eventsMap = useRef<EventsMap>({});
@@ -105,7 +95,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
         eventsMap.current[ev] = new Map();
         if (callObject) {
           /**
-           * Make sure only 1 event listener is registered at anytime for handleEvent.
+           * Make sure only 1 event listener is registered at any time for handleEvent.
            * Otherwise, events sent from daily-js might be handled multiple times.
            */
           callObject.off(ev, handleEvent);
@@ -136,7 +126,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   );
 
   return (
-    <RecoilRoot {...recoilRootProps}>
+    <Provider>
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
@@ -156,6 +146,6 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
           </DailyRoom>
         </DailyEventContext.Provider>
       </DailyContext.Provider>
-    </RecoilRoot>
+    </Provider>
   );
 };
