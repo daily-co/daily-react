@@ -1,8 +1,8 @@
 /// <reference types="@types/jest" />
 
 import Daily, { DailyCall, DailyParticipant } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, render, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyAudio } from '../../src/components/DailyAudio';
@@ -17,7 +17,7 @@ import {
 } from '../.test-utils/event-emitter';
 import { mockParticipant } from '../.test-utils/mocks';
 
-const localSessionId = faker.datatype.uuid();
+const localSessionId = faker.string.uuid();
 
 jest.mock('../../src/hooks/useLocalSessionId', () => ({
   useLocalSessionId: () => localSessionId,
@@ -69,7 +69,7 @@ describe('DailyAudio', () => {
   describe('active speaker', () => {
     it('assigns subscribed speaker to first free slot', async () => {
       const callObject = Daily.createCallObject();
-      const peerId = faker.datatype.uuid();
+      const peerId = faker.string.uuid();
       const peer = mockParticipant({
         local: false,
         session_id: peerId,
@@ -96,7 +96,7 @@ describe('DailyAudio', () => {
     });
     it('ignores unsubscribed speaker', async () => {
       const callObject = Daily.createCallObject();
-      const peerId = faker.datatype.uuid();
+      const peerId = faker.string.uuid();
       const peer = mockParticipant({
         local: false,
         session_id: peerId,
@@ -145,7 +145,7 @@ describe('DailyAudio', () => {
   describe('unmuted participant', () => {
     it('assigns subscribed participant to first free slot', async () => {
       const callObject = Daily.createCallObject();
-      const peerId = faker.datatype.uuid();
+      const peerId = faker.string.uuid();
       const peer = mockParticipant({
         local: false,
         session_id: peerId,
@@ -194,7 +194,7 @@ describe('DailyAudio', () => {
   describe('left participant', () => {
     it('unassigns audio', async () => {
       const callObject = Daily.createCallObject();
-      const peerId = faker.datatype.uuid();
+      const peerId = faker.string.uuid();
       const peer = mockParticipant({
         local: false,
         session_id: peerId,
@@ -237,9 +237,9 @@ describe('DailyAudio', () => {
        */
       const callObject = Daily.createCallObject();
       const remoteParticipants = [
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
       ];
       (callObject.participants as jest.Mock).mockImplementation(() => {
         const participants: Record<string, Partial<DailyParticipant>> = {
@@ -301,9 +301,9 @@ describe('DailyAudio', () => {
        */
       const callObject = Daily.createCallObject();
       const remoteParticipants = [
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
       ];
       (callObject.participants as jest.Mock).mockImplementation(() => {
         const participants: Record<string, Partial<DailyParticipant>> = {
@@ -366,10 +366,10 @@ describe('DailyAudio', () => {
        */
       const callObject = Daily.createCallObject();
       const remoteParticipants = [
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
-        faker.datatype.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
+        faker.string.uuid(),
       ];
       const participants: Record<string, Partial<DailyParticipant>> = {
         local: mockParticipant({

@@ -2,9 +2,9 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import Daily, { DailyCall } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, render, waitFor } from '@testing-library/react';
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyAudioTrack } from '../../src/components/DailyAudioTrack';
@@ -27,7 +27,7 @@ const createWrapper =
 describe('DailyAudioTrack', () => {
   it('renders <audio> tag with expected attributes', () => {
     const Wrapper = createWrapper();
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const { container } = render(
       <Wrapper>
         <DailyAudioTrack sessionId={sessionId} />
@@ -41,7 +41,7 @@ describe('DailyAudioTrack', () => {
   });
   it('renders custom attributes to <audio> tag', () => {
     const Wrapper = createWrapper();
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const attributes = {
       id: 'customId',
       'data-custom': 'value',
@@ -59,7 +59,7 @@ describe('DailyAudioTrack', () => {
   it('assigns correct audio track to <audio> tag', async () => {
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'audio' });
     (callObject.participants as jest.Mock).mockImplementation(() => ({
       [sessionId]: {

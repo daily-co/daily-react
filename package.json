@@ -69,6 +69,7 @@
     }
   ],
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@size-limit/preset-small-lib": "^5.0.3",
     "@testing-library/react": "^15.0.5",
     "@types/faker": "^5.5.9",
@@ -86,7 +87,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-sort-destructure-keys": "^1.4.0",
     "fake-mediastreamtrack": "^1.2.0",
-    "faker": "^5.5.3",
     "fs-extra": "^10.1.0",
     "husky": "^7.0.2",
     "jest": "^27.0.5",

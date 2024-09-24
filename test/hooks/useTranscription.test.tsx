@@ -10,8 +10,8 @@ import Daily, {
   DailyEventObjectTranscriptionStopped,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -54,7 +54,7 @@ jest.mock('../../src/DailyRoom', () => ({
   )) as React.FC<React.PropsWithChildren>,
 }));
 
-const localId = faker.datatype.uuid();
+const localId = faker.string.uuid();
 
 jest.mock('../../src/hooks/useLocalSessionId', () => ({
   useLocalSessionId: () => localId,
@@ -94,7 +94,7 @@ describe('useTranscription', () => {
       instanceId: 'a1f2f6b7-b1ac-4202-85e5-d446cb6c3d3f',
       language: 'en',
       model: 'general',
-      startedBy: faker.datatype.uuid(),
+      startedBy: faker.string.uuid(),
       tier: 'enhanced',
       profanity_filter: true,
       redact: true,
@@ -128,7 +128,7 @@ describe('useTranscription', () => {
         wrapper: createWrapper(daily),
       }
     );
-    const updatedBy = faker.datatype.uuid();
+    const updatedBy = faker.string.uuid();
     act(() => {
       emitTranscriptionStopped(daily, updatedBy);
     });
@@ -196,8 +196,8 @@ describe('useTranscription', () => {
     const payload: DailyEventObjectAppMessage = mockEvent({
       action: 'app-message',
       data: {
-        session_id: faker.datatype.uuid(),
-        user_id: faker.datatype.uuid(),
+        session_id: faker.string.uuid(),
+        user_id: faker.string.uuid(),
         text: 'Transcription text',
         timestamp: new Date(),
       },
@@ -220,7 +220,7 @@ describe('useTranscription', () => {
     const event: DailyEvent = 'transcription-message';
     const payload: DailyEventObjectTranscriptionMessage = mockEvent({
       action: 'transcription-message',
-      participantId: faker.datatype.uuid(),
+      participantId: faker.string.uuid(),
       text: 'Transcription text',
       timestamp: new Date(),
       rawResponse: {},

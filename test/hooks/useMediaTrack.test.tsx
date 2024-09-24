@@ -6,8 +6,8 @@ import Daily, {
   DailyEventObjectParticipants,
   DailyParticipant,
 } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -56,7 +56,7 @@ const participantBase: DailyParticipant = {
   record: false,
   screen: false,
   screen_info: {},
-  session_id: faker.datatype.uuid(),
+  session_id: faker.string.uuid(),
   tracks: {
     audio: {
       state: 'off',
@@ -75,7 +75,7 @@ const participantBase: DailyParticipant = {
       subscribed: false,
     },
   },
-  user_id: faker.datatype.uuid(),
+  user_id: faker.string.uuid(),
   user_name: '',
   video: false,
   will_eject_at: new Date('1970-01-01:00:00:00.000Z'),
@@ -84,7 +84,7 @@ const participantBase: DailyParticipant = {
 describe('useMediaTrack', () => {
   it('returns track state for a joined participant', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
 
     const { result } = renderHook(() => useMediaTrack(participantId), {
       wrapper: createWrapper(daily),
@@ -110,7 +110,7 @@ describe('useMediaTrack', () => {
   });
   it('returns track state for an updated participant', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
 
     const { result } = renderHook(() => useMediaTrack(participantId, 'audio'), {
       wrapper: createWrapper(daily),
@@ -136,7 +136,7 @@ describe('useMediaTrack', () => {
   });
   it('returns off state for unknown participant', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
 
     const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
       wrapper: createWrapper(daily),
@@ -152,7 +152,7 @@ describe('useMediaTrack', () => {
   });
   it('joined-meeting event sets up local participant state', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
 
     const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
       wrapper: createWrapper(daily),
@@ -181,8 +181,8 @@ describe('useMediaTrack', () => {
   });
   it('participant event for other participant does not change state', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
-    const otherId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
+    const otherId = faker.string.uuid();
 
     const { result } = renderHook(() => useMediaTrack(participantId, 'video'), {
       wrapper: createWrapper(daily),
@@ -215,7 +215,7 @@ describe('useMediaTrack', () => {
   });
   it('local participant state is automatically read from participants()', async () => {
     const daily = Daily.createCallObject();
-    const participantId = faker.datatype.uuid();
+    const participantId = faker.string.uuid();
     const local: DailyParticipant = {
       ...participantBase,
       local: true,
