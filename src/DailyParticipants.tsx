@@ -4,19 +4,21 @@ import {
   DailyParticipantTracks,
   DailyWaitingParticipant,
 } from '@daily-co/daily-js';
+import { atom } from 'jotai';
+import { atomFamily, useAtomCallback } from 'jotai/utils';
 import React, { useCallback, useEffect, useState } from 'react';
-import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import {
+  getParticipantPropertyAtom,
+  getPropertyParam,
   participantPropertyPathsState,
   participantPropertyState,
 } from './hooks/useParticipantProperty';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-import { RECOIL_PREFIX } from './lib/constants';
 import { customDeepEqual } from './lib/customDeepEqual';
-import { equalSelector } from './lib/recoil-custom';
+import { equalAtomFamily } from './lib/jotai-custom';
 import { getParticipantPaths } from './utils/getParticipantPaths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
@@ -34,79 +36,36 @@ export interface ExtendedDailyParticipant
 /**
  * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
  */
-export const activeIdState = atom<string | null>({
-  key: RECOIL_PREFIX + 'active-id',
-  default: null,
-});
+export const activeIdState = atom<string | null>(null);
 
-export const localIdState = atom<string>({
-  key: RECOIL_PREFIX + 'local-id',
-  default: '',
-});
+export const localIdState = atom<string>('');
 
-export const localJoinDateState = atom<Date | null>({
-  key: RECOIL_PREFIX + 'local-joined-date',
-  default: null,
-});
+export const localJoinDateState = atom<Date | null>(null);
 
-export const participantIdsState = atom<string[]>({
-  key: RECOIL_PREFIX + 'participant-ids',
-  default: [],
-});
+export const participantIdsState = atom<string[]>([]);
 
-export const participantState = atomFamily<
-  ExtendedDailyParticipant | null,
-  string
->({
-  key: RECOIL_PREFIX + 'participant-state',
-  default: null,
-  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
-});
+export const participantState = atomFamily((_id: string) =>
+  atom<ExtendedDailyParticipant | null>(null)
+);
 
-export const participantsState = selector<ExtendedDailyParticipant[]>({
-  key: RECOIL_PREFIX + 'participants',
-  get: ({ get }) => {
-    const ids = get(participantIdsState);
-    const participants = ids
-      .map((id) => get(participantState(id)))
-      .filter(Boolean) as ExtendedDailyParticipant[];
-    return participants;
-  },
-  dangerouslyAllowMutability: true, // daily-js mutates track props (_managedByDaily, etc)
-});
+export const waitingParticipantsState = atom<string[]>([]);
 
-/**
- * Holds all participants in the waiting room.
- */
-export const waitingParticipantsState = atom<string[]>({
-  key: RECOIL_PREFIX + 'waiting-participants',
-  default: [],
-});
-
-/**
- * Holds each invidiual waiting participant's information.
- */
-export const waitingParticipantState = atomFamily<
-  DailyWaitingParticipant,
-  string
->({
-  key: RECOIL_PREFIX + 'waiting-participant',
-  default: {
+export const waitingParticipantState = atomFamily((id: string) =>
+  atom<DailyWaitingParticipant>({
     awaitingAccess: {
       level: 'full',
     },
-    id: '',
+    id,
     name: '',
-  },
-});
+  })
+);
 
-/**
- * Returns all waiting participant objects in an array.
- */
-export const allWaitingParticipantsSelector = equalSelector({
-  key: RECOIL_PREFIX + 'waitingParticipantsSelector',
+export const allWaitingParticipantsSelector = equalAtomFamily<
+  any[],
+  DailyWaitingParticipant | undefined
+>({
   equals: customDeepEqual,
-  get: ({ get }) => {
+  get: () => (get) => {
     const ids = get(waitingParticipantsState);
     return ids.map((id) => get(waitingParticipantState(id)));
   },
@@ -118,39 +77,28 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
   const daily = useDaily();
   const [initialized, setInitialized] = useState(false);
 
-  const initParticipants = useRecoilCallback(
-    ({ transact_UNSTABLE }) =>
-      (participants: DailyParticipantsObject) => {
-        transact_UNSTABLE(({ set }) => {
-          set(localIdState, participants.local.session_id);
-          const participantsArray = Object.values(participants);
-          const ids = participantsArray.map((p) => p.session_id);
-          set(participantIdsState, ids);
-          participantsArray.forEach((p) => {
-            set(participantState(p.session_id), p);
-            const paths = getParticipantPaths(p);
-            // Set list of property paths
-            set(participantPropertyPathsState(p.session_id), paths);
-            // Set all property path values
-            paths.forEach((property) => {
-              const [value] = resolveParticipantPaths(
-                p as ExtendedDailyParticipant,
-                [property]
-              );
-              set(
-                participantPropertyState({
-                  id: p.session_id,
-                  property,
-                }),
-                value
-              );
-            });
-          });
-          setInitialized(true);
+  const initParticipants = useAtomCallback(
+    useCallback((_get, set, participants: DailyParticipantsObject) => {
+      set(localIdState, participants.local.session_id);
+      const participantsArray = Object.values(participants);
+      const ids = participantsArray.map((p) => p.session_id);
+      set(participantIdsState, ids);
+      participantsArray.forEach((p) => {
+        set(participantState(p.session_id), p);
+        const paths = getParticipantPaths(p);
+        set(participantPropertyPathsState(p.session_id), paths);
+        paths.forEach((property) => {
+          const [value] = resolveParticipantPaths(
+            p as ExtendedDailyParticipant,
+            [property]
+          );
+          set(getParticipantPropertyAtom(p.session_id, property), value);
         });
-      },
-    []
+      });
+      setInitialized(true);
+    }, [])
   );
+
   /**
    * Initialize participants state based on daily.participants().
    * Retries every 100ms to initialize the state, until daily is ready.
@@ -177,13 +125,14 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
   useDailyEvent('access-state-updated', handleInitEvent, true);
   useDailyEvent(
     'joining-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        () => {
+    useAtomCallback(
+      useCallback(
+        (_get, set) => {
           set(localJoinDateState, new Date());
           handleInitEvent();
         },
-      [handleInitEvent]
+        [handleInitEvent]
+      )
     ),
     true
   );
@@ -201,17 +150,14 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
   /**
    * Reset stored participants, when meeting has ended.
    */
-  const handleCleanup = useRecoilCallback(
-    ({ reset, snapshot }) =>
-      async () => {
-        reset(localIdState);
-        reset(activeIdState);
-        const ids = await snapshot.getPromise(participantIdsState);
-        if (Array.isArray(ids))
-          ids.forEach((id) => reset(participantState(id)));
-        reset(participantIdsState);
-      },
-    []
+  const handleCleanup = useAtomCallback(
+    useCallback((get, set) => {
+      set(localIdState, '');
+      set(activeIdState, null);
+      const ids = get(participantIdsState);
+      ids.forEach((id) => participantState.remove(id));
+      set(participantIdsState, []);
+    }, [])
   );
   useDailyEvent('call-instance-destroyed', handleCleanup, true);
   useDailyEvent('left-meeting', handleCleanup, true);
@@ -223,147 +169,132 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
       'participant-updated',
       'participant-left',
     ],
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        (evts) => {
-          if (!evts.length) return;
-          transact_UNSTABLE(({ get, reset, set }) => {
-            evts.forEach((ev) => {
-              switch (ev.action) {
-                case 'active-speaker-change': {
-                  set(activeIdState, ev.activeSpeaker.peerId);
-                  set(participantState(ev.activeSpeaker.peerId), (prev) => {
-                    if (!prev) return null;
-                    return {
-                      ...prev,
-                      last_active: new Date(),
-                    };
-                  });
-                  break;
-                }
-                case 'participant-joined': {
-                  // Update list of ids
-                  set(participantIdsState, (prevIds) =>
-                    prevIds.includes(ev.participant.session_id)
-                      ? prevIds
-                      : [...prevIds, ev.participant.session_id]
-                  );
-                  // Store entire object
-                  set(
-                    participantState(ev.participant.session_id),
-                    ev.participant
-                  );
+    useAtomCallback(
+      useCallback((get, set, evts) => {
+        if (!evts.length) return;
+        evts.forEach((ev) => {
+          switch (ev.action) {
+            case 'active-speaker-change': {
+              set(activeIdState, ev.activeSpeaker.peerId);
+              set(participantState(ev.activeSpeaker.peerId), (prev) => {
+                if (!prev) return null;
+                return {
+                  ...prev,
+                  last_active: new Date(),
+                };
+              });
+              break;
+            }
+            case 'participant-joined': {
+              // Update list of ids
+              set(participantIdsState, (prevIds) =>
+                prevIds.includes(ev.participant.session_id)
+                  ? prevIds
+                  : [...prevIds, ev.participant.session_id]
+              );
+              // Store entire object
+              set(participantState(ev.participant.session_id), ev.participant);
 
-                  const paths = getParticipantPaths(ev.participant);
-                  // Set list of property paths
-                  set(
-                    participantPropertyPathsState(ev.participant.session_id),
-                    paths
-                  );
-                  // Set all property path values
-                  paths.forEach((property) => {
-                    const [value] = resolveParticipantPaths(
-                      ev.participant as ExtendedDailyParticipant,
-                      [property]
-                    );
-                    set(
-                      participantPropertyState({
-                        id: ev.participant.session_id,
-                        property,
-                      }),
-                      value
-                    );
-                  });
-                  break;
-                }
-                case 'participant-updated': {
-                  // Update entire object
-                  set(participantState(ev.participant.session_id), (prev) => ({
-                    ...prev,
-                    ...ev.participant,
-                  }));
-                  // Update local session_id
-                  if (ev.participant.local) {
-                    set(localIdState, (prevId) =>
-                      prevId !== ev.participant.session_id
-                        ? ev.participant.session_id
-                        : prevId
-                    );
-                  }
-
-                  const paths = getParticipantPaths(ev.participant);
-                  const oldPaths = get(
-                    participantPropertyPathsState(ev.participant.session_id)
-                  );
-                  // Set list of property paths
-                  set(
-                    participantPropertyPathsState(ev.participant.session_id),
-                    (prev) => (customDeepEqual(prev, paths) ? prev : paths)
-                  );
-                  // Reset old path values
-                  oldPaths
-                    .filter((p) => !paths.includes(p))
-                    .forEach((property) => {
-                      reset(
-                        participantPropertyState({
-                          id: ev.participant.session_id,
-                          property,
-                        })
-                      );
-                    });
-                  // Set all property path values
-                  paths.forEach((property) => {
-                    const [value] = resolveParticipantPaths(
-                      ev.participant as ExtendedDailyParticipant,
-                      [property]
-                    );
-                    set(
-                      participantPropertyState({
-                        id: ev.participant.session_id,
-                        property,
-                      }),
-                      (prev) => (customDeepEqual(prev, value) ? prev : value)
-                    );
-                  });
-                  break;
-                }
-                case 'participant-left': {
-                  // Remove from list of ids
-                  set(participantIdsState, (prevIds) =>
-                    prevIds.includes(ev.participant.session_id)
-                      ? [
-                          ...prevIds.filter(
-                            (id) => id !== ev.participant.session_id
-                          ),
-                        ]
-                      : prevIds
-                  );
-                  // Remove entire object
-                  reset(participantState(ev.participant.session_id));
-
-                  const oldPaths = get(
-                    participantPropertyPathsState(ev.participant.session_id)
-                  );
-                  // Remove property path values
-                  oldPaths.forEach((property) => {
-                    reset(
-                      participantPropertyState({
-                        id: ev.participant.session_id,
-                        property,
-                      })
-                    );
-                  });
-                  // Remove all property paths
-                  reset(
-                    participantPropertyPathsState(ev.participant.session_id)
-                  );
-                  break;
-                }
+              const paths = getParticipantPaths(ev.participant);
+              // Set list of property paths
+              set(
+                participantPropertyPathsState(ev.participant.session_id),
+                paths
+              );
+              // Set all property path values
+              paths.forEach((property) => {
+                const [value] = resolveParticipantPaths(
+                  ev.participant as ExtendedDailyParticipant,
+                  [property]
+                );
+                set(
+                  getParticipantPropertyAtom(
+                    ev.participant.session_id,
+                    property
+                  ),
+                  value
+                );
+              });
+              break;
+            }
+            case 'participant-updated': {
+              // Update entire object
+              set(participantState(ev.participant.session_id), (prev) => ({
+                ...prev,
+                ...ev.participant,
+              }));
+              // Update local session_id
+              if (ev.participant.local) {
+                set(localIdState, (prevId) =>
+                  prevId !== ev.participant.session_id
+                    ? ev.participant.session_id
+                    : prevId
+                );
               }
-            });
-          });
-        },
-      []
+
+              const paths = getParticipantPaths(ev.participant);
+              const oldPaths = get(
+                participantPropertyPathsState(ev.participant.session_id)
+              );
+              // Set list of property paths
+              set(
+                participantPropertyPathsState(ev.participant.session_id),
+                (prev) => (customDeepEqual(prev, paths) ? prev : paths)
+              );
+              // Reset old path values
+              oldPaths
+                .filter((p) => !paths.includes(p))
+                .forEach((property) => {
+                  set(
+                    getParticipantPropertyAtom(
+                      ev.participant.session_id,
+                      property
+                    ),
+                    null
+                  );
+                });
+              // Set all property path values
+              paths.forEach((property) => {
+                const [value] = resolveParticipantPaths(
+                  ev.participant as ExtendedDailyParticipant,
+                  [property]
+                );
+                set(
+                  getParticipantPropertyAtom(
+                    ev.participant.session_id,
+                    property
+                  ),
+                  (prev: any) => (customDeepEqual(prev, value) ? prev : value)
+                );
+              });
+              break;
+            }
+            case 'participant-left': {
+              // Remove from list of ids
+              set(participantIdsState, (prevIds) =>
+                prevIds.includes(ev.participant.session_id)
+                  ? prevIds.filter((id) => id !== ev.participant.session_id)
+                  : prevIds
+              );
+              // Remove entire object
+              participantState.remove(ev.participant.session_id);
+
+              const oldPaths = get(
+                participantPropertyPathsState(ev.participant.session_id)
+              );
+              // Remove property path values
+              oldPaths.forEach((property) => {
+                participantPropertyState.remove(
+                  getPropertyParam(ev.participant.session_id, property)
+                );
+              });
+              // Remove all property paths
+              participantPropertyPathsState.remove(ev.participant.session_id);
+              break;
+            }
+          }
+        });
+      }, [])
     ),
     100,
     true
@@ -375,41 +306,30 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
       'waiting-participant-updated',
       'waiting-participant-removed',
     ],
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        (evts) => {
-          transact_UNSTABLE(({ reset, set }) => {
-            evts.forEach((ev) => {
-              switch (ev.action) {
-                case 'waiting-participant-added':
-                  set(waitingParticipantsState, (wps) => {
-                    if (!wps.includes(ev.participant.id)) {
-                      return [...wps, ev.participant.id];
-                    }
-                    return wps;
-                  });
-                  set(
-                    waitingParticipantState(ev.participant.id),
-                    ev.participant
-                  );
-                  break;
-                case 'waiting-participant-updated':
-                  set(
-                    waitingParticipantState(ev.participant.id),
-                    ev.participant
-                  );
-                  break;
-                case 'waiting-participant-removed':
-                  set(waitingParticipantsState, (wps) =>
-                    wps.filter((wp) => wp !== ev.participant.id)
-                  );
-                  reset(waitingParticipantState(ev.participant.id));
-                  break;
-              }
-            });
-          });
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set, evts) => {
+        evts.forEach((ev) => {
+          switch (ev.action) {
+            case 'waiting-participant-added':
+              set(waitingParticipantsState, (wps) =>
+                wps.includes(ev.participant.id)
+                  ? wps
+                  : [...wps, ev.participant.id]
+              );
+              set(waitingParticipantState(ev.participant.id), ev.participant);
+              break;
+            case 'waiting-participant-updated':
+              set(waitingParticipantState(ev.participant.id), ev.participant);
+              break;
+            case 'waiting-participant-removed':
+              set(waitingParticipantsState, (wps) =>
+                wps.filter((wp) => wp !== ev.participant.id)
+              );
+              waitingParticipantState.remove(ev.participant.id);
+              break;
+          }
+        });
+      }, [])
     ),
     100,
     true

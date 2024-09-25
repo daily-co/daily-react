@@ -3,17 +3,13 @@ import {
   DailyEventObject,
   DailySendSettings,
 } from '@daily-co/daily-js';
+import { atom, useAtom } from 'jotai';
 import { useCallback, useDebugValue, useEffect } from 'react';
-import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
 
-import { RECOIL_PREFIX } from '../lib/constants';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
-const sendSettingsState = atom<DailySendSettings | null>({
-  key: RECOIL_PREFIX + 'send-settings',
-  default: null,
-});
+const sendSettingsState = atom<DailySendSettings | null>(null);
 
 interface Props {
   onSendSettingsUpdated?(ev: DailyEventObject<'send-settings-updated'>): void;
@@ -24,26 +20,24 @@ interface Props {
  */
 export const useSendSettings = ({ onSendSettingsUpdated }: Props = {}) => {
   const daily = useDaily();
-  const sendSettings = useRecoilValue(sendSettingsState);
+  const [sendSettings, setSendSettings] = useAtom(sendSettingsState);
 
   useDailyEvent(
     'send-settings-updated',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
-          set(sendSettingsState, ev.sendSettings);
-          onSendSettingsUpdated?.(ev);
-        },
-      [onSendSettingsUpdated]
+    useCallback(
+      (ev: DailyEventObject<'send-settings-updated'>) => {
+        setSendSettings(ev.sendSettings);
+        onSendSettingsUpdated?.(ev);
+      },
+      [onSendSettingsUpdated, setSendSettings]
     )
   );
 
-  const storeSendSettings = useRecoilCallback(
-    ({ set }) =>
-      (sendSettings: DailySendSettings | null) => {
-        set(sendSettingsState, sendSettings);
-      },
-    []
+  const storeSendSettings = useCallback(
+    (sendSettings: DailySendSettings | null) => {
+      setSendSettings(sendSettings);
+    },
+    [setSendSettings]
   );
 
   useEffect(() => {

@@ -2,11 +2,11 @@ import {
   DailyEventObjectAppMessage,
   DailyTranscriptionDeepgramOptions,
 } from '@daily-co/daily-js';
-import React from 'react';
-import { atom, useRecoilCallback } from 'recoil';
+import { atom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
+import React, { useCallback } from 'react';
 
 import { useDailyEvent } from './hooks/useDailyEvent';
-import { RECOIL_PREFIX } from './lib/constants';
 
 export interface Transcription {
   session_id: string;
@@ -46,13 +46,10 @@ interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
 }
 
 export const transcriptionState = atom<TranscriptionState>({
-  key: RECOIL_PREFIX + 'transcription',
-  default: {
-    isTranscribing: false,
-    model: 'general',
-    language: 'en',
-    transcriptions: [],
-  },
+  isTranscribing: false,
+  model: 'general',
+  language: 'en',
+  transcriptions: [],
 });
 
 export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
@@ -60,66 +57,68 @@ export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
 }) => {
   useDailyEvent(
     'transcription-started',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
-          set(transcriptionState, {
-            error: false,
-            isTranscribing: true,
-            transcriptionStartDate: new Date(),
-            transcriptions: [],
-            ...ev,
-          });
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        set(transcriptionState, {
+          error: false,
+          transcriptionStartDate: new Date(),
+          isTranscribing: true,
+          transcriptions: [],
+          endpointing: ev.endpointing,
+          extra: ev.extra,
+          includeRawResponse: ev.includeRawResponse,
+          instanceId: ev.instanceId,
+          language: ev.language,
+          model: ev.model,
+          profanity_filter: ev.profanity_filter,
+          punctuate: ev.punctuate,
+          redact: ev.redact,
+          startedBy: ev.startedBy,
+          tier: ev.tier,
+        });
+      }, [])
     )
   );
   useDailyEvent(
     'transcription-stopped',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev) => {
-          set(transcriptionState, (prevState) => ({
-            ...prevState,
-            updatedBy: ev?.updatedBy,
-            isTranscribing: false,
-          }));
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        set(transcriptionState, (prevState: TranscriptionState) => ({
+          ...prevState,
+          updatedBy: ev.updatedBy,
+          isTranscribing: false,
+        }));
+      }, [])
     )
   );
   useDailyEvent(
     'transcription-error',
-    useRecoilCallback(
-      ({ set }) =>
-        () => {
-          set(transcriptionState, (prevState) => ({
-            ...prevState,
-            error: true,
-            isTranscribing: false,
-          }));
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(transcriptionState, (prevState) => ({
+          ...prevState,
+          error: true,
+          isTranscribing: false,
+        }));
+      }, [])
     )
   );
   useDailyEvent(
     'left-meeting',
-    useRecoilCallback(
-      ({ set }) =>
-        () => {
-          set(transcriptionState, (prevState) => ({
-            ...prevState,
-            isTranscribing: false,
-          }));
-        },
-      []
+    useAtomCallback(
+      useCallback((_get, set) => {
+        set(transcriptionState, (prevState) => ({
+          ...prevState,
+          isTranscribing: false,
+        }));
+      }, [])
     )
   );
   useDailyEvent(
     'app-message',
-    useRecoilCallback(
-      ({ set }) =>
-        (ev: DailyEventObjectAppMessage<Transcription>) => {
+    useAtomCallback(
+      useCallback(
+        (_get, set, ev: DailyEventObjectAppMessage<Transcription>) => {
           if (ev?.fromId === 'transcription') {
             set(transcriptionState, (prevState) => ({
               ...prevState,
@@ -131,7 +130,8 @@ export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
             }));
           }
         },
-      []
+        []
+      )
     )
   );
 

@@ -1,5 +1,5 @@
+import { useAtomValue } from 'jotai';
 import { useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { localIdState } from '../DailyParticipants';
 
@@ -8,7 +8,7 @@ import { localIdState } from '../DailyParticipants';
  * if the local participant doesn't exist.
  */
 export const useLocalSessionId = () => {
-  const localId = useRecoilValue(localIdState);
+  const localId = useAtomValue(localIdState);
   useDebugValue(localId);
   return localId;
 };

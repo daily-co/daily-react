@@ -1,6 +1,6 @@
 import { DailyCall, DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { recordingState } from '../DailyRecordings';
 import { useDaily } from './useDaily';
@@ -20,7 +20,7 @@ export const useRecording = ({
   onRecordingStopped,
 }: UseRecordingArgs = {}) => {
   const daily = useDaily();
-  const state = useRecoilValue(recordingState);
+  const state = useAtomValue(recordingState);
 
   useDailyEvent(
     'recording-started',

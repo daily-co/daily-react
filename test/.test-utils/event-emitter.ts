@@ -9,9 +9,12 @@ import { mockEvent } from './mocks';
 
 export const emitStartedCamera = (callObject: DailyCall) => {
   // @ts-ignore
-  callObject.emit('started-camera', mockEvent({
-    action: 'started-camera',
-  }));
+  callObject.emit(
+    'started-camera',
+    mockEvent({
+      action: 'started-camera',
+    })
+  );
 };
 
 export const emitActiveSpeakerChange = (
@@ -19,12 +22,15 @@ export const emitActiveSpeakerChange = (
   peerId: string
 ) => {
   // @ts-ignore
-  callObject.emit('active-speaker-change', mockEvent({
-    action: 'active-speaker-change',
-    activeSpeaker: {
-      peerId,
-    },
-  }));
+  callObject.emit(
+    'active-speaker-change',
+    mockEvent({
+      action: 'active-speaker-change',
+      activeSpeaker: {
+        peerId,
+      },
+    })
+  );
 };
 
 export const emitTrackStarted = (
@@ -33,11 +39,14 @@ export const emitTrackStarted = (
   track: Partial<MediaStreamTrack>
 ) => {
   // @ts-ignore
-  callObject.emit('track-started', mockEvent({
-    action: 'track-started',
-    participant,
-    track,
-  }));
+  callObject.emit(
+    'track-started',
+    mockEvent({
+      action: 'track-started',
+      participant,
+      track,
+    })
+  );
 };
 
 export const emitParticipantLeft = (
@@ -45,10 +54,13 @@ export const emitParticipantLeft = (
   participant: Partial<DailyParticipant>
 ) => {
   // @ts-ignore
-  callObject.emit('participant-left', mockEvent({
-    action: 'participant-left',
-    participant,
-  }));
+  callObject.emit(
+    'participant-left',
+    mockEvent({
+      action: 'participant-left',
+      participant,
+    })
+  );
 };
 
 export const emitParticipantUpdated = (
@@ -56,10 +68,13 @@ export const emitParticipantUpdated = (
   participant: Partial<DailyParticipant>
 ) => {
   // @ts-ignore
-  callObject.emit('participant-updated', mockEvent({
-    action: 'participant-updated',
-    participant,
-  }));
+  callObject.emit(
+    'participant-updated',
+    mockEvent({
+      action: 'participant-updated',
+      participant,
+    })
+  );
 };
 
 export const emitParticipantJoined = (
@@ -67,10 +82,13 @@ export const emitParticipantJoined = (
   participant: Partial<DailyParticipant>
 ) => {
   // @ts-ignore
-  callObject.emit('participant-joined', mockEvent({
-    action: 'participant-joined',
-    participant,
-  }));
+  callObject.emit(
+    'participant-joined',
+    mockEvent({
+      action: 'participant-joined',
+      participant,
+    })
+  );
 };
 
 export const emitJoinedMeeting = (
@@ -78,17 +96,23 @@ export const emitJoinedMeeting = (
   participants: Record<string, Partial<DailyParticipant>>
 ) => {
   // @ts-ignore
-  callObject.emit('joined-meeting', mockEvent({
-    action: 'joined-meeting',
-    participants,
-  }));
+  callObject.emit(
+    'joined-meeting',
+    mockEvent({
+      action: 'joined-meeting',
+      participants,
+    })
+  );
 };
 
 export const emitLeftMeeting = (callObject: DailyCall) => {
   // @ts-ignore
-  callObject.emit('left-meeting', mockEvent({
-    action: 'left-meeting',
-  }));
+  callObject.emit(
+    'left-meeting',
+    mockEvent({
+      action: 'left-meeting',
+    })
+  );
 };
 
 export const emitTranscriptionStarted = (

@@ -1,6 +1,6 @@
 import { DailyEventObject } from '@daily-co/daily-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue, useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { activeIdState } from '../DailyParticipants';
 import { useDaily } from './useDaily';
@@ -27,7 +27,7 @@ export const useActiveParticipant = ({
   onActiveSpeakerChange,
 }: UseActiveParticipantArgs = {}) => {
   const daily = useDaily();
-  const recentActiveId = useRecoilValue(activeIdState);
+  const recentActiveId = useAtomValue(activeIdState);
   const [activeId, setActiveId] = useState('');
   const activeParticipant = useParticipant(activeId);
 

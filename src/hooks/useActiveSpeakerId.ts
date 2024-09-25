@@ -1,5 +1,5 @@
+import { useAtomValue } from 'jotai';
 import { useDebugValue, useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
 
 import { activeIdState } from '../DailyParticipants';
 import { useLocalSessionId } from './useLocalSessionId';
@@ -27,7 +27,7 @@ export const useActiveSpeakerId = ({
   ignoreLocal = false,
 }: UseActiveSpeakerIdArgs = {}) => {
   const localSessionId = useLocalSessionId();
-  const recentActiveId = useRecoilValue(activeIdState);
+  const recentActiveId = useAtomValue(activeIdState);
   const isIgnoredLocalId = ignoreLocal && recentActiveId === localSessionId;
   const isFilteredOut = !filter?.(recentActiveId);
   const isRecentIdRelevant = !isIgnoredLocalId && !isFilteredOut;

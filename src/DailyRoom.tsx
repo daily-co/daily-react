@@ -1,16 +1,13 @@
 import { DailyRoomInfo } from '@daily-co/daily-js';
-import React from 'react';
-import { atom, useRecoilCallback } from 'recoil';
+import { atom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
+import React, { useCallback } from 'react';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useMeetingState } from './hooks/useMeetingState';
-import { RECOIL_PREFIX } from './lib/constants';
 
-export const roomState = atom<DailyRoomInfo | null>({
-  key: RECOIL_PREFIX + 'room',
-  default: null,
-});
+export const roomState = atom<DailyRoomInfo | null>(null);
 
 export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
   children,
@@ -18,9 +15,9 @@ export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
   const daily = useDaily();
   const meetingState = useMeetingState();
 
-  const updateRoom = useRecoilCallback(
-    ({ set }) =>
-      async () => {
+  const updateRoom = useAtomCallback(
+    useCallback(
+      async (_get, set) => {
         if (!daily || meetingState === 'left-meeting') return;
         const room = await daily.room();
         if (room && 'id' in room) {
@@ -28,19 +25,21 @@ export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
         }
         return room;
       },
-    [daily, meetingState]
+      [daily, meetingState]
+    )
   );
 
   useDailyEvent('access-state-updated', updateRoom);
 
   useDailyEvent(
     'left-meeting',
-    useRecoilCallback(
-      ({ reset }) =>
-        () => {
-          reset(roomState);
+    useAtomCallback(
+      useCallback(
+        (_get, set) => () => {
+          set(roomState, null);
         },
-      []
+        []
+      )
     )
   );
 

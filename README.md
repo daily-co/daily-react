@@ -10,24 +10,23 @@ To get started with Daily React, include [`DailyProvider`](https://docs.daily.co
 import { DailyProvider } from '@daily-co/daily-react';
 
 function App({ roomUrl }) {
-  return (
-    <DailyProvider url={roomUrl}>
-      {/* … */}
-    </DailyProvider>
-  )
+  return <DailyProvider url={roomUrl}>{/* … */}</DailyProvider>;
 }
 ```
 
 Then in your application you can access Daily React:
 
 ```jsx
-import { useParticipantIds, useParticipantProperty } from '@daily-co/daily-react';
+import {
+  useParticipantIds,
+  useParticipantProperty,
+} from '@daily-co/daily-react';
 
 function ParticipantRow({ id }) {
   const [username, videoState, audioState] = useParticipantProperty(id, [
     'user_name',
     'tracks.video.state',
-    'tracks.audio.state'
+    'tracks.audio.state',
   ]);
 
   return (
@@ -36,20 +35,22 @@ function ParticipantRow({ id }) {
       <span>📷{videoState === 'playable' ? '✅' : '❌'}</span>
       <span>🎙️{audioState === 'playable' ? '✅' : '❌'}</span>
     </li>
-  )
+  );
 }
 
 function Participants() {
   const participantIds = useParticipantIds({
     filter: 'remote',
-    sort: 'user_name'
+    sort: 'user_name',
   });
 
   return (
     <ul>
-      {participantIds.map((id) => <ParticipantRow key={id} id={id} />)}
+      {participantIds.map((id) => (
+        <ParticipantRow key={id} id={id} />
+      ))}
     </ul>
-  )
+  );
 }
 ```
 
@@ -60,16 +61,16 @@ Learn more about Daily React by reading our docs at https://docs.daily.co/refere
 The `daily-react` package is published to [npm](https://npmjs.com). To install the latest stable version, run one of the following commands:
 
 ```bash
-npm install @daily-co/daily-react @daily-co/daily-js recoil
+npm install @daily-co/daily-react @daily-co/daily-js jotai
 
 # or with yarn
 
-yarn add @daily-co/daily-react @daily-co/daily-js recoil
+yarn add @daily-co/daily-react @daily-co/daily-js jotai
 ```
 
-Notice that `@daily-co/daily-react` requires [@daily-co/daily-js](https://www.npmjs.com/package/@daily-co/daily-js) and [recoil](https://www.npmjs.com/package/recoil) as peer dependencies.
+Notice that `@daily-co/daily-react` requires [@daily-co/daily-js](https://www.npmjs.com/package/@daily-co/daily-js) and [jotai](https://www.npmjs.com/package/jotai) as peer dependencies.
 
-`@daily-co/daily-react` manages its internal state using `recoil`. You can read more about `recoil` in their [Motivation](https://recoiljs.org/docs/introduction/motivation) statement.
+`@daily-co/daily-react` manages its internal state using `jotai`. You can read more about `jotai` in their [Introduction](https://jotai.org).
 
 ## Tests
 

@@ -2,13 +2,13 @@ import {
   DailyCameraErrorObject,
   DailyCameraErrorType,
 } from '@daily-co/daily-js';
+import { atom } from 'jotai';
+import { useAtomCallback } from 'jotai/utils';
 import React, { useCallback } from 'react';
-import { atom, useRecoilCallback } from 'recoil';
 
 import { DailyDevicesContext } from './DailyDevicesContext';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
-import { RECOIL_PREFIX } from './lib/constants';
 
 type GeneralState =
   | 'idle'
@@ -30,31 +30,13 @@ export interface StatefulDevice {
   state: DeviceState;
 }
 
-export const generalCameraState = atom<GeneralState>({
-  key: RECOIL_PREFIX + 'general-camera-state',
-  default: 'idle',
-});
-export const generalMicrophoneState = atom<GeneralState>({
-  key: RECOIL_PREFIX + 'general-microphone-state',
-  default: 'idle',
-});
-export const cameraDevicesState = atom<StatefulDevice[]>({
-  key: RECOIL_PREFIX + 'camera-devices',
-  default: [],
-});
-export const microphoneDevicesState = atom<StatefulDevice[]>({
-  key: RECOIL_PREFIX + 'microphone-devices',
-  default: [],
-});
-export const speakerDevicesState = atom<StatefulDevice[]>({
-  key: RECOIL_PREFIX + 'speaker-devices',
-  default: [],
-});
+export const generalCameraState = atom<GeneralState>('idle');
+export const generalMicrophoneState = atom<GeneralState>('idle');
+export const cameraDevicesState = atom<StatefulDevice[]>([]);
+export const microphoneDevicesState = atom<StatefulDevice[]>([]);
+export const speakerDevicesState = atom<StatefulDevice[]>([]);
 export const lastCameraErrorState =
-  atom<DailyCameraErrorObject<DailyCameraErrorType> | null>({
-    key: RECOIL_PREFIX + 'last-camera-error',
-    default: null,
-  });
+  atom<DailyCameraErrorObject<DailyCameraErrorType> | null>(null);
 
 export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
@@ -65,9 +47,9 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
    * Refreshes list of available devices using enumerateDevices.
    * Previous device states are kept in place, otherwise states are initialized as 'granted'.
    */
-  const refreshDevices = useRecoilCallback(
-    ({ transact_UNSTABLE }) =>
-      async () => {
+  const refreshDevices = useAtomCallback(
+    useCallback(
+      async (_get, set) => {
         /**
          * Check for legacy browsers.
          */
@@ -75,10 +57,8 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           typeof navigator?.mediaDevices?.getUserMedia === 'undefined' ||
           typeof navigator?.mediaDevices?.enumerateDevices === 'undefined'
         ) {
-          transact_UNSTABLE(({ set }) => {
-            set(generalCameraState, 'not-supported');
-            set(generalMicrophoneState, 'not-supported');
-          });
+          set(generalCameraState, 'not-supported');
+          set(generalMicrophoneState, 'not-supported');
           return;
         }
 
@@ -119,48 +99,43 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
             return 0;
           };
 
-          transact_UNSTABLE(({ set }) => {
-            set(cameraDevicesState, (prevCams) =>
-              cams
-                .filter(Boolean)
-                .map<StatefulDevice>((d) => mapDevice(camera, d, prevCams))
-                .sort(sortDeviceByLabel)
-            );
-            set(microphoneDevicesState, (prevMics) =>
-              mics
-                .filter(Boolean)
-                .map<StatefulDevice>((d) => mapDevice(mic, d, prevMics))
-                .sort(sortDeviceByLabel)
-            );
-            set(speakerDevicesState, (prevSpeakers) =>
-              speakers
-                .filter(Boolean)
-                .map<StatefulDevice>((d) => mapDevice(speaker, d, prevSpeakers))
-                .sort(sortDeviceByLabel)
-            );
-          });
+          set(cameraDevicesState, (prevCams) =>
+            cams
+              .filter(Boolean)
+              .map<StatefulDevice>((d) => mapDevice(camera, d, prevCams))
+              .sort(sortDeviceByLabel)
+          );
+          set(microphoneDevicesState, (prevMics) =>
+            mics
+              .filter(Boolean)
+              .map<StatefulDevice>((d) => mapDevice(mic, d, prevMics))
+              .sort(sortDeviceByLabel)
+          );
+          set(speakerDevicesState, (prevSpeakers) =>
+            speakers
+              .filter(Boolean)
+              .map<StatefulDevice>((d) => mapDevice(speaker, d, prevSpeakers))
+              .sort(sortDeviceByLabel)
+          );
         } catch (e) {
-          transact_UNSTABLE(({ set }) => {
-            set(generalCameraState, 'not-supported');
-            set(generalMicrophoneState, 'not-supported');
-          });
+          set(generalCameraState, 'not-supported');
+          set(generalMicrophoneState, 'not-supported');
         }
       },
-    [daily]
+      [daily]
+    )
   );
 
   /**
    * Updates general and specific device states, based on blocked status.
    */
-  const updateDeviceStates = useRecoilCallback(
-    ({ set, snapshot, transact_UNSTABLE }) =>
-      async () => {
+  const updateDeviceStates = useAtomCallback(
+    useCallback(
+      async (get, set) => {
         if (!daily) return;
 
-        const currentCamState = await snapshot.getPromise(generalCameraState);
-        const currentMicState = await snapshot.getPromise(
-          generalMicrophoneState
-        );
+        const currentCamState = get(generalCameraState);
+        const currentMicState = get(generalMicrophoneState);
 
         const participants = daily.participants();
         // Guard against potentially uninitialized local participant
@@ -207,14 +182,12 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
           Boolean(tracks.audio.off?.byUser);
 
         if (tracks.audio?.blocked?.byDeviceInUse) {
-          transact_UNSTABLE(({ set }) => {
-            set(generalMicrophoneState, 'in-use');
-            set(microphoneDevicesState, (mics) =>
-              mics.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'in-use' } : m
-              )
-            );
-          });
+          set(generalMicrophoneState, 'in-use');
+          set(microphoneDevicesState, (mics) =>
+            mics.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'in-use' } : m
+            )
+          );
         } else if (tracks.audio?.blocked?.byDeviceMissing) {
           set(generalMicrophoneState, 'not-found');
         } else if (
@@ -227,25 +200,21 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
         } else if (initialMicOff) {
           set(generalMicrophoneState, 'idle');
         } else {
-          transact_UNSTABLE(({ set }) => {
-            set(generalMicrophoneState, 'granted');
-            set(microphoneDevicesState, (mics) =>
-              mics.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'granted' } : m
-              )
-            );
-          });
+          set(generalMicrophoneState, 'granted');
+          set(microphoneDevicesState, (mics) =>
+            mics.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'granted' } : m
+            )
+          );
         }
 
         if (tracks.video?.blocked?.byDeviceInUse) {
-          transact_UNSTABLE(({ set }) => {
-            set(generalCameraState, 'in-use');
-            set(cameraDevicesState, (cams) =>
-              cams.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'in-use' } : m
-              )
-            );
-          });
+          set(generalCameraState, 'in-use');
+          set(cameraDevicesState, (cams) =>
+            cams.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'in-use' } : m
+            )
+          );
         } else if (tracks.video?.blocked?.byDeviceMissing) {
           set(generalCameraState, 'not-found');
         } else if (
@@ -258,18 +227,17 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
         } else if (initialCamOff) {
           set(generalCameraState, 'idle');
         } else {
-          transact_UNSTABLE(({ set }) => {
-            set(generalCameraState, 'granted');
-            set(cameraDevicesState, (cams) =>
-              cams.map<StatefulDevice>((m) =>
-                m.selected ? { ...m, state: 'granted' } : m
-              )
-            );
-          });
+          set(generalCameraState, 'granted');
+          set(cameraDevicesState, (cams) =>
+            cams.map<StatefulDevice>((m) =>
+              m.selected ? { ...m, state: 'granted' } : m
+            )
+          );
         }
         refreshDevices();
       },
-    [daily, refreshDevices]
+      [daily, refreshDevices]
+    )
   );
 
   useDailyEvent(
@@ -288,56 +256,52 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
 
   useDailyEvent(
     'camera-error',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        (ev) => {
-          transact_UNSTABLE(({ set }) => {
-            set(lastCameraErrorState, ev.error);
-            switch (ev.error?.type) {
-              case 'cam-in-use':
-                set(generalCameraState, 'in-use');
-                break;
-              case 'mic-in-use':
-                set(generalMicrophoneState, 'in-use');
-                break;
-              case 'cam-mic-in-use':
-                set(generalCameraState, 'in-use');
-                set(generalMicrophoneState, 'in-use');
-                break;
-              case 'not-found':
-                if (ev.error?.missingMedia.includes('video'))
-                  set(generalCameraState, 'not-found');
-                if (ev.error?.missingMedia.includes('audio'))
-                  set(generalMicrophoneState, 'not-found');
-                break;
-              case 'permissions':
-                if (ev.error?.blockedMedia.includes('video'))
-                  set(generalCameraState, 'blocked');
-                if (ev.error?.blockedMedia.includes('audio'))
-                  set(generalMicrophoneState, 'blocked');
-                break;
-              case 'constraints':
-                if (ev.error?.reason === 'invalid') {
-                  set(generalCameraState, 'constraints-invalid');
-                  set(generalMicrophoneState, 'constraints-invalid');
-                } else if (ev.error?.reason === 'none-specified') {
-                  set(generalCameraState, 'constraints-none-specified');
-                  set(generalMicrophoneState, 'constraints-none-specified');
-                }
-                break;
-              case 'undefined-mediadevices':
-                set(generalCameraState, 'undefined-mediadevices');
-                set(generalMicrophoneState, 'undefined-mediadevices');
-                break;
-              case 'unknown':
-              default:
-                set(generalCameraState, 'unknown');
-                set(generalMicrophoneState, 'unknown');
-                break;
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        set(lastCameraErrorState, ev.error);
+        switch (ev.error?.type) {
+          case 'cam-in-use':
+            set(generalCameraState, 'in-use');
+            break;
+          case 'mic-in-use':
+            set(generalMicrophoneState, 'in-use');
+            break;
+          case 'cam-mic-in-use':
+            set(generalCameraState, 'in-use');
+            set(generalMicrophoneState, 'in-use');
+            break;
+          case 'not-found':
+            if (ev.error?.missingMedia.includes('video'))
+              set(generalCameraState, 'not-found');
+            if (ev.error?.missingMedia.includes('audio'))
+              set(generalMicrophoneState, 'not-found');
+            break;
+          case 'permissions':
+            if (ev.error?.blockedMedia.includes('video'))
+              set(generalCameraState, 'blocked');
+            if (ev.error?.blockedMedia.includes('audio'))
+              set(generalMicrophoneState, 'blocked');
+            break;
+          case 'constraints':
+            if (ev.error?.reason === 'invalid') {
+              set(generalCameraState, 'constraints-invalid');
+              set(generalMicrophoneState, 'constraints-invalid');
+            } else if (ev.error?.reason === 'none-specified') {
+              set(generalCameraState, 'constraints-none-specified');
+              set(generalMicrophoneState, 'constraints-none-specified');
             }
-          });
-        },
-      []
+            break;
+          case 'undefined-mediadevices':
+            set(generalCameraState, 'undefined-mediadevices');
+            set(generalMicrophoneState, 'undefined-mediadevices');
+            break;
+          case 'unknown':
+          default:
+            set(generalCameraState, 'unknown');
+            set(generalMicrophoneState, 'unknown');
+            break;
+        }
+      }, [])
     )
   );
 
@@ -346,16 +310,15 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
    */
   useDailyEvent(
     'started-camera',
-    useRecoilCallback(
-      ({ transact_UNSTABLE }) =>
-        () => {
-          transact_UNSTABLE(({ set }) => {
-            set(generalCameraState, 'granted');
-            set(generalMicrophoneState, 'granted');
-          });
+    useAtomCallback(
+      useCallback(
+        (_get, set) => {
+          set(generalCameraState, 'granted');
+          set(generalMicrophoneState, 'granted');
           updateDeviceStates();
         },
-      [updateDeviceStates]
+        [updateDeviceStates]
+      )
     )
   );
 
