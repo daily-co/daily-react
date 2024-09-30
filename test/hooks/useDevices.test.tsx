@@ -7,8 +7,8 @@ import Daily, {
   DailyEventObjectSelectedDevicesUpdated,
   DailyParticipant,
 } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { StatefulDevice } from '../../src/DailyDevices';
@@ -138,24 +138,24 @@ describe('useDevices', () => {
     it('calling refreshDevices updates lists of devices and sets state to granted', async () => {
       const devices: MediaDeviceInfo[] = [
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audiooutput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'videoinput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
       ];
@@ -196,36 +196,36 @@ describe('useDevices', () => {
     it('devices are sorted by label but default device is first', async () => {
       const devices: MediaDeviceInfo[] = [
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
           label: 'Bluetooth mic',
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
           label: 'Chaos headset',
           toJSON: jest.fn(),
         },
         {
           deviceId: 'default',
-          groupId: faker.random.alphaNumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
           label: 'Default - Internal mic',
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
           label: 'Chaos headset',
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
           label: 'A microphone',
           toJSON: jest.fn(),
@@ -265,24 +265,24 @@ describe('useDevices', () => {
     it('returns currently selected devices', async () => {
       const devices: MediaDeviceInfo[] = [
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audioinput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'audiooutput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
         {
-          deviceId: faker.random.alphaNumeric(12),
-          groupId: faker.random.alphaNumeric(12),
+          deviceId: faker.string.alphanumeric(12),
+          groupId: faker.string.alphanumeric(12),
           kind: 'videoinput',
-          label: faker.random.words(),
+          label: faker.word.words(),
           toJSON: jest.fn(),
         },
       ];
@@ -754,8 +754,8 @@ describe('useDevices', () => {
           };
           const microphones: MediaDeviceInfo[] = [
             {
-              deviceId: faker.random.alphaNumeric(12),
-              groupId: faker.random.alphaNumeric(12),
+              deviceId: faker.string.alphanumeric(12),
+              groupId: faker.string.alphanumeric(12),
               kind: 'audioinput',
               label: 'Microphone',
               toJSON: jest.fn(),
@@ -830,8 +830,8 @@ describe('useDevices', () => {
           };
           const microphones: MediaDeviceInfo[] = [
             {
-              deviceId: faker.random.alphaNumeric(12),
-              groupId: faker.random.alphaNumeric(12),
+              deviceId: faker.string.alphanumeric(12),
+              groupId: faker.string.alphanumeric(12),
               kind: 'audioinput',
               label: 'Microphone',
               toJSON: jest.fn(),
@@ -909,8 +909,8 @@ describe('useDevices', () => {
           };
           const cameras: MediaDeviceInfo[] = [
             {
-              deviceId: faker.random.alphaNumeric(12),
-              groupId: faker.random.alphaNumeric(12),
+              deviceId: faker.string.alphanumeric(12),
+              groupId: faker.string.alphanumeric(12),
               kind: 'videoinput',
               label: 'Camera',
               toJSON: jest.fn(),
@@ -985,8 +985,8 @@ describe('useDevices', () => {
           };
           const cameras: MediaDeviceInfo[] = [
             {
-              deviceId: faker.random.alphaNumeric(12),
-              groupId: faker.random.alphaNumeric(12),
+              deviceId: faker.string.alphanumeric(12),
+              groupId: faker.string.alphanumeric(12),
               kind: 'videoinput',
               label: 'Camera',
               toJSON: jest.fn(),
@@ -1044,7 +1044,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const id = faker.random.alphaNumeric(12);
+        const id = faker.string.alphanumeric(12);
         act(() => {
           result.current.setCamera(id);
         });
@@ -1060,7 +1060,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const id = faker.random.alphaNumeric(12);
+        const id = faker.string.alphanumeric(12);
         act(() => {
           result.current.setMicrophone(id);
         });
@@ -1076,7 +1076,7 @@ describe('useDevices', () => {
         const { result } = renderHook(() => useDevices(), {
           wrapper: createWrapper(daily),
         });
-        const id = faker.random.alphaNumeric(12);
+        const id = faker.string.alphanumeric(12);
         act(() => {
           result.current.setSpeaker(id);
         });

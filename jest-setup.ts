@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 class MediaStream {
   active: boolean;
@@ -9,7 +9,7 @@ class MediaStream {
 
   constructor(tracks: MediaStreamTrack[] = [], id?: string) {
     this.tracks = tracks;
-    this.id = id ?? faker.datatype.uuid();
+    this.id = id ?? faker.string.uuid();
     this.active = true;
   }
 

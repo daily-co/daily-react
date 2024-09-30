@@ -6,8 +6,8 @@ import Daily, {
   DailyEventObjectReceiveSettingsUpdated,
   DailyReceiveSettings,
 } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -136,7 +136,7 @@ describe('useReceiveSettings', () => {
   });
   it('receive-settings-updated event updates returned receiveSettings (id)', async () => {
     const daily = Daily.createCallObject();
-    const id = faker.datatype.uuid();
+    const id = faker.string.uuid();
     const { result } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
     });
@@ -171,7 +171,7 @@ describe('useReceiveSettings', () => {
   });
   it('returns baseSettings in case id is not set', async () => {
     const daily = Daily.createCallObject();
-    const id = faker.datatype.uuid();
+    const id = faker.string.uuid();
     const { result } = renderHook(() => useReceiveSettings({ id }), {
       wrapper: createWrapper(daily),
     });

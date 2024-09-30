@@ -1,8 +1,8 @@
 /// <reference types="@types/jest" />
 
 import Daily, { DailyCall, DailyRoomInfo } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyProvider } from '../../src/DailyProvider';
@@ -59,8 +59,8 @@ describe('useRoom', () => {
     const room: DailyRoomInfo = {
       config: {},
       domainConfig: {},
-      id: faker.datatype.uuid(),
-      name: faker.random.alphaNumeric(),
+      id: faker.string.uuid(),
+      name: faker.string.alphanumeric(),
       tokenConfig: {},
     };
     (daily.room as jest.Mock<Promise<DailyRoomInfo>>).mockImplementation(() =>

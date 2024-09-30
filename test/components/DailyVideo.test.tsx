@@ -2,9 +2,9 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import Daily, { DailyCall } from '@daily-co/daily-js';
+import { faker } from '@faker-js/faker';
 import { act, render, waitFor } from '@testing-library/react';
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
-import faker from 'faker';
 import React from 'react';
 
 import { DailyVideo } from '../../src/components/DailyVideo';
@@ -14,7 +14,7 @@ import {
   emitParticipantUpdated,
 } from '../.test-utils/event-emitter';
 
-const localSessionId = faker.datatype.uuid();
+const localSessionId = faker.string.uuid();
 
 jest.mock('../../src/hooks/useLocalSessionId', () => ({
   useLocalSessionId: () => localSessionId,
@@ -35,7 +35,7 @@ const createWrapper =
 describe('DailyVideo', () => {
   it('renders <video> tag with expected attributes', () => {
     const Wrapper = createWrapper();
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const { container } = render(
       <Wrapper>
         <DailyVideo sessionId={sessionId} type="video" />
@@ -50,7 +50,7 @@ describe('DailyVideo', () => {
   });
   it('renders custom attributes to <video> tag', () => {
     const Wrapper = createWrapper();
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const attributes = {
       id: 'customId',
       'data-custom': 'value',
@@ -68,7 +68,7 @@ describe('DailyVideo', () => {
   it('assigns correct video track to <video> tag', async () => {
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
     (callObject.participants as jest.Mock).mockImplementation(() => ({
       [sessionId]: {
@@ -114,7 +114,7 @@ describe('DailyVideo', () => {
   it('renders staged subscription in data-subscribed attribute', async () => {
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
     (callObject.participants as jest.Mock).mockImplementation(() => ({
       [sessionId]: {
@@ -160,7 +160,7 @@ describe('DailyVideo', () => {
   it('calls onResize callback with video dimensions', async () => {
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const track = new FakeMediaStreamTrack({ kind: 'video' });
     (callObject.participants as jest.Mock).mockImplementation(() => ({
       [sessionId]: {
@@ -217,7 +217,7 @@ describe('DailyVideo', () => {
   it('flips video via CSS when mirrored', () => {
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
-    const sessionId = faker.datatype.uuid();
+    const sessionId = faker.string.uuid();
     const { container } = render(
       <Wrapper>
         <DailyVideo mirror sessionId={sessionId} type="video" />
