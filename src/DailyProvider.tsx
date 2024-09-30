@@ -20,16 +20,21 @@ import { DailyRoom } from './DailyRoom';
 import { DailyTranscriptions } from './DailyTranscriptions';
 import { useCallObject } from './hooks/useCallObject';
 
-type Props =
+type BaseProps =
   | DailyFactoryOptions
   | {
       callObject: DailyCall | null;
     };
 
+type Props = BaseProps & {
+  jotaiStore?: React.ComponentProps<typeof Provider>['store'];
+};
+
 type EventsMap = Partial<Record<DailyEvent, Map<number, Function>>>;
 
 export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   children,
+  jotaiStore,
   ...props
 }) => {
   const eventsMap = useRef<EventsMap>({});
@@ -126,7 +131,7 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
   );
 
   return (
-    <Provider>
+    <Provider store={jotaiStore}>
       <DailyContext.Provider value={callObject}>
         <DailyEventContext.Provider value={{ on, off }}>
           <DailyRoom>
