@@ -34,7 +34,8 @@
   },
   "peerDependencies": {
     "@daily-co/daily-js": ">=0.68.0 <1",
-    "react": ">=16.13.1"
+    "react": ">=16.13.1",
+    "jotai":">=2.9.3"
   },
   "husky": {
     "hooks": {
