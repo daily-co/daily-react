@@ -17,7 +17,7 @@ import {
   participantPropertyState,
 } from './hooks/useParticipantProperty';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
-import { customDeepEqual } from './lib/customDeepEqual';
+import { arraysDeepEqual, customDeepEqual } from './lib/customDeepEqual';
 import { equalAtomFamily } from './lib/jotai-custom';
 import { getParticipantPaths } from './utils/getParticipantPaths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
@@ -64,7 +64,7 @@ export const allWaitingParticipantsSelector = equalAtomFamily<
   any[],
   DailyWaitingParticipant | undefined
 >({
-  equals: customDeepEqual,
+  equals: arraysDeepEqual,
   get: () => (get) => {
     const ids = get(waitingParticipantsState);
     return ids.map((id) => get(waitingParticipantState(id)));

@@ -3,7 +3,7 @@ import { atomFamily } from 'jotai/utils';
 import { useDebugValue } from 'react';
 
 import { ExtendedDailyParticipant } from '../DailyParticipants';
-import { customDeepEqual } from '../lib/customDeepEqual';
+import { arraysDeepEqual } from '../lib/customDeepEqual';
 import { equalAtomFamily } from '../lib/jotai-custom';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
@@ -28,34 +28,32 @@ export const getParticipantPropertyAtom = (
 /**
  * Stores all property paths for a given participant.
  */
-export const participantPropertyPathsState = atomFamily(
-  (_id: string) => atom<Paths<ExtendedDailyParticipant>[]>([]),
-  customDeepEqual
+export const participantPropertyPathsState = atomFamily((_id: string) =>
+  atom<Paths<ExtendedDailyParticipant>[]>([])
 );
 
 /**
  * Stores resolved values for each participant and property path.
  */
-export const participantPropertyState = atomFamily(
-  (_param: string) => atom<any>(null),
-  customDeepEqual
+export const participantPropertyState = atomFamily((_param: string) =>
+  atom<any>(null)
 );
 
 /**
  * Stores resolved values for each participant and property path.
  */
 const participantPropertiesState = equalAtomFamily<any[], string>({
-  equals: customDeepEqual,
+  equals: arraysDeepEqual,
   get: (param: string) => (get) => {
     const [id, paths] = param.split(DELIM);
     const properties = paths.split(PATHS_DELIM);
-    return properties.map((path) =>
-      get(
-        participantPropertyState(
-          getPropertyParam(id, path as Paths<ExtendedDailyParticipant>)
-        )
-      )
-    );
+    return properties.map((path) => {
+      const propertyAtom = getParticipantPropertyAtom(
+        id,
+        path as Paths<ExtendedDailyParticipant>
+      );
+      return get(propertyAtom);
+    });
   },
 });
 

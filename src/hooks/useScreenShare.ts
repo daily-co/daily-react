@@ -6,7 +6,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { useCallback, useDebugValue } from 'react';
 
-import { customDeepEqual } from '../lib/customDeepEqual';
+import { arraysDeepEqual } from '../lib/customDeepEqual';
 import { equalAtomFamily } from '../lib/jotai-custom';
 import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
@@ -26,7 +26,7 @@ export interface ScreenShare {
 }
 
 const screenSharesState = equalAtomFamily<ScreenShare[], void>({
-  equals: customDeepEqual,
+  equals: arraysDeepEqual,
   get: () => (get) => {
     const screenIds = get(
       participantIdsFilteredAndSortedState(

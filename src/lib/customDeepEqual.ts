@@ -5,7 +5,16 @@
 export function customDeepEqual(a: any, b: any): boolean {
   if (a === b) return true;
 
-  // Handle special case for MediaStream
+  // Handle arrays separately
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!customDeepEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+
+  // Handle specific cases like MediaStream, MediaStreamTrack, Date, etc.
   if (a instanceof MediaStream && b instanceof MediaStream) {
     return (
       a.id === b.id &&
@@ -32,39 +41,24 @@ export function customDeepEqual(a: any, b: any): boolean {
     return a.source === b.source && a.flags === b.flags;
   }
 
-  // Handle special case for Set
+  // Handle Set comparisons
   if (a instanceof Set && b instanceof Set) {
-    if (a.size !== b.size) {
-      return false;
-    }
-
-    for (const value of a.values()) {
-      if (!b.has(value)) {
-        return false;
-      }
-    }
-
-    return true;
+    if (a.size !== b.size) return false;
+    const arrA = Array.from(a).sort();
+    const arrB = Array.from(b).sort();
+    return arrA.every((val, idx) => customDeepEqual(val, arrB[idx]));
   }
 
-  // Handle special case for Map
+  // Handle Map comparisons
   if (a instanceof Map && b instanceof Map) {
-    if (a.size !== b.size) {
-      return false;
-    }
+    if (a.size !== b.size) return false;
     for (const [key, value] of a.entries()) {
-      if (!b.has(key)) {
-        return false;
-      }
-      if (!customDeepEqual(value, b.get(key))) {
-        return false;
-      }
+      if (!b.has(key) || !customDeepEqual(value, b.get(key))) return false;
     }
-
     return true;
   }
 
-  // If a or b are not objects or null, they can't be deeply equal
+  // Primitive types and null checks
   if (
     typeof a !== 'object' ||
     a === null ||
@@ -74,23 +68,50 @@ export function customDeepEqual(a: any, b: any): boolean {
     return false;
   }
 
-  // Get the keys of a and b. This handles both arrays and objects, since arrays are technically objects.
-  let keysA = Object.keys(a);
-  let keysB = Object.keys(b);
-
-  // If the number of keys are different, the objects are not equal
+  // Generic object handling
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
   if (keysA.length !== keysB.length) return false;
 
-  for (let key of keysA) {
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
     if (
-      // If key exists in a, but not in b -> not equal
-      !(key in b) ||
-      // Both keys exist in both object -> run nested equality check
+      !Object.prototype.hasOwnProperty.call(b, key) ||
       !customDeepEqual(a[key], b[key])
-    )
+    ) {
       return false;
+    }
   }
 
   // All keys and values match -> the objects are deeply equal
+  return true;
+}
+
+/**
+ * Comparison function optimized for comparing arrays.
+ */
+export function arraysDeepEqual(a: any[], b: any[]) {
+  // Check for reference equality
+  if (a === b) return true;
+
+  // Check if both arrays are of the same length
+  if (a.length !== b.length) return false;
+
+  // Compare each element in the array
+  for (let i = 0; i < a.length; i++) {
+    const valueA = a[i];
+    const valueB = b[i];
+
+    const isComplexTypeA = valueA !== null && typeof valueA === 'object';
+    const isComplexTypeB = valueB !== null && typeof valueB === 'object';
+
+    // Use customDeepEqual only if either value is a complex type
+    if (isComplexTypeA || isComplexTypeB) {
+      if (!customDeepEqual(valueA, valueB)) return false;
+    } else if (valueA !== valueB) {
+      return false;
+    }
+  }
+
   return true;
 }
