@@ -47,13 +47,11 @@ const participantPropertiesState = equalAtomFamily<any[], string>({
   get: (param: string) => (get) => {
     const [id, paths] = param.split(DELIM);
     const properties = paths.split(PATHS_DELIM);
-    return properties.map((path) => {
-      const propertyAtom = getParticipantPropertyAtom(
-        id,
-        path as Paths<ExtendedDailyParticipant>
-      );
-      return get(propertyAtom);
-    });
+    return properties.map((path) =>
+      get(
+        getParticipantPropertyAtom(id, path as Paths<ExtendedDailyParticipant>)
+      )
+    );
   },
 });
 
