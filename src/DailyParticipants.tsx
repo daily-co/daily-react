@@ -219,52 +219,60 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
             }
             case 'participant-updated': {
               // Update entire object
-              set(participantState(ev.participant.session_id), (prev) => ({
-                ...prev,
-                ...ev.participant,
-              }));
+              set(participantState(ev.participant.session_id), ev.participant);
               // Update local session_id
               if (ev.participant.local) {
-                set(localIdState, (prevId) =>
-                  prevId !== ev.participant.session_id
-                    ? ev.participant.session_id
-                    : prevId
-                );
+                set(localIdState, ev.participant.session_id);
               }
 
               const paths = getParticipantPaths(ev.participant);
               const oldPaths = get(
                 participantPropertyPathsState(ev.participant.session_id)
               );
+              const pathsChanged =
+                paths.length !== oldPaths.length ||
+                paths.some((path) => !oldPaths.includes(path));
               // Set list of property paths
-              set(
-                participantPropertyPathsState(ev.participant.session_id),
-                (prev) => (customDeepEqual(prev, paths) ? prev : paths)
-              );
-              // Reset old path values
-              oldPaths
-                .filter((p) => !paths.includes(p))
-                .forEach((property) => {
-                  set(
-                    getParticipantPropertyAtom(
-                      ev.participant.session_id,
-                      property
-                    ),
-                    null
-                  );
-                });
-              // Set all property path values
-              paths.forEach((property) => {
-                const [value] = resolveParticipantPaths(
-                  ev.participant as ExtendedDailyParticipant,
-                  [property]
+              if (pathsChanged) {
+                set(
+                  participantPropertyPathsState(ev.participant.session_id),
+                  paths
                 );
+              }
+
+              // Create a Set of oldPaths for quick lookup
+              const oldPathSet = new Set(oldPaths);
+
+              // Resolve all path values in one call
+              const resolvedValues = resolveParticipantPaths(
+                ev.participant as ExtendedDailyParticipant,
+                paths
+              );
+
+              paths.forEach((property, idx) => {
+                const value = resolvedValues[idx];
+
+                // Remove property from oldPathSet to mark it as processed
+                oldPathSet.delete(property);
+
+                // Only update if the new value differs from the current one
                 set(
                   getParticipantPropertyAtom(
                     ev.participant.session_id,
                     property
                   ),
                   (prev: any) => (customDeepEqual(prev, value) ? prev : value)
+                );
+              });
+
+              // Set any remaining paths in oldPathSet to null
+              oldPathSet.forEach((property) => {
+                set(
+                  getParticipantPropertyAtom(
+                    ev.participant.session_id,
+                    property
+                  ),
+                  null
                 );
               });
               break;
