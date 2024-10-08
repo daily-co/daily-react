@@ -14,11 +14,11 @@ const PATHS_DELIM = ';';
 export const getPropertyParam = (
   id: string,
   property: Paths<ExtendedDailyParticipant>
-) => `${id}${DELIM}${property}`;
+) => id + DELIM + property;
 const getPropertiesParam = (
   id: string,
   properties: Paths<ExtendedDailyParticipant>[]
-) => `${id}${DELIM}${properties.join(PATHS_DELIM)}`;
+) => id + DELIM + properties.join(PATHS_DELIM);
 
 export const getParticipantPropertyAtom = (
   id: string,
