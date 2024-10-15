@@ -33,6 +33,9 @@ export const useAudioLevel = (
       // Audio context could not be initialized. Stopping.
       if (!audioContext) return;
 
+      // No MediaStream API available (e.g. WebRTC disabled)
+      if (!MediaStream) return;
+
       const mediaStreamSource = audioContext.createMediaStreamSource(
         new MediaStream([mediaTrack])
       );

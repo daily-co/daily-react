@@ -15,20 +15,26 @@ export function customDeepEqual(a: any, b: any): boolean {
   }
 
   // Handle specific cases like MediaStream, MediaStreamTrack, Date, etc.
-  if (a instanceof MediaStream && b instanceof MediaStream) {
-    return (
-      a.id === b.id &&
-      a.active === b.active &&
-      a.getTracks().length === b.getTracks().length &&
-      a
-        .getTracks()
-        .every((track, idx) => customDeepEqual(track, b.getTracks()[idx]))
-    );
+  if (MediaStream) {
+    if (a instanceof MediaStream && b instanceof MediaStream) {
+      return (
+        a.id === b.id &&
+        a.active === b.active &&
+        a.getTracks().length === b.getTracks().length &&
+        a
+          .getTracks()
+          .every((track, idx) => customDeepEqual(track, b.getTracks()[idx]))
+      );
+    }
   }
 
   // Handle special case for MediaStreamTrack
-  if (a instanceof MediaStreamTrack && b instanceof MediaStreamTrack) {
-    return a.id === b.id && a.kind === b.kind && a.readyState === b.readyState;
+  if (MediaStreamTrack) {
+    if (a instanceof MediaStreamTrack && b instanceof MediaStreamTrack) {
+      return (
+        a.id === b.id && a.kind === b.kind && a.readyState === b.readyState
+      );
+    }
   }
 
   // Handle special case for Date

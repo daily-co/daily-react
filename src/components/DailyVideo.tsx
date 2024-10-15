@@ -162,6 +162,12 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
       function updateSrcObject() {
         const video = videoEl.current;
         if (!video || !videoTrack) return;
+        if (!MediaStream) {
+          console.warn(
+            `MediaStream API not available. Can't setup ${type} for ${sessionId}`
+          );
+          return;
+        }
         video.srcObject = new MediaStream([videoTrack]);
         video.load();
         return () => {
@@ -170,7 +176,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
           video.load();
         };
       },
-      [videoTrack, videoTrack?.id]
+      [sessionId, type, videoTrack, videoTrack?.id]
     );
 
     /**

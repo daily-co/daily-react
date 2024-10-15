@@ -49,6 +49,19 @@ export const DailyAudioTrack = memo(
         const handlePlay = () => {
           clearTimeout(playTimeout);
         };
+        if (!MediaStream) {
+          console.warn(
+            `MediaStream API not available. Can't setup ${type} for ${sessionId}`
+          );
+          onPlayFailed?.({
+            sessionId,
+            target: audioTag,
+            type,
+            message: 'MediaStream API not available',
+            name: 'MediaStream API not available',
+          });
+          return;
+        }
         audioTag.addEventListener('canplay', handleCanPlay);
         audioTag.addEventListener('play', handlePlay);
         audioTag.srcObject = new MediaStream([audio?.persistentTrack]);
