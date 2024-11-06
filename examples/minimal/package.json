@@ -4,15 +4,15 @@
   "description": "",
   "keywords": [],
   "dependencies": {
-    "@daily-co/daily-js": "^0.72.1",
-    "@daily-co/daily-react": "^0.21.1",
+    "@daily-co/daily-js": "^0.73.0",
+    "@daily-co/daily-react": "^0.21.3",
     "classnames": "^2.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "jotai": "^2.10.0"
+    "jotai": "^2.10.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.25.7",
+    "@babel/runtime": "^7.26.0",
     "@swc/helpers": "^0.5.13",
     "parcel": "^2.12.0"
   },
