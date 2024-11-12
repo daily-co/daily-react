@@ -7,6 +7,7 @@ import { useDailyEvent } from './hooks/useDailyEvent';
 import { useLocalSessionId } from './hooks/useLocalSessionId';
 import { useParticipantIds } from './hooks/useParticipantIds';
 import { customDeepEqual } from './lib/customDeepEqual';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 interface RecordingState {
   /**
@@ -54,6 +55,7 @@ export const recordingState = atom<RecordingState>({
   isLocalParticipantRecorded: false,
   isRecording: false,
 });
+recordingState.debugLabel = jotaiDebugLabel('recording-state');
 
 export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
   children,

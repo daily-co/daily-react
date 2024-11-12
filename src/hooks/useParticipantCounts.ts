@@ -3,6 +3,7 @@ import { atom, useAtomValue } from 'jotai';
 import { useAtomCallback } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
+import { jotaiDebugLabel } from '../lib/jotai-custom';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
@@ -10,6 +11,7 @@ const participantCountsState = atom<DailyParticipantCounts>({
   hidden: 0,
   present: 0,
 });
+participantCountsState.debugLabel = jotaiDebugLabel('participant-counts');
 
 interface Props {
   onParticipantCountsUpdated?(
