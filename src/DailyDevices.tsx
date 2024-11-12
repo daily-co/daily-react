@@ -9,6 +9,7 @@ import React, { useCallback } from 'react';
 import { DailyDevicesContext } from './DailyDevicesContext';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 type GeneralState =
   | 'idle'
@@ -31,12 +32,18 @@ export interface StatefulDevice {
 }
 
 export const generalCameraState = atom<GeneralState>('idle');
+generalCameraState.debugLabel = jotaiDebugLabel('camera-state');
 export const generalMicrophoneState = atom<GeneralState>('idle');
+generalMicrophoneState.debugLabel = jotaiDebugLabel('microphone-state');
 export const cameraDevicesState = atom<StatefulDevice[]>([]);
+cameraDevicesState.debugLabel = jotaiDebugLabel('camera-devices');
 export const microphoneDevicesState = atom<StatefulDevice[]>([]);
+microphoneDevicesState.debugLabel = jotaiDebugLabel('microphone-devices');
 export const speakerDevicesState = atom<StatefulDevice[]>([]);
+speakerDevicesState.debugLabel = jotaiDebugLabel('speaker-devices');
 export const lastCameraErrorState =
   atom<DailyCameraErrorObject<DailyCameraErrorType> | null>(null);
+lastCameraErrorState.debugLabel = jotaiDebugLabel('last-camera-error');
 
 export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
   children,

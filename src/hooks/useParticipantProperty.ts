@@ -4,7 +4,7 @@ import { useDebugValue } from 'react';
 
 import { ExtendedDailyParticipant } from '../DailyParticipants';
 import { arraysDeepEqual } from '../lib/customDeepEqual';
-import { equalAtomFamily } from '../lib/jotai-custom';
+import { equalAtomFamily, jotaiDebugLabel } from '../lib/jotai-custom';
 import type { NumericKeys } from '../types/NumericKeys';
 import type { Paths } from '../types/paths';
 import type { PathValue } from '../types/pathValue';
@@ -28,16 +28,26 @@ export const getParticipantPropertyAtom = (
 /**
  * Stores all property paths for a given participant.
  */
-export const participantPropertyPathsState = atomFamily((_id: string) =>
-  atom<Paths<ExtendedDailyParticipant>[]>([])
-);
+export const participantPropertyPathsState = atomFamily((id: string) => {
+  const participantPropertyPathsAtom = atom<Paths<ExtendedDailyParticipant>[]>(
+    []
+  );
+  participantPropertyPathsAtom.debugLabel = jotaiDebugLabel(
+    `participant-property-paths-${id}`
+  );
+  return participantPropertyPathsAtom;
+});
 
 /**
  * Stores resolved values for each participant and property path.
  */
-export const participantPropertyState = atomFamily((_param: string) =>
-  atom<any>(null)
-);
+export const participantPropertyState = atomFamily((param: string) => {
+  const participantPropertyAtom = atom<any>(null);
+  participantPropertyAtom.debugLabel = jotaiDebugLabel(
+    `participant-property-${param}`
+  );
+  return participantPropertyAtom;
+});
 
 /**
  * Stores resolved values for each participant and property path.

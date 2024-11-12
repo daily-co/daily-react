@@ -6,8 +6,10 @@ import React, { useCallback } from 'react';
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
 import { useMeetingState } from './hooks/useMeetingState';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 export const roomState = atom<DailyRoomInfo | null>(null);
+roomState.debugLabel = jotaiDebugLabel('room-state');
 
 export const DailyRoom: React.FC<React.PropsWithChildren<{}>> = ({
   children,

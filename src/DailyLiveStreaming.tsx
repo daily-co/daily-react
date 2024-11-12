@@ -4,6 +4,7 @@ import { useAtomCallback } from 'jotai/utils';
 import React, { useCallback } from 'react';
 
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 interface LiveStreamingState {
   errorMsg?: string;
@@ -16,6 +17,7 @@ export const liveStreamingState = atom<LiveStreamingState>({
   isLiveStreaming: false,
   layout: undefined,
 });
+liveStreamingState.debugLabel = jotaiDebugLabel('live-streaming');
 
 export const DailyLiveStreaming: React.FC<React.PropsWithChildren<unknown>> = ({
   children,

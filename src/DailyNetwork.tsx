@@ -5,11 +5,15 @@ import React, { useCallback, useEffect } from 'react';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 export const topologyState = atom<DailyNetworkTopology | 'none'>('none');
+topologyState.debugLabel = jotaiDebugLabel('topology');
 export const networkQualityState = atom<DailyNetworkStats['quality']>(100);
+networkQualityState.debugLabel = jotaiDebugLabel('network-quality');
 export const networkThresholdState =
   atom<DailyNetworkStats['threshold']>('good');
+networkThresholdState.debugLabel = jotaiDebugLabel('network-threshold');
 
 export const DailyNetwork: React.FC<React.PropsWithChildren<{}>> = ({
   children,

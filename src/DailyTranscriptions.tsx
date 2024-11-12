@@ -7,6 +7,7 @@ import { useAtomCallback } from 'jotai/utils';
 import React, { useCallback } from 'react';
 
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 export interface Transcription {
   session_id: string;
@@ -51,6 +52,7 @@ export const transcriptionState = atom<TranscriptionState>({
   language: 'en',
   transcriptions: [],
 });
+transcriptionState.debugLabel = jotaiDebugLabel('transcription-state');
 
 export const DailyTranscriptions: React.FC<React.PropsWithChildren<{}>> = ({
   children,

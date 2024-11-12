@@ -18,7 +18,7 @@ import {
 } from './hooks/useParticipantProperty';
 import { useThrottledDailyEvent } from './hooks/useThrottledDailyEvent';
 import { arraysDeepEqual, customDeepEqual } from './lib/customDeepEqual';
-import { equalAtomFamily } from './lib/jotai-custom';
+import { equalAtomFamily, jotaiDebugLabel } from './lib/jotai-custom';
 import { getParticipantPaths } from './utils/getParticipantPaths';
 import { resolveParticipantPaths } from './utils/resolveParticipantPaths';
 
@@ -37,28 +37,38 @@ export interface ExtendedDailyParticipant
  * Stores the most recent peerId as reported from [active-speaker-change](https://docs.daily.co/reference/daily-js/events/meeting-events#active-speaker-change) event.
  */
 export const activeIdState = atom<string | null>(null);
+activeIdState.debugLabel = jotaiDebugLabel('active-id');
 
 export const localIdState = atom<string>('');
+localIdState.debugLabel = jotaiDebugLabel('local-id');
 
 export const localJoinDateState = atom<Date | null>(null);
+localJoinDateState.debugLabel = jotaiDebugLabel('local-join-date');
 
 export const participantIdsState = atom<string[]>([]);
+participantIdsState.debugLabel = jotaiDebugLabel('participant-ids');
 
-export const participantState = atomFamily((_id: string) =>
-  atom<ExtendedDailyParticipant | null>(null)
-);
-
+export const participantState = atomFamily((id: string) => {
+  const participantAtom = atom<ExtendedDailyParticipant | null>(null);
+  participantAtom.debugLabel = jotaiDebugLabel(`participant-${id}`);
+  return participantAtom;
+});
 export const waitingParticipantsState = atom<string[]>([]);
+waitingParticipantsState.debugLabel = jotaiDebugLabel('waiting-participants');
 
-export const waitingParticipantState = atomFamily((id: string) =>
-  atom<DailyWaitingParticipant>({
+export const waitingParticipantState = atomFamily((id: string) => {
+  const waitingParticipantAtom = atom<DailyWaitingParticipant>({
     awaitingAccess: {
       level: 'full',
     },
     id,
     name: '',
-  })
-);
+  });
+  waitingParticipantAtom.debugLabel = jotaiDebugLabel(
+    `waiting-participant-${id}`
+  );
+  return waitingParticipantAtom;
+});
 
 export const allWaitingParticipantsSelector = equalAtomFamily<
   any[],
