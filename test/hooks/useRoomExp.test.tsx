@@ -192,7 +192,7 @@ describe('useRoomExp', () => {
         config: {
           eject_after_elapsed: null,
           eject_at_room_exp: true,
-          exp: 4100760732, // 2099-12-12T12:12:12.000Z
+          exp: 4100760732, // 2099-12-12T12:12:12.000Z UTC
         },
       }));
       const daily = Daily.createCallObject();
@@ -252,6 +252,139 @@ describe('useRoomExp', () => {
         hours: 0,
         minutes: 0,
         seconds: 57,
+      });
+    });
+  });
+
+  describe('eject_at_token_exp', () => {
+    it('should return correct ejectDate', async () => {
+      (useRoom as jest.Mock).mockImplementation(() => ({
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        domainConfig: {},
+        tokenConfig: {
+          eject_at_token_exp: true,
+          exp: 4100760732, // 2099-12-12T12:12:12.000Z UTC
+        },
+        config: {
+          eject_after_elapsed: null,
+        },
+      }));
+      const daily = Daily.createCallObject();
+      const { result } = renderHook(() => useRoomExp(), {
+        wrapper: createWrapper(daily),
+      });
+
+      await waitFor(() => {
+        expect(result.current.ejectDate).toBeInstanceOf(Date);
+        expect(result.current.ejectDate).toEqual(
+          new Date('2099-12-12T12:12:12.000Z')
+        );
+      });
+    });
+    it('should call onCountdown correctly during the countdown', () => {
+      const now = new Date();
+      const nowUnix = Math.ceil(now.getTime() / 1000);
+      const exp = nowUnix + 60;
+
+      (useRoom as jest.Mock).mockImplementation(() => ({
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        domainConfig: {},
+        tokenConfig: {
+          eject_at_token_exp: true,
+          exp,
+        },
+        config: {
+          eject_after_elapsed: null,
+        },
+      }));
+
+      const daily = Daily.createCallObject();
+      const onCountdown = jest.fn();
+      renderHook(() => useRoomExp({ onCountdown }), {
+        wrapper: createWrapper(daily),
+      });
+
+      expect(onCountdown).toHaveBeenCalledTimes(0);
+
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      expect(onCountdown).toHaveBeenCalledTimes(1);
+      expect(onCountdown).toHaveBeenCalledWith({
+        hours: 0,
+        minutes: 0,
+        seconds: 59,
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      expect(onCountdown).toHaveBeenCalledTimes(3);
+      expect(onCountdown).toHaveBeenLastCalledWith({
+        hours: 0,
+        minutes: 0,
+        seconds: 57,
+      });
+    });
+  });
+
+  describe('token & room eject', () => {
+    it('when token expires before room, eject at token expiry', async () => {
+      (useRoom as jest.Mock).mockImplementation(() => ({
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        domainConfig: {},
+        tokenConfig: {
+          eject_at_token_exp: true,
+          exp: 3816763932, // 2090-12-12T12:12:12.000Z UTC
+        },
+        config: {
+          eject_after_elapsed: null,
+          eject_at_room_exp: true,
+          exp: 4100760732, // 2099-12-12T12:12:12.000Z UTC
+        },
+      }));
+      const daily = Daily.createCallObject();
+      const { result } = renderHook(() => useRoomExp(), {
+        wrapper: createWrapper(daily),
+      });
+
+      await waitFor(() => {
+        expect(result.current.ejectDate).toBeInstanceOf(Date);
+        expect(result.current.ejectDate).toEqual(
+          new Date('2090-12-12T12:12:12.000Z')
+        );
+      });
+    });
+    it('when room expires before token, eject at room expiry', async () => {
+      (useRoom as jest.Mock).mockImplementation(() => ({
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        domainConfig: {},
+        tokenConfig: {
+          eject_at_token_exp: true,
+          exp: 4100760732, // 2099-12-12T12:12:12.000Z
+        },
+        config: {
+          eject_after_elapsed: null,
+          eject_at_room_exp: true,
+          exp: 3816763932, // 2090-12-12T12:12:12.000Z
+        },
+      }));
+      const daily = Daily.createCallObject();
+      const { result } = renderHook(() => useRoomExp(), {
+        wrapper: createWrapper(daily),
+      });
+
+      await waitFor(() => {
+        expect(result.current.ejectDate).toBeInstanceOf(Date);
+        expect(result.current.ejectDate).toEqual(
+          new Date('2090-12-12T12:12:12.000Z')
+        );
       });
     });
   });
