@@ -14,8 +14,12 @@ export interface Transcription {
   user_id: string;
   text: string;
   timestamp: string;
-  // Deprecated
+  /**
+   * @deprecated This property is deprecated and will be removed in future versions.
+   */
   is_final: boolean;
+  user_name?: string;
+  rawResponse?: Record<string, unknown>;
 }
 
 interface TranscriptionState extends DailyTranscriptionDeepgramOptions {
