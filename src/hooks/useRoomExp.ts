@@ -21,32 +21,27 @@ export const useRoomExp = ({ onCountdown }: Props = {}) => {
   const [ejectDate, setEjectDate] = useState<Date | null>(null);
 
   useEffect(() => {
+    const expCandidates: number[] = [];
+
     const ejectAfterElapsed =
       room?.tokenConfig?.eject_after_elapsed ??
       room?.config?.eject_after_elapsed ??
       0;
-    const expUTCTimeStamp = room?.tokenConfig?.exp ?? room?.config?.exp ?? 0;
-    const ejectAtExp =
-      room?.tokenConfig?.eject_at_token_exp ??
-      room?.config?.eject_at_room_exp ??
-      false;
-
-    let newEjectDate: Date = new Date(0);
 
     if (ejectAfterElapsed && localJoinDate) {
-      newEjectDate = new Date(
-        localJoinDate.getTime() + 1000 * ejectAfterElapsed
-      );
+      expCandidates.push(localJoinDate.getTime() + 1000 * ejectAfterElapsed);
+    }
+    if (room?.tokenConfig?.exp && room?.tokenConfig?.eject_at_token_exp) {
+      expCandidates.push(room.tokenConfig.exp * 1000);
+    }
+    if (room?.config?.exp && room?.config?.eject_at_room_exp) {
+      expCandidates.push(room.config.exp * 1000);
     }
 
-    if (ejectAtExp && expUTCTimeStamp) {
-      const expDate = new Date(expUTCTimeStamp * 1000);
-      if (
-        !newEjectDate.getTime() ||
-        (newEjectDate.getTime() > 0 && expDate < newEjectDate)
-      )
-        newEjectDate = expDate;
-    }
+    const newEjectDate =
+      expCandidates.length > 0
+        ? new Date(Math.min(...expCandidates))
+        : new Date(0);
 
     if (newEjectDate.getTime() === 0) return;
 

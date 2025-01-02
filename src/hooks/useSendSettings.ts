@@ -6,10 +6,12 @@ import {
 import { atom, useAtom } from 'jotai';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
+import { jotaiDebugLabel } from '../lib/jotai-custom';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 
 const sendSettingsState = atom<DailySendSettings | null>(null);
+sendSettingsState.debugLabel = jotaiDebugLabel('send-settings');
 
 interface Props {
   onSendSettingsUpdated?(ev: DailyEventObject<'send-settings-updated'>): void;

@@ -9,6 +9,7 @@ import { useAtomCallback } from 'jotai/utils';
 import { atomFamily } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
+import { jotaiDebugLabel } from '../lib/jotai-custom';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useMeetingState } from './useMeetingState';
@@ -21,13 +22,17 @@ const participantReceiveSettingsState = atomFamily<
     void
   >
 >((id) => {
-  return atom<
+  const participantReceiveSettingsAtom = atom<
     DailySingleParticipantReceiveSettings,
     [DailySingleParticipantReceiveSettings],
     void
   >({}, (_get, set, newValue) => {
     set(participantReceiveSettingsState(id), newValue);
   });
+  participantReceiveSettingsAtom.debugLabel = jotaiDebugLabel(
+    `participant-receive-settings-${id}`
+  );
+  return participantReceiveSettingsAtom;
 });
 
 interface UseReceiveSettingsArgs {

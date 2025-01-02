@@ -10,19 +10,24 @@ import React, { useCallback } from 'react';
 
 import { useDaily } from './hooks/useDaily';
 import { useDailyEvent } from './hooks/useDailyEvent';
+import { jotaiDebugLabel } from './lib/jotai-custom';
 
 export const meetingStateState = atom<DailyMeetingState>('new');
+meetingStateState.debugLabel = jotaiDebugLabel('meeting-state');
 
 export const meetingErrorState = atom<DailyEventObjectFatalError | null>(null);
+meetingErrorState.debugLabel = jotaiDebugLabel('meeting-error');
 
 export const nonFatalErrorState = atom<DailyEventObjectNonFatalError | null>(
   null
 );
+nonFatalErrorState.debugLabel = jotaiDebugLabel('non-fatal-error');
 
 export const meetingSessionDataState = atom<DailyMeetingSessionState>({
   data: undefined,
   topology: 'none',
 });
+meetingSessionDataState.debugLabel = jotaiDebugLabel('meeting-session-data');
 
 export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   children,

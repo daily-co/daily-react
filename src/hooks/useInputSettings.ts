@@ -8,6 +8,7 @@ import { atom, useAtomValue } from 'jotai';
 import { useAtomCallback } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
+import { jotaiDebugLabel } from '../lib/jotai-custom';
 import { Reconstruct } from '../types/Reconstruct';
 import { useDaily } from './useDaily';
 import { useDailyError } from './useDailyError';
@@ -25,6 +26,7 @@ interface UseInputSettingsArgs {
 }
 
 const inputSettingsState = atom<DailyInputSettings | null>(null);
+inputSettingsState.debugLabel = jotaiDebugLabel('input-settings');
 
 export const useInputSettings = ({
   onError,

@@ -1,5 +1,9 @@
 import { atom, Getter, WritableAtom } from 'jotai';
 
+export function jotaiDebugLabel(label: string) {
+  return 'daily-react-' + label;
+}
+
 interface EqualAtomOptions<T> {
   key?: string;
   get: () => T;

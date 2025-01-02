@@ -4,6 +4,7 @@ import { atom, useAtomValue } from 'jotai';
 import { useAtomCallback } from 'jotai/utils';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
+import { jotaiDebugLabel } from '../lib/jotai-custom';
 import { useDaily } from './useDaily';
 import { useDailyEvent } from './useDailyEvent';
 import { useMeetingState } from './useMeetingState';
@@ -17,6 +18,7 @@ const CPULoadState = atom<CPULoad>({
   state: 'low',
   reason: 'none',
 });
+CPULoadState.debugLabel = jotaiDebugLabel('cpu-load');
 
 interface Props {
   onCPULoadChange?(ev: DailyEventObject<'cpu-load-change'>): void;
