@@ -465,6 +465,7 @@ describe('useDevices', () => {
             msg: '',
             reason: 'invalid',
             type: 'constraints',
+            failedMedia: ['video'],
           },
         });
         act(() => {
@@ -493,6 +494,7 @@ describe('useDevices', () => {
             msg: '',
             reason: 'none-specified',
             type: 'constraints',
+            failedMedia: ['video', 'audio'],
           },
         });
         act(() => {
