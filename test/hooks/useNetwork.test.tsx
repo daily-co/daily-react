@@ -54,7 +54,7 @@ const createWrapper =
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
 describe('useNetwork', () => {
-  it('returns getStats method, quality, threshold & topology with perfect defaults', () => {
+  it('returns getStats method with perfect defaults', () => {
     const { result } = renderHook(() => useNetwork(), {
       wrapper: createWrapper(),
     });
@@ -62,6 +62,10 @@ describe('useNetwork', () => {
     expect(typeof result.current.getStats).toBe('function');
     expect(result.current).toHaveProperty('quality');
     expect(result.current.quality).toBe(100);
+    expect(result.current).toHaveProperty('networkState');
+    expect(result.current.networkState).toBe('unknown');
+    expect(result.current).toHaveProperty('networkStateReasons');
+    expect(result.current.networkStateReasons).toStrictEqual([]);
     expect(result.current).toHaveProperty('threshold');
     expect(result.current.threshold).toBe('good');
     expect(result.current).toHaveProperty('topology');
@@ -69,7 +73,10 @@ describe('useNetwork', () => {
   });
   it('getStats calls getNetworkStats internally', async () => {
     const mockStats: DailyNetworkStats = {
+      networkState: 'good',
+      networkStateReasons: [],
       quality: 99,
+      threshold: 'good',
       stats: {
         latest: {
           recvBitsPerSecond: 1000000,
@@ -102,7 +109,6 @@ describe('useNetwork', () => {
         worstAudioSendJitter: 0,
         averageNetworkRoundTripTime: 0.07171428571428572,
       },
-      threshold: 'good',
     };
     const daily = Daily.createCallObject();
     (
@@ -184,14 +190,19 @@ describe('useNetwork', () => {
     const event: DailyEvent = 'network-quality-change';
     const payload: DailyEventObjectNetworkQualityEvent = mockEvent({
       action: 'network-quality-change',
+      networkState: 'bad',
+      networkStateReasons: ['sendPacketLoss'],
       quality: 80,
       threshold: 'low',
+      stats: {},
     });
     act(() => {
       // @ts-ignore
       daily.emit(event, payload);
     });
     await waitFor(() => {
+      expect(result.current.networkState).toBe('bad');
+      expect(result.current.networkStateReasons).toEqual(['sendPacketLoss']);
       expect(result.current.quality).toBe(80);
       expect(result.current.threshold).toBe('low');
       expect(onNetworkQualityChange).toHaveBeenCalledWith(payload);

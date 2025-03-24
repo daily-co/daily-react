@@ -4,6 +4,8 @@ import { useCallback, useDebugValue } from 'react';
 
 import {
   networkQualityState,
+  networkState as netState,
+  networkStateReasons as netReasons,
   networkThresholdState,
   topologyState,
 } from '../DailyNetwork';
@@ -26,6 +28,8 @@ export const useNetwork = ({
   const daily = useDaily();
 
   const topology = useAtomValue(topologyState);
+  const networkState = useAtomValue(netState);
+  const networkStateReasons = useAtomValue(netReasons);
   const quality = useAtomValue(networkQualityState);
   const threshold = useAtomValue(networkThresholdState);
 
@@ -55,6 +59,8 @@ export const useNetwork = ({
 
   const result = {
     getStats,
+    networkState,
+    networkStateReasons,
     quality,
     threshold,
     topology,
