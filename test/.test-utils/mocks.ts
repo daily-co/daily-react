@@ -16,6 +16,7 @@ export const mockParticipant = (p: Partial<DailyParticipant> = {}): DailyPartici
     local: false,
     owner: false,
     permissions: {
+      canReceive: { base: true },
       canSend: true,
       hasPresence: true,
       canAdmin: false

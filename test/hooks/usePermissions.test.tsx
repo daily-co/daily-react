@@ -40,12 +40,24 @@ const createWrapper =
   ({ children }) =>
     <DailyProvider callObject={callObject}>{children}</DailyProvider>;
 
+const canReceivePermissions = {
+  base: {
+    video: false,
+    audio: true,
+    screenVideo: false,
+    screenAudio: true,
+    customVideo: { '*': false },
+    customAudio: { '*': true },
+  },
+};
+
 describe('usePermissions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
   it('returns permissions, as is', async () => {
     const permissions = {
+      canReceive: canReceivePermissions,
       canSend: false,
       hasPresence: true,
       canAdmin: false,
@@ -71,6 +83,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: false,
@@ -95,6 +108,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: false,
             hasPresence: true,
             canAdmin: false,
@@ -119,6 +133,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: new Set(['audio', 'customAudio', 'screenAudio']),
             hasPresence: true,
             canAdmin: false,
@@ -145,6 +160,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: false,
@@ -164,6 +180,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: false,
             canAdmin: false,
@@ -185,6 +202,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: true,
@@ -206,6 +224,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: false,
@@ -227,6 +246,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: new Set(['streaming', 'transcription']),
@@ -249,6 +269,7 @@ describe('usePermissions', () => {
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
+          canReceive: canReceivePermissions,
           canSend: true,
           hasPresence: true,
           canAdmin: false,
@@ -258,6 +279,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: false,
             canAdmin: false,
@@ -280,6 +302,7 @@ describe('usePermissions', () => {
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
+          canReceive: canReceivePermissions,
           canSend: true,
           hasPresence: false,
           canAdmin: false,
@@ -289,6 +312,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: false,
             canAdmin: false,
@@ -311,6 +335,7 @@ describe('usePermissions', () => {
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
+          canReceive: canReceivePermissions,
           canSend: new Set(['audio', 'customAudio', 'screenAudio']),
           hasPresence: true,
           canAdmin: false,
@@ -320,6 +345,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: false,
@@ -347,6 +373,7 @@ describe('usePermissions', () => {
       const mockRemoteParticipant = mockParticipant({
         local: false,
         permissions: {
+          canReceive: canReceivePermissions,
           canSend: true,
           hasPresence: true,
           canAdmin: new Set(['streaming', 'transcription']),
@@ -356,6 +383,7 @@ describe('usePermissions', () => {
         local: mockParticipant({
           local: true,
           permissions: {
+            canReceive: canReceivePermissions,
             canSend: true,
             hasPresence: true,
             canAdmin: false,
@@ -373,6 +401,56 @@ describe('usePermissions', () => {
         expect(result.current.canAdminParticipants).toEqual(false);
         expect(result.current.canAdminStreaming).toEqual(true);
         expect(result.current.canAdminTranscription).toEqual(true);
+      });
+    });
+    it('returns canReceive permissions', async () => {
+      const daily = Daily.createCallObject();
+      const mockRemoteParticipant = mockParticipant({
+        local: false,
+        permissions: {
+          canReceive: canReceivePermissions,
+          canSend: true,
+          hasPresence: true,
+          canAdmin: new Set(['streaming', 'transcription']),
+        },
+      });
+      (daily.participants as jest.Mock).mockImplementation(() => ({
+        local: mockParticipant({
+          local: true,
+          permissions: {
+            canReceive: canReceivePermissions,
+            canSend: true,
+            hasPresence: true,
+            canAdmin: false,
+          },
+        }),
+        [mockRemoteParticipant.session_id]: mockRemoteParticipant,
+      }));
+      const { result } = renderHook(
+        () => usePermissions(mockRemoteParticipant.session_id),
+        {
+          wrapper: createWrapper(daily),
+        }
+      );
+      await waitFor(() => {
+        const canReceive = result.current.permissions.canReceive;
+        expect(canReceive).toBeDefined();
+        expect(typeof canReceive.base).toEqual('object');
+        if (typeof canReceive.base !== 'object') {
+          return;
+        }
+        expect(canReceive.base?.video).toEqual(false);
+        expect(canReceive.base?.audio).toEqual(true);
+        expect(canReceive.base?.screenVideo).toEqual(false);
+        expect(canReceive.base?.screenAudio).toEqual(true);
+        expect(canReceive.base?.customVideo).toBeDefined();
+        if (typeof canReceive.base.customVideo !== 'object') {
+          expect(canReceive.base.customVideo['*']).toEqual(false);
+        }
+        expect(canReceive.base?.customAudio).toBeDefined();
+        if (typeof canReceive.base.customAudio !== 'object') {
+          expect(canReceive.base.customAudio['*']).toEqual(false);
+        }
       });
     });
   });
