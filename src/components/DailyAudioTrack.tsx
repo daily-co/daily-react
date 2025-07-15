@@ -1,5 +1,6 @@
-import React, { forwardRef, memo, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useRef } from 'react';
 
+import { useDailyEvent } from '../hooks/useDailyEvent';
 import { useMediaTrack } from '../hooks/useMediaTrack';
 import useMergedRef from '../hooks/useMergedRef';
 
@@ -34,7 +35,6 @@ export const DailyAudioTrack = memo(
       useEffect(() => {
         const audioTag = audioEl.current;
         if (!audioTag || !audio?.persistentTrack) return;
-        let playTimeout: ReturnType<typeof setTimeout>;
         const handleCanPlay = () => {
           audioTag.play().catch((e) => {
             onPlayFailed?.({
@@ -45,9 +45,6 @@ export const DailyAudioTrack = memo(
               name: e.name,
             });
           });
-        };
-        const handlePlay = () => {
-          clearTimeout(playTimeout);
         };
         if (!MediaStream) {
           console.warn(
@@ -63,14 +60,24 @@ export const DailyAudioTrack = memo(
           return;
         }
         audioTag.addEventListener('canplay', handleCanPlay);
-        audioTag.addEventListener('play', handlePlay);
         audioTag.srcObject = new MediaStream([audio?.persistentTrack]);
 
         return () => {
           audioTag?.removeEventListener('canplay', handleCanPlay);
-          audioTag?.removeEventListener('play', handlePlay);
         };
       }, [audio?.persistentTrack, onPlayFailed, sessionId, type]);
+
+      useDailyEvent(
+        'participant-left',
+        useCallback(
+          (ev) => {
+            const audioTag = audioEl.current;
+            if (ev.participant.session_id !== sessionId || !audioTag) return;
+            audioTag.srcObject = null;
+          },
+          [sessionId]
+        )
+      );
 
       return (
         <audio
