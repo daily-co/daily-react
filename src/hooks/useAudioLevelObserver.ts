@@ -12,11 +12,13 @@ type ErrorCallback = (errorMsg: string) => void;
  * @param id The session_id of the participant to observe.
  * @param cb The function to execute when the volume changes. Can be used to visualise audio output.
  * @param errorCb Error callback. Called when local audio level observer is not available in browser.
+ * @param interval Callbacks will be executed at this freqency. If unspecified, Daily's default frequency is used.
  */
 export const useAudioLevelObserver = (
   id: string,
   cb: AudioLevelCallback,
-  errorCb?: ErrorCallback
+  errorCb?: ErrorCallback,
+  interval?: number
 ) => {
   const daily = useDaily();
   const localSessionId = useLocalSessionId();
@@ -49,20 +51,20 @@ export const useAudioLevelObserver = (
       if (!daily || daily.isDestroyed() || !isLocal) return;
       if (daily.isLocalAudioLevelObserverRunning()) return;
       try {
-        daily.startLocalAudioLevelObserver();
+        daily.startLocalAudioLevelObserver(interval);
       } catch {
         errorCb?.('Local audio level observer not supported in this browser');
       }
     },
-    [daily, errorCb, isLocal]
+    [daily, errorCb, interval, isLocal]
   );
 
   useEffect(
     function maybeStartRemoteAudioObserver() {
       if (!daily || daily.isDestroyed() || isLocal) return;
       if (daily.isRemoteParticipantsAudioLevelObserverRunning()) return;
-      daily.startRemoteParticipantsAudioLevelObserver();
+      daily.startRemoteParticipantsAudioLevelObserver(interval);
     },
-    [daily, isLocal]
+    [daily, interval, isLocal]
   );
 };
