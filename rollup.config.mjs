@@ -9,6 +9,25 @@ import fs from 'fs-extra';
 
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
+const commonPlugins = [
+  peerDepsExternal(),
+  resolve({
+    browser: true,
+    preferBuiltins: false,
+  }),
+  commonjs(),
+  typescript({
+    tsconfig: './tsconfig.json',
+    exclude: ['**/*.test.*', '**/*.stories.*'],
+  }),
+  babel({
+    babelHelpers: 'bundled',
+    exclude: 'node_modules/**',
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    presets: [['@babel/preset-env', { exclude: ['transform-regenerator'] }]],
+  }),
+];
+
 export default [
   // ESM build (unminified)
   {
@@ -19,24 +38,7 @@ export default [
       sourcemap: true,
     },
     plugins: [
-      peerDepsExternal(),
-      resolve({
-        browser: true,
-        preferBuiltins: false,
-      }),
-      commonjs(),
-      typescript({
-        tsconfig: './tsconfig.json',
-        exclude: ['**/*.test.*', '**/*.stories.*'],
-      }),
-      babel({
-        babelHelpers: 'bundled',
-        exclude: 'node_modules/**',
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        presets: [
-          ['@babel/preset-env', { exclude: ['transform-regenerator'] }],
-        ],
-      }),
+      ...commonPlugins,
       copy({
         targets: [{ src: 'src/types', dest: 'dist' }],
       }),
@@ -52,27 +54,7 @@ export default [
       sourcemap: true,
       exports: 'named',
     },
-    plugins: [
-      peerDepsExternal(),
-      resolve({
-        browser: true,
-        preferBuiltins: false,
-      }),
-      commonjs(),
-      typescript({
-        tsconfig: './tsconfig.json',
-        exclude: ['**/*.test.*', '**/*.stories.*'],
-      }),
-      babel({
-        babelHelpers: 'bundled',
-        exclude: 'node_modules/**',
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        presets: [
-          ['@babel/preset-env', { exclude: ['transform-regenerator'] }],
-        ],
-      }),
-      terser(),
-    ],
+    plugins: [...commonPlugins, terser()],
     external: ['@daily-co/daily-js', 'jotai', 'react', 'react-dom'],
   },
 ];
