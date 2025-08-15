@@ -54,7 +54,26 @@ export default [
       sourcemap: true,
       exports: 'named',
     },
-    plugins: [...commonPlugins, terser()],
+    plugins: [
+      ...commonPlugins,
+      terser({
+        ecma: 2018, // Target ES2018+ since WebRTC requires modern browsers
+        compress: {
+          passes: 2, // Run compression twice for better results
+          unsafe: true, // Enable unsafe optimizations (safe for modern browsers)
+        },
+        mangle: {
+          properties: {
+            regex: /^_/, // Mangle properties starting with underscore
+          },
+          safari10: false, // Don't worry about Safari 10 compatibility
+        },
+        format: {
+          comments: false, // Remove all comments
+          ecma: 2018, // Use modern JS syntax in output
+        },
+      }),
+    ],
     external: ['@daily-co/daily-js', 'jotai', 'react', 'react-dom'],
   },
 ];
