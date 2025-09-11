@@ -5,7 +5,9 @@ import { customDeepEqual } from '../lib/customDeepEqual';
 
 type InstanceType = 'callFrame' | 'callObject';
 
-const defaultOptions: DailyFactoryOptions = {};
+const defaultOptions: DailyFactoryOptions = {
+  strictMode: true,
+};
 const defaultShouldCreateInstance = () => true;
 
 export interface Props {
@@ -100,22 +102,29 @@ export const useCallInstance = (
        * but should be created.
        * Important to spread props, because createCallObject/createFrame alters the passed object (adds layout and dailyJsVersion).
        */
-      switch (type) {
-        case 'callFrame':
-          co = parentElRef?.current
-            ? Daily.createFrame(parentElRef.current, { ...options })
-            : Daily.createFrame({ ...options });
-          break;
-        case 'callObject':
-          co = Daily.createCallObject({ ...options });
-          break;
+      try {
+        switch (type) {
+          case 'callFrame':
+            co = parentElRef?.current
+              ? Daily.createFrame(parentElRef.current, { ...options })
+              : Daily.createFrame({ ...options });
+            break;
+          case 'callObject':
+            co = Daily.createCallObject({ ...options });
+            break;
+        }
+        lastUsedOptions.current = options;
+
+        setCallInstance(co);
+
+        co.once('call-instance-destroyed', handleDestroyedInstance);
+      } catch (e) {
+        console.error('Error creating call instance:', e);
+        if (options.strictMode) {
+          throw e;
+        }
       }
-      lastUsedOptions.current = options;
     }
-
-    setCallInstance(co);
-
-    co.once('call-instance-destroyed', handleDestroyedInstance);
 
     /**
      * No cleanup phase here, because callObject.destroy() returns a Promise.
