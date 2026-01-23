@@ -1,4 +1,8 @@
-import { DailyNetworkStats, DailyNetworkTopology } from '@daily-co/daily-js';
+import {
+  DailyEventObjectNetworkConnectionEvent,
+  DailyNetworkStats,
+  DailyNetworkTopology,
+} from '@daily-co/daily-js';
 import { atom, useAtomValue } from 'jotai';
 import { useAtomCallback } from 'jotai/utils';
 import React, { useCallback, useEffect } from 'react';
@@ -14,6 +18,8 @@ export const networkState = atom<DailyNetworkStats['networkState']>('unknown');
 export const networkStateReasons = atom<
   DailyNetworkStats['networkStateReasons']
 >([]);
+export const networkStatusState =
+  atom<DailyEventObjectNetworkConnectionEvent['event']>('interrupted');
 // @deprecated
 export const networkQualityState = atom<DailyNetworkStats['quality']>(100);
 networkQualityState.debugLabel = jotaiDebugLabel('network-quality');
@@ -46,6 +52,7 @@ export const DailyNetwork: React.FC<React.PropsWithChildren<{}>> = ({
     'network-connection',
     useAtomCallback(
       useCallback((_get, set, ev) => {
+        set(networkStatusState, ev.event);
         switch (ev.event) {
           case 'connected':
             if (ev.type === 'peer-to-peer') set(topologyState, 'peer');
@@ -94,6 +101,7 @@ export const DailyNetwork: React.FC<React.PropsWithChildren<{}>> = ({
         set(topologyState, 'none');
         set(networkState, 'unknown');
         set(networkStateReasons, []);
+        set(networkStatusState, 'interrupted');
         set(networkQualityState, 100);
         set(networkThresholdState, 'good');
       }, [])
