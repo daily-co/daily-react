@@ -91,13 +91,24 @@ export const DailyDevices: React.FC<React.PropsWithChildren<unknown>> = ({
             device: {} | MediaDeviceInfo,
             d: MediaDeviceInfo,
             prevDevices: StatefulDevice[]
-          ) => ({
-            device: d,
-            selected: 'deviceId' in device && d.deviceId === device.deviceId,
-            state:
-              prevDevices.find((p) => p.device.deviceId === d.deviceId)
-                ?.state ?? 'granted',
-          });
+          ) => {
+            const prevDevice = prevDevices.find(
+              (p) => p.device.deviceId === d.deviceId
+            );
+            // Determine if this device is selected
+            // First, check if getInputDevices() returned a valid deviceId
+            const isSelectedByDeviceId =
+              'deviceId' in device && d.deviceId === device.deviceId;
+            // If getInputDevices() returned an empty object, preserve the previous selection
+            const isSelectedByPrevious =
+              !('deviceId' in device) && prevDevice?.selected;
+
+            return {
+              device: d,
+              selected: isSelectedByDeviceId || Boolean(isSelectedByPrevious),
+              state: prevDevice?.state ?? 'granted',
+            };
+          };
           const sortDeviceByLabel = (a: StatefulDevice, b: StatefulDevice) => {
             if (a.device.deviceId === 'default') return -1;
             if (b.device.deviceId === 'default') return 1;

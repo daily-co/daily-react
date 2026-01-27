@@ -6,6 +6,7 @@ import {
   networkQualityState,
   networkState as netState,
   networkStateReasons as netReasons,
+  networkStatusState,
   networkThresholdState,
   topologyState,
 } from '../DailyNetwork';
@@ -30,6 +31,7 @@ export const useNetwork = ({
   const topology = useAtomValue(topologyState);
   const networkState = useAtomValue(netState);
   const networkStateReasons = useAtomValue(netReasons);
+  const networkStatus = useAtomValue(networkStatusState);
   const quality = useAtomValue(networkQualityState);
   const threshold = useAtomValue(networkThresholdState);
 
@@ -61,6 +63,7 @@ export const useNetwork = ({
     getStats,
     networkState,
     networkStateReasons,
+    networkStatus,
     quality,
     threshold,
     topology,

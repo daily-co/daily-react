@@ -133,6 +133,7 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
         (_get, set, ev) => {
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
+            case 'cloud-audio-only':
             case 'cloud-beta':
             case 'cloud': {
               if (
