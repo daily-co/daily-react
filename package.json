@@ -81,7 +81,7 @@
     "@rollup/plugin-replace": "^6.0.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.4",
-    "@size-limit/preset-small-lib": "^5.0.3",
+    "@size-limit/preset-small-lib": "^11.0.0",
     "@testing-library/react": "^15.0.5",
     "@types/faker": "^5.5.9",
     "@types/jest": "^27.0.1",
@@ -110,7 +110,7 @@
     "rollup": "^4.44.2",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "size-limit": "^5.0.3",
+    "size-limit": "^11.0.0",
     "ts-jest": "^27.0.5",
     "tslib": "^2.3.1",
     "typescript": "^4.9.5"
