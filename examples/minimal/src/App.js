@@ -13,6 +13,14 @@ export default function App() {
     setUsername(ev.target.value.trim());
   };
 
+  if (!roomUrl) {
+    return (
+      <div className="App">
+        <p>Please set <code>DAILY_ROOM_URL</code> in your <code>.env</code> file. See <code>env.example</code>.</p>
+      </div>
+    );
+  }
+
   return (
     <DailyProvider url={roomUrl} userName={username} dailyConfig={{ useDevicePreferenceCookies: true }}>
       <div className="App">
