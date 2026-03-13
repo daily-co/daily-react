@@ -4,7 +4,7 @@
 
 - Sign up at https://daily.co to create a developer account
 - Create a room at https://dashboard.daily.co/rooms/create and copy the room URL
-- Change `roomUrl` in [index.js](./src/index.js) to your room URL
+- Copy `env.example` to `.env` and set `DAILY_ROOM_URL` to your room URL
 - Install dependencies with `npm install`
 - Spin up your dev server with `npm start`
 

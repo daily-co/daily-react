@@ -9,51 +9,89 @@ import { useParticipantIds } from './hooks/useParticipantIds';
 import { customDeepEqual } from './lib/customDeepEqual';
 import { jotaiDebugLabel } from './lib/jotai-custom';
 
+export interface RecordingInstanceState {
+  error?: boolean;
+  errorMsg?: string;
+  instanceId: string;
+  isLocalParticipantRecorded: boolean;
+  isRecording: boolean;
+  layout?: DailyStreamingLayoutConfig;
+  local?: boolean;
+  recordingId?: string;
+  recordingStartedDate?: Date;
+  startedBy?: string;
+  type?: string;
+}
+
 interface RecordingState {
   /**
-   * Determines whether an error occurred during the last recording attempt.
+   * Whether any recording instance has an error.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance error state.
    */
   error?: boolean;
-  /**
-   * Determines whether the local participant is being recorded, based on the recording settings.
-   */
   isLocalParticipantRecorded: boolean;
-  /**
-   * Determines whether a recording is currently running or not.
-   */
   isRecording: boolean;
   /**
-   * Contains the last applied cloud recording layout config.
+   * Layout of the first active recording instance.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance layout.
    */
   layout?: DailyStreamingLayoutConfig;
-  /**
-   * Determines whether the recording is running locally.
-   * See [enable_recording](https://docs.daily.co/reference/rest-api/rooms/config#enable_recording).
-   */
   local?: boolean;
   /**
-   * Contains the recording id.
+   * Recording ID of the first active instance.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance recordingId.
    */
   recordingId?: string;
   /**
-   * Contains the date when the 'recording-started' event was received.
-   * This doesn't necessarily match the date the recording was actually started.
+   * Start date of the first active instance.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance recordingStartedDate.
    */
   recordingStartedDate?: Date;
   /**
-   * Contains the session_id of the participant who started the recording.
+   * Starter of the first active instance.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance startedBy.
    */
   startedBy?: string;
   /**
-   * Contains the recording type.
-   * See [enable_recording](https://docs.daily.co/reference/rest-api/rooms/config#enable_recording).
+   * Recording type of the first active instance.
+   * With multiple concurrent instances, use useRecording({ instanceId }) for per-instance type.
    */
   type?: string;
 }
 
-export const recordingState = atom<RecordingState>({
-  isLocalParticipantRecorded: false,
-  isRecording: false,
+function resolveInstanceKey(ev: {
+  instanceId?: string;
+  type?: string;
+  local?: boolean;
+}): string {
+  if (ev.instanceId) return ev.instanceId;
+  if (ev.type === 'local' || ev.local) return '__local__';
+  return '__default__';
+}
+
+export const recordingInstancesState = atom<
+  Record<string, RecordingInstanceState>
+>({});
+recordingInstancesState.debugLabel = jotaiDebugLabel('recording-instances');
+
+export const recordingState = atom<RecordingState>((get) => {
+  const instances = get(recordingInstancesState);
+  const values = Object.values(instances);
+  const activeInstances = values.filter((v) => v.isRecording);
+  const firstActive = activeInstances[0] ?? values[values.length - 1];
+  return {
+    error: values.some((v) => v.error),
+    isLocalParticipantRecorded: values.some(
+      (v) => v.isLocalParticipantRecorded
+    ),
+    isRecording: activeInstances.length > 0,
+    layout: firstActive?.layout,
+    local: firstActive?.local,
+    recordingId: firstActive?.recordingId,
+    recordingStartedDate: firstActive?.recordingStartedDate,
+    startedBy: firstActive?.startedBy,
+    type: firstActive?.type,
+  };
 });
 recordingState.debugLabel = jotaiDebugLabel('recording-state');
 
@@ -66,7 +104,7 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
     filter: 'record',
   });
 
-  const maybeUpdateRecordingState = useAtomCallback(
+  const maybeUpdateLocalRecordingState = useAtomCallback(
     useCallback(
       (
         get,
@@ -74,63 +112,61 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
         hasRecordingParticipants: boolean,
         isLocalParticipantRecording: boolean
       ) => {
-        const oldState = get(recordingState);
-        const s: RecordingState = {
-          isLocalParticipantRecorded: oldState.isLocalParticipantRecorded,
-          isRecording: oldState.isRecording,
-          local: oldState.local,
-          type: oldState.type,
-        };
-        const newState: RecordingState = {
-          // In case type is local or not set, determine based on recording participants
-          isLocalParticipantRecorded:
-            s?.type === 'local' || !s?.type
-              ? hasRecordingParticipants
-              : s.isLocalParticipantRecorded,
-          isRecording:
-            s?.type === 'local' || !s?.type
-              ? hasRecordingParticipants
-              : s.isRecording,
-          local:
-            (s?.type === 'local' || !s?.type) && hasRecordingParticipants
-              ? isLocalParticipantRecording
-              : s?.local,
-          /**
-           * Set type in case recording participants are detected.
-           * We only set `record` on participants, when recording type is 'local'.
-           */
-          type: hasRecordingParticipants ? 'local' : oldState?.type,
+        const instances = get(recordingInstancesState);
+        const localInstance = instances['__local__'];
+
+        const newLocalState: RecordingInstanceState = {
+          instanceId: '__local__',
+          isLocalParticipantRecorded: hasRecordingParticipants,
+          isRecording: hasRecordingParticipants,
+          local: hasRecordingParticipants
+            ? isLocalParticipantRecording
+            : localInstance?.local,
+          type: hasRecordingParticipants ? 'local' : localInstance?.type,
         };
 
-        if (customDeepEqual(s, newState)) return;
-        set(recordingState, {
-          ...s,
-          ...newState,
-        });
+        if (localInstance && customDeepEqual(localInstance, newLocalState))
+          return;
+
+        if (!hasRecordingParticipants && !localInstance) return;
+
+        if (hasRecordingParticipants) {
+          set(recordingInstancesState, (prev) => ({
+            ...prev,
+            __local__: newLocalState,
+          }));
+        } else if (localInstance) {
+          set(recordingInstancesState, (prev) => ({
+            ...prev,
+            __local__: {
+              ...localInstance,
+              isLocalParticipantRecorded: false,
+              isRecording: false,
+            },
+          }));
+        }
       },
       []
     )
   );
 
-  /**
-   * Update recording state, whenever amount of recording participants changes.
-   */
   useEffect(() => {
     const hasRecordingParticipants = recordingParticipantIds.length > 0;
     const isLocalParticipantRecording = recordingParticipantIds.includes(
       localSessionId || 'local'
     );
-    maybeUpdateRecordingState(
+    maybeUpdateLocalRecordingState(
       hasRecordingParticipants,
       isLocalParticipantRecording
     );
-  }, [localSessionId, maybeUpdateRecordingState, recordingParticipantIds]);
+  }, [localSessionId, maybeUpdateLocalRecordingState, recordingParticipantIds]);
 
   useDailyEvent(
     'recording-started',
     useAtomCallback(
       useCallback(
         (_get, set, ev) => {
+          const key = resolveInstanceKey(ev);
           let isLocalParticipantRecorded = true;
           switch (ev.type) {
             case 'cloud-audio-only':
@@ -146,17 +182,21 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
               break;
             }
           }
-          set(recordingState, {
-            error: false,
-            isLocalParticipantRecorded,
-            isRecording: true,
-            layout: ev?.layout,
-            local: ev?.local,
-            recordingId: ev?.recordingId,
-            recordingStartedDate: new Date(),
-            startedBy: ev?.startedBy,
-            type: ev?.type,
-          });
+          set(recordingInstancesState, (prev) => ({
+            ...prev,
+            [key]: {
+              error: false,
+              instanceId: key,
+              isLocalParticipantRecorded,
+              isRecording: true,
+              layout: ev?.layout,
+              local: ev?.local,
+              recordingId: ev?.recordingId,
+              recordingStartedDate: new Date(),
+              startedBy: ev?.startedBy,
+              type: ev?.type,
+            },
+          }));
         },
         [localSessionId]
       )
@@ -165,25 +205,42 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
   useDailyEvent(
     'recording-stopped',
     useAtomCallback(
-      useCallback((_get, set) => {
-        set(recordingState, (prevState) => ({
-          ...prevState,
-          isLocalParticipantRecorded: false,
-          isRecording: false,
-        }));
+      useCallback((_get, set, ev) => {
+        const key = resolveInstanceKey(ev);
+        set(recordingInstancesState, (prev) => {
+          if (!prev[key]) return prev;
+          return {
+            ...prev,
+            [key]: {
+              ...prev[key],
+              isLocalParticipantRecorded: false,
+              isRecording: false,
+            },
+          };
+        });
       }, [])
     )
   );
   useDailyEvent(
     'recording-error',
     useAtomCallback(
-      useCallback((_get, set) => {
-        set(recordingState, (prevState: RecordingState) => ({
-          ...prevState,
-          error: true,
-          isLocalParticipantRecorded: false,
-          isRecording: false,
-        }));
+      useCallback((_get, set, ev) => {
+        const key = resolveInstanceKey(ev);
+        set(recordingInstancesState, (prev) => {
+          const existing = prev[key];
+          return {
+            ...prev,
+            [key]: {
+              ...(existing ?? {
+                instanceId: key,
+              }),
+              error: true,
+              errorMsg: ev.errorMsg,
+              isLocalParticipantRecorded: false,
+              isRecording: false,
+            },
+          };
+        });
       }, [])
     )
   );
@@ -191,10 +248,7 @@ export const DailyRecordings: React.FC<React.PropsWithChildren<unknown>> = ({
     'left-meeting',
     useAtomCallback(
       useCallback((_get, set) => {
-        set(recordingState, {
-          isLocalParticipantRecorded: false,
-          isRecording: false,
-        });
+        set(recordingInstancesState, {});
       }, [])
     )
   );

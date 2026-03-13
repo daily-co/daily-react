@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { babel } from '@rollup/plugin-babel';
 import copy from 'rollup-plugin-copy';
@@ -11,6 +12,10 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
 const commonPlugins = [
   peerDepsExternal(),
+  replace({
+    __DAILY_REACT_VERSION__: JSON.stringify(packageJson.version),
+    preventAssignment: true,
+  }),
   resolve({
     browser: true,
     preferBuiltins: false,
@@ -28,7 +33,12 @@ const commonPlugins = [
   }),
 ];
 
-const externalDependencies = ['@daily-co/daily-js', 'jotai', 'react', 'react-dom'];
+const externalDependencies = [
+  '@daily-co/daily-js',
+  'jotai',
+  'react',
+  'react-dom',
+];
 
 export default [
   // ESM build (unminified)
