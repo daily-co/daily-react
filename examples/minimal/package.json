@@ -4,11 +4,11 @@
   "description": "",
   "keywords": [],
   "dependencies": {
-    "@daily-co/daily-js": "^0.73.0",
-    "@daily-co/daily-react": "^0.21.3",
+    "@daily-co/daily-js": "^0.87.0",
+    "@daily-co/daily-react": "^0.24.0",
     "classnames": "^2.5.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "jotai": "^2.10.1"
   },
   "devDependencies": {
