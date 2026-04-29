@@ -102,4 +102,130 @@ describe('DailyAudioTrack', () => {
       ).toEqual(track.id);
     });
   });
+  it('calls load() and plays on loadedmetadata after srcObject swap', async () => {
+    const loadSpy = jest
+      .spyOn(HTMLMediaElement.prototype, 'load')
+      .mockImplementation(() => {});
+    const playSpy = jest
+      .spyOn(HTMLMediaElement.prototype, 'play')
+      .mockResolvedValue();
+    try {
+      const callObject = Daily.createCallObject();
+      const Wrapper = createWrapper(callObject);
+      const sessionId = faker.string.uuid();
+      const track = new FakeMediaStreamTrack({ kind: 'audio' });
+      (callObject.participants as jest.Mock).mockImplementation(() => ({
+        [sessionId]: {
+          local: false,
+          session_id: sessionId,
+          tracks: {
+            audio: {
+              persistentTrack: track,
+              state: 'playable',
+              track: track,
+            },
+          },
+        },
+      }));
+      const { container } = render(
+        <Wrapper>
+          <DailyAudioTrack sessionId={sessionId} />
+        </Wrapper>
+      );
+      act(() => {
+        emitParticipantJoined(callObject, {
+          local: false,
+          session_id: sessionId,
+          // @ts-ignore
+          tracks: {
+            audio: {
+              persistentTrack: track,
+              state: 'playable',
+              subscribed: true,
+              track: track,
+            },
+          },
+        });
+      });
+      const audio = container.querySelector('audio');
+      await waitFor(() => {
+        expect(loadSpy).toHaveBeenCalled();
+      });
+      expect(playSpy).not.toHaveBeenCalled();
+      act(() => {
+        audio?.dispatchEvent(new Event('loadedmetadata'));
+      });
+      expect(playSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      loadSpy.mockRestore();
+      playSpy.mockRestore();
+    }
+  });
+  it('reports onPlayFailed when play() rejects', async () => {
+    jest.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
+    const playSpy = jest
+      .spyOn(HTMLMediaElement.prototype, 'play')
+      .mockRejectedValue(
+        Object.assign(new Error('A user gesture is required'), {
+          name: 'NotAllowedError',
+        })
+      );
+    try {
+      const callObject = Daily.createCallObject();
+      const Wrapper = createWrapper(callObject);
+      const sessionId = faker.string.uuid();
+      const track = new FakeMediaStreamTrack({ kind: 'audio' });
+      (callObject.participants as jest.Mock).mockImplementation(() => ({
+        [sessionId]: {
+          local: false,
+          session_id: sessionId,
+          tracks: {
+            audio: {
+              persistentTrack: track,
+              state: 'playable',
+              track: track,
+            },
+          },
+        },
+      }));
+      const onPlayFailed = jest.fn();
+      const { container } = render(
+        <Wrapper>
+          <DailyAudioTrack sessionId={sessionId} onPlayFailed={onPlayFailed} />
+        </Wrapper>
+      );
+      act(() => {
+        emitParticipantJoined(callObject, {
+          local: false,
+          session_id: sessionId,
+          // @ts-ignore
+          tracks: {
+            audio: {
+              persistentTrack: track,
+              state: 'playable',
+              subscribed: true,
+              track: track,
+            },
+          },
+        });
+      });
+      const audio = container.querySelector('audio');
+      await act(async () => {
+        audio?.dispatchEvent(new Event('loadedmetadata'));
+      });
+      expect(playSpy).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(onPlayFailed).toHaveBeenCalledWith(
+          expect.objectContaining({
+            sessionId,
+            type: 'audio',
+            name: 'NotAllowedError',
+            message: 'A user gesture is required',
+          })
+        );
+      });
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
 });
