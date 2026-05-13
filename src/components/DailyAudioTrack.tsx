@@ -85,6 +85,23 @@ export const DailyAudioTrack = memo(
         )
       );
 
+      /**
+       * When the local participant leaves, fully release the audio element so
+       * a subsequent join starts from a clean state. On iOS Safari, leaving
+       * srcObject attached across join/leave cycles can leave the WebRTC
+       * AVAudioSession in a broken state, producing stuck-buffer noise on
+       * leave and silence after the next join.
+       */
+      useDailyEvent(
+        'left-meeting',
+        useCallback(() => {
+          const audioTag = audioEl.current;
+          if (!audioTag) return;
+          audioTag.pause();
+          audioTag.srcObject = null;
+        }, [])
+      );
+
       return (
         <audio
           autoPlay
