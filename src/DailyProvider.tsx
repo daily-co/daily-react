@@ -10,6 +10,8 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { DailyContext } from './DailyContext';
 import { DailyDevices } from './DailyDevices';
+import { DailyDialin } from './DailyDialin';
+import { DailyDialOut } from './DailyDialOut';
 import { DailyEventContext } from './DailyEventContext';
 import { DailyLiveStreaming } from './DailyLiveStreaming';
 import { DailyMeeting } from './DailyMeeting';
@@ -141,7 +143,11 @@ export const DailyProvider: React.FC<React.PropsWithChildren<Props>> = ({
                   <DailyRecordings>
                     <DailyLiveStreaming>
                       <DailyTranscriptions>
-                        <DailyDevices>{children}</DailyDevices>
+                        <DailyDialOut>
+                          <DailyDialin>
+                            <DailyDevices>{children}</DailyDevices>
+                          </DailyDialin>
+                        </DailyDialOut>
                       </DailyTranscriptions>
                     </DailyLiveStreaming>
                   </DailyRecordings>

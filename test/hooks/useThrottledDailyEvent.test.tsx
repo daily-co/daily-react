@@ -17,6 +17,18 @@ jest.mock('../../src/DailyDevices', () => ({
     <>{children}</>
   )) as React.FC<React.PropsWithChildren>,
 }));
+jest.mock('../../src/DailyDialin', () => ({
+  ...jest.requireActual('../../src/DailyDialin'),
+  DailyDialin: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
+}));
+jest.mock('../../src/DailyDialOut', () => ({
+  ...jest.requireActual('../../src/DailyDialOut'),
+  DailyDialOut: (({ children }) => (
+    <>{children}</>
+  )) as React.FC<React.PropsWithChildren>,
+}));
 jest.mock('../../src/DailyLiveStreaming', () => ({
   ...jest.requireActual('../../src/DailyLiveStreaming'),
   DailyLiveStreaming: (({ children }) => (
