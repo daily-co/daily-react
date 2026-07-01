@@ -5,7 +5,8 @@ import {
   DailyWaitingParticipant,
 } from '@daily-co/daily-js';
 import { atom } from 'jotai';
-import { atomFamily, useAtomCallback } from 'jotai/utils';
+import { useAtomCallback } from 'jotai/utils';
+import { atomFamily } from 'jotai-family';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useDaily } from './hooks/useDaily';

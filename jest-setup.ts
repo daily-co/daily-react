@@ -2,6 +2,13 @@ import '@testing-library/jest-dom';
 import { FakeMediaStreamTrack } from 'fake-mediastreamtrack';
 import { faker } from '@faker-js/faker';
 
+/**
+ * Inlined at build time by Rollup; define for Jest so src/version.ts does not throw.
+ */
+(
+  global as unknown as { __DAILY_REACT_VERSION__: string }
+).__DAILY_REACT_VERSION__ = '0.0.0-test';
+
 class MediaStream {
   active: boolean;
   id: string;
@@ -18,15 +25,15 @@ class MediaStream {
   }
 
   removeTrack(track: MediaStreamTrack) {
-    this.tracks = this.tracks.filter(t => t.id !== track.id);
+    this.tracks = this.tracks.filter((t) => t.id !== track.id);
   }
 
   getAudioTracks() {
-    return this.tracks.filter(t => t.kind === 'audio');
+    return this.tracks.filter((t) => t.kind === 'audio');
   }
 
   getVideoTracks() {
-    return this.tracks.filter(t => t.kind === 'video');
+    return this.tracks.filter((t) => t.kind === 'video');
   }
 
   getTracks() {
@@ -45,7 +52,7 @@ Object.defineProperty(window, 'MediaStream', {
 Object.defineProperty(window, 'MediaStreamTrack', {
   writable: true,
   value: FakeMediaStreamTrack,
-})
+});
 
 Object.defineProperty(HTMLVideoElement.prototype, 'load', {
   value: () => {},

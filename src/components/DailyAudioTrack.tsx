@@ -31,21 +31,15 @@ export const DailyAudioTrack = memo(
 
       /**
        * Setup audio tag.
+       *
+       * Safari can skip `canplay` after a `srcObject` swap when the element's
+       * readyState is already past it from the previous stream. We listen for
+       * `loadedmetadata` and call `load()` after the swap so the element
+       * re-runs resource selection against the new stream.
        */
       useEffect(() => {
         const audioTag = audioEl.current;
         if (!audioTag || !audio?.persistentTrack) return;
-        const handleCanPlay = () => {
-          audioTag.play().catch((e) => {
-            onPlayFailed?.({
-              sessionId,
-              target: audioTag,
-              type,
-              message: e.message,
-              name: e.name,
-            });
-          });
-        };
         if (!MediaStream) {
           console.warn(
             `MediaStream API not available. Can't setup ${type} for ${sessionId}`
@@ -59,11 +53,23 @@ export const DailyAudioTrack = memo(
           });
           return;
         }
-        audioTag.addEventListener('canplay', handleCanPlay);
-        audioTag.srcObject = new MediaStream([audio?.persistentTrack]);
+        const handleLoadedMetadata = () => {
+          audioTag.play().catch((e) => {
+            onPlayFailed?.({
+              sessionId,
+              target: audioTag,
+              type,
+              message: e.message,
+              name: e.name,
+            });
+          });
+        };
+        audioTag.addEventListener('loadedmetadata', handleLoadedMetadata);
+        audioTag.srcObject = new MediaStream([audio.persistentTrack]);
+        audioTag.load();
 
         return () => {
-          audioTag?.removeEventListener('canplay', handleCanPlay);
+          audioTag.removeEventListener('loadedmetadata', handleLoadedMetadata);
         };
       }, [audio?.persistentTrack, onPlayFailed, sessionId, type]);
 
@@ -77,6 +83,23 @@ export const DailyAudioTrack = memo(
           },
           [sessionId]
         )
+      );
+
+      /**
+       * When the local participant leaves, fully release the audio element so
+       * a subsequent join starts from a clean state. On iOS Safari, leaving
+       * srcObject attached across join/leave cycles can leave the WebRTC
+       * AVAudioSession in a broken state, producing stuck-buffer noise on
+       * leave and silence after the next join.
+       */
+      useDailyEvent(
+        'left-meeting',
+        useCallback(() => {
+          const audioTag = audioEl.current;
+          if (!audioTag) return;
+          audioTag.pause();
+          audioTag.srcObject = null;
+        }, [])
       );
 
       return (

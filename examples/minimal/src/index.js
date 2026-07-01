@@ -3,8 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App";
 
-// Change to your room URL
-export const roomUrl = "https://you.daily.co/hello";
+export const roomUrl = process.env.DAILY_ROOM_URL;
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);

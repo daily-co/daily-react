@@ -2,6 +2,7 @@ import Daily, { DailyCall, DailyFactoryOptions } from '@daily-co/daily-js';
 import { MutableRefObject, useEffect, useRef, useState } from 'react';
 
 import { customDeepEqual } from '../lib/customDeepEqual';
+import { DAILY_REACT_VERSION } from '../version';
 
 type InstanceType = 'callFrame' | 'callObject';
 
@@ -103,14 +104,21 @@ export const useCallInstance = (
        * Important to spread props, because createCallObject/createFrame alters the passed object (adds layout and dailyJsVersion).
        */
       try {
+        const optionsWithAboutClient: DailyFactoryOptions = {
+          ...options,
+          aboutClient: {
+            ...(options.aboutClient ?? {}),
+            'daily-react': DAILY_REACT_VERSION,
+          },
+        };
         switch (type) {
           case 'callFrame':
             co = parentElRef?.current
-              ? Daily.createFrame(parentElRef.current, { ...options })
-              : Daily.createFrame({ ...options });
+              ? Daily.createFrame(parentElRef.current, optionsWithAboutClient)
+              : Daily.createFrame(optionsWithAboutClient);
             break;
           case 'callObject':
-            co = Daily.createCallObject({ ...options });
+            co = Daily.createCallObject(optionsWithAboutClient);
             break;
         }
         lastUsedOptions.current = options;
