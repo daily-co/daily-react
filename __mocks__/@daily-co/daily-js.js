@@ -52,6 +52,9 @@ const createCallObject = (properties) => {
       data: undefined,
       topology: 'none',
     })),
+    meetingSessionSummary: jest.fn(() => ({
+      id: '',
+    })),
     meetingState: jest.fn(),
     emit: jest.fn(emitter.emit),
     off: jest.fn(emitter.off),
