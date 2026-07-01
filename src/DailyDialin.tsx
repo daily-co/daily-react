@@ -144,7 +144,7 @@ export const DailyDialin: React.FC<React.PropsWithChildren<unknown>> = ({
   // torn down.
   const reset = useAtomCallback(
     useCallback((_get, set) => {
-      set(dialinState, { isReady: false, sessions: {} });
+      set(dialinState, initialState);
     }, [])
   );
   useDailyEvent('left-meeting', reset);

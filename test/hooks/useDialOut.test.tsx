@@ -195,9 +195,10 @@ describe('useDialOut', () => {
     });
   });
 
-  it('dialout-error without a sessionId is surfaced under a fallback key', async () => {
+  it('dialout-error without a sessionId fires the callback but adds no session', async () => {
+    const onDialOutError = jest.fn();
     const daily = Daily.createCallObject();
-    const { result } = renderHook(() => useDialOut(), {
+    const { result } = renderHook(() => useDialOut({ onDialOutError }), {
       wrapper: createWrapper(daily),
     });
     const payload: DailyEventObjectDialOutError = mockEvent({
@@ -210,11 +211,10 @@ describe('useDialOut', () => {
       daily.emit('dialout-error', payload);
     });
     await waitFor(() => {
-      const errored = Object.values(result.current.sessions).find(
-        (s) => s.status === 'error'
-      );
-      expect(errored?.errorMsg).toBe('failed before session established');
+      expect(onDialOutError).toHaveBeenCalledWith(payload);
     });
+    // A session-less error is delivered via the callback only, not stored.
+    expect(result.current.sessions).toEqual({});
   });
 
   it('left-meeting resets sessions', async () => {

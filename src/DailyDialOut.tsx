@@ -20,18 +20,6 @@ export interface DialOutSessionState {
   errorMsg?: string;
 }
 
-/**
- * dialout-error can arrive without a sessionId (e.g. the call failed before a
- * session was established). Fall back to sipCallId, then a shared bucket, so the
- * error is still surfaced in state.
- */
-function resolveDialOutKey(ev: {
-  sessionId?: string;
-  sipCallId?: string;
-}): string {
-  return ev.sessionId ?? ev.sipCallId ?? '__unknown__';
-}
-
 export const dialOutSessionsState = atom<Record<string, DialOutSessionState>>(
   {}
 );
@@ -44,15 +32,14 @@ export const DailyDialOut: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialout-connected',
     useAtomCallback(
       useCallback((_get, set, ev) => {
-        const key = resolveDialOutKey(ev);
         set(dialOutSessionsState, (prev) => ({
           ...prev,
-          [key]: {
-            ...prev[key],
-            sessionId: ev.sessionId ?? prev[key]?.sessionId ?? key,
+          [ev.sessionId]: {
+            ...prev[ev.sessionId],
+            sessionId: ev.sessionId,
             status: 'connected',
-            provider: ev.provider ?? prev[key]?.provider,
-            sipCallId: ev.sipCallId ?? prev[key]?.sipCallId,
+            provider: ev.provider,
+            sipCallId: ev.sipCallId,
           },
         }));
       }, [])
@@ -63,15 +50,14 @@ export const DailyDialOut: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialout-answered',
     useAtomCallback(
       useCallback((_get, set, ev) => {
-        const key = resolveDialOutKey(ev);
         set(dialOutSessionsState, (prev) => ({
           ...prev,
-          [key]: {
-            ...prev[key],
-            sessionId: ev.sessionId ?? prev[key]?.sessionId ?? key,
+          [ev.sessionId]: {
+            ...prev[ev.sessionId],
+            sessionId: ev.sessionId,
             status: 'answered',
-            provider: ev.provider ?? prev[key]?.provider,
-            sipCallId: ev.sipCallId ?? prev[key]?.sipCallId,
+            provider: ev.provider,
+            sipCallId: ev.sipCallId,
           },
         }));
       }, [])
@@ -82,15 +68,12 @@ export const DailyDialOut: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialout-stopped',
     useAtomCallback(
       useCallback((_get, set, ev) => {
-        const key = resolveDialOutKey(ev);
-        // Ignore a stop for an unknown session. Unlike error/warning, a stop
-        // for a session we never saw started carries no useful state.
         set(dialOutSessionsState, (prev) => {
-          if (!prev[key]) return prev;
+          if (!prev[ev.sessionId]) return prev;
           return {
             ...prev,
-            [key]: {
-              ...prev[key],
+            [ev.sessionId]: {
+              ...prev[ev.sessionId],
               status: 'stopped',
             },
           };
@@ -103,15 +86,19 @@ export const DailyDialOut: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialout-error',
     useAtomCallback(
       useCallback((_get, set, ev) => {
-        const key = resolveDialOutKey(ev);
+        // A dialout-error can arrive before a session exists (e.g. the call
+        // failed to start), in which case it has no sessionId to key on. It is
+        // still delivered to consumers via the onDialOutError callback.
+        const { sessionId } = ev;
+        if (!sessionId) return;
         set(dialOutSessionsState, (prev) => ({
           ...prev,
-          [key]: {
-            ...prev[key],
-            sessionId: ev.sessionId ?? prev[key]?.sessionId ?? key,
+          [sessionId]: {
+            ...prev[sessionId],
+            sessionId,
             status: 'error',
-            provider: ev.provider ?? prev[key]?.provider,
-            sipCallId: ev.sipCallId ?? prev[key]?.sipCallId,
+            provider: ev.provider ?? prev[sessionId]?.provider,
+            sipCallId: ev.sipCallId ?? prev[sessionId]?.sipCallId,
             errorMsg: ev.errorMsg,
           },
         }));
@@ -123,15 +110,16 @@ export const DailyDialOut: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialout-warning',
     useAtomCallback(
       useCallback((_get, set, ev) => {
-        const key = resolveDialOutKey(ev);
+        const { sessionId } = ev;
+        if (!sessionId) return;
         set(dialOutSessionsState, (prev) => ({
           ...prev,
-          [key]: {
-            ...prev[key],
-            sessionId: ev.sessionId ?? prev[key]?.sessionId ?? key,
+          [sessionId]: {
+            ...prev[sessionId],
+            sessionId,
             status: 'warning',
-            provider: ev.provider ?? prev[key]?.provider,
-            sipCallId: ev.sipCallId ?? prev[key]?.sipCallId,
+            provider: ev.provider ?? prev[sessionId]?.provider,
+            sipCallId: ev.sipCallId ?? prev[sessionId]?.sipCallId,
             errorMsg: ev.errorMsg,
           },
         }));
