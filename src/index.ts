@@ -35,6 +35,7 @@ export { useLocalParticipant } from './hooks/useLocalParticipant';
 export { useLocalSessionId } from './hooks/useLocalSessionId';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useMeetingSessionState } from './hooks/useMeetingSessionState';
+export { useMeetingSessionSummary } from './hooks/useMeetingSessionSummary';
 export { useMeetingState } from './hooks/useMeetingState';
 export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';

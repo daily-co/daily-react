@@ -1,7 +1,9 @@
 import {
   DailyEventObjectFatalError,
+  DailyEventObjectMeetingSessionSummaryUpdated,
   DailyEventObjectNonFatalError,
   DailyMeetingSessionState,
+  DailyMeetingSessionSummary,
   DailyMeetingState,
 } from '@daily-co/daily-js';
 import { atom } from 'jotai';
@@ -28,6 +30,12 @@ export const meetingSessionDataState = atom<DailyMeetingSessionState>({
   topology: 'none',
 });
 meetingSessionDataState.debugLabel = jotaiDebugLabel('meeting-session-data');
+
+export const meetingSessionSummaryState =
+  atom<DailyMeetingSessionSummary | null>(null);
+meetingSessionSummaryState.debugLabel = jotaiDebugLabel(
+  'meeting-session-summary'
+);
 
 export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   children,
@@ -106,6 +114,37 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
   );
 
   /**
+   * Initializes the meeting session summary once joined.
+   */
+  const initMeetingSessionSummary = useAtomCallback(
+    useCallback(
+      (_get, set) => {
+        if (!daily) return;
+        set(meetingSessionSummaryState, daily.meetingSessionSummary());
+      },
+      [daily]
+    )
+  );
+  useDailyEvent('joined-meeting', initMeetingSessionSummary);
+
+  /**
+   * Update Jotai state whenever the meeting session summary is updated.
+   */
+  useDailyEvent(
+    'meeting-session-summary-updated',
+    useAtomCallback(
+      useCallback((_get, set, ev) => {
+        // daily-js does not yet map 'meeting-session-summary-updated' to its
+        // event object type, so ev is typed as the base event here.
+        set(
+          meetingSessionSummaryState,
+          (ev as DailyEventObjectMeetingSessionSummaryUpdated).meetingSession
+        );
+      }, [])
+    )
+  );
+
+  /**
    * Reset Jotai state when meeting ends.
    */
   useDailyEvent(
@@ -116,6 +155,7 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
           data: undefined,
           topology: 'none',
         });
+        set(meetingSessionSummaryState, null);
       }, [])
     )
   );
@@ -134,6 +174,7 @@ export const DailyMeeting: React.FC<React.PropsWithChildren<{}>> = ({
           data: undefined,
           topology: 'none',
         });
+        set(meetingSessionSummaryState, null);
       }, [])
     )
   );
