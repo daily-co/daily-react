@@ -43,7 +43,7 @@ interface Props
    * types, you can pass the `trackName` of a custom track started via
    * `daily.startCustomTrack()`.
    */
-  type: 'video' | 'screenVideo' | 'rmpVideo' | (string & {});
+  type?: 'video' | 'screenVideo' | 'rmpVideo' | (string & {});
 }
 
 export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
