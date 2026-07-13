@@ -18,7 +18,12 @@ interface Props extends React.AudioHTMLAttributes<HTMLAudioElement> {
    */
   onPlayFailed?(e: DailyAudioPlayException): void;
   sessionId: string;
-  type?: 'audio' | 'screenAudio' | 'rmpAudio';
+  /**
+   * Defines the track type being played. In addition to the built-in track
+   * types, you can pass the `trackName` of a custom track started via
+   * `daily.startCustomTrack()`.
+   */
+  type?: 'audio' | 'screenAudio' | 'rmpAudio' | (string & {});
 }
 
 export const DailyAudioTrack = memo(
