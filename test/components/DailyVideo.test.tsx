@@ -227,6 +227,44 @@ describe('DailyVideo', () => {
       transform: 'scale(-1, 1)',
     });
   });
+  it('restores mirror transform after leaving picture-in-picture', () => {
+    const callObject = Daily.createCallObject();
+    const Wrapper = createWrapper(callObject);
+    const sessionId = faker.string.uuid();
+    const { container } = render(
+      <Wrapper>
+        <DailyVideo mirror sessionId={sessionId} type="video" />
+      </Wrapper>
+    );
+    const video = container.querySelector('video');
+    act(() => {
+      video?.dispatchEvent(new Event('enterpictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(1)' });
+    act(() => {
+      video?.dispatchEvent(new Event('leavepictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(-1, 1)' });
+  });
+  it('leaves transform empty after leaving picture-in-picture when not mirrored', () => {
+    const callObject = Daily.createCallObject();
+    const Wrapper = createWrapper(callObject);
+    const sessionId = faker.string.uuid();
+    const { container } = render(
+      <Wrapper>
+        <DailyVideo sessionId={sessionId} type="video" />
+      </Wrapper>
+    );
+    const video = container.querySelector('video');
+    act(() => {
+      video?.dispatchEvent(new Event('enterpictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(1)' });
+    act(() => {
+      video?.dispatchEvent(new Event('leavepictureinpicture'));
+    });
+    expect(video?.style.transform).toBe('');
+  });
   describe('with automirror enabled', () => {
     it('flips local video via CSS (no video track)', () => {
       const callObject = Daily.createCallObject();
