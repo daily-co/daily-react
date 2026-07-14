@@ -66,6 +66,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
 
     const videoEl = useRef<HTMLVideoElement>(null);
     const videoRef = useMergedRef<HTMLVideoElement>(videoEl, ref);
+    const isMirroredRef = useRef(false);
 
     const videoState = useMediaTrack(sessionId, type);
     const videoTrack = videoState.persistentTrack;
@@ -95,6 +96,10 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
       // only apply mirror effect to user facing camera
       return isUsersFrontCamera;
     }, [automirror, isLocalCam, mirror, videoTrack]);
+
+    useEffect(() => {
+      isMirroredRef.current = isMirrored;
+    }, [isMirrored]);
 
     /**
      * Handle canplay & picture-in-picture events.
@@ -127,7 +132,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
         video.style.transform = 'scale(1)';
       };
       const handleLeavePIP = () => {
-        video.style.transform = '';
+        video.style.transform = isMirroredRef.current ? 'scale(-1, 1)' : '';
         setTimeout(() => {
           if (video.paused) playVideo();
         }, 100);
