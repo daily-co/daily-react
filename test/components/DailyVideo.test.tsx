@@ -228,6 +228,7 @@ describe('DailyVideo', () => {
     });
   });
   it('restores mirror transform after leaving picture-in-picture', () => {
+    jest.useFakeTimers();
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.string.uuid();
@@ -245,8 +246,11 @@ describe('DailyVideo', () => {
       video?.dispatchEvent(new Event('leavepictureinpicture'));
     });
     expect(video).toHaveStyle({ transform: 'scale(-1, 1)' });
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
   it('leaves transform empty after leaving picture-in-picture when not mirrored', () => {
+    jest.useFakeTimers();
     const callObject = Daily.createCallObject();
     const Wrapper = createWrapper(callObject);
     const sessionId = faker.string.uuid();
@@ -264,6 +268,8 @@ describe('DailyVideo', () => {
       video?.dispatchEvent(new Event('leavepictureinpicture'));
     });
     expect(video?.style.transform).toBe('');
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
   describe('with automirror enabled', () => {
     it('flips local video via CSS (no video track)', () => {
