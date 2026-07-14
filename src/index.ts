@@ -22,7 +22,6 @@ export { useAudioTrack } from './hooks/useAudioTrack';
 export { useCallFrame } from './hooks/useCallFrame';
 export { useCallObject } from './hooks/useCallObject';
 export { useCPULoad } from './hooks/useCPULoad';
-export { useCustomTrack } from './hooks/useCustomTrack';
 export { useDaily } from './hooks/useDaily';
 export { useDailyError } from './hooks/useDailyError';
 export { useDailyEvent } from './hooks/useDailyEvent';
