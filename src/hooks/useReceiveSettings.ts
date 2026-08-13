@@ -6,7 +6,7 @@ import {
 } from '@daily-co/daily-js';
 import { atom, Getter, Setter, useAtom, WritableAtom } from 'jotai';
 import { useAtomCallback } from 'jotai/utils';
-import { atomFamily } from 'jotai/utils';
+import { atomFamily } from 'jotai-family';
 import { useCallback, useDebugValue, useEffect } from 'react';
 
 import { jotaiDebugLabel } from '../lib/jotai-custom';

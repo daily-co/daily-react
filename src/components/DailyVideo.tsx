@@ -39,9 +39,11 @@ interface Props
    */
   sessionId: string;
   /**
-   * Defines the track type being used.
+   * Defines the track type being used. In addition to the built-in track
+   * types, you can pass the `trackName` of a custom track started via
+   * `daily.startCustomTrack()`.
    */
-  type: 'video' | 'screenVideo' | 'rmpVideo';
+  type?: 'video' | 'screenVideo' | 'rmpVideo' | (string & {});
 }
 
 export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
@@ -62,10 +64,14 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
     const localSessionId = useLocalSessionId();
     const isLocal = localSessionId === sessionId;
     const isScreen = type === 'screenVideo';
-    const isLocalCam = isLocal && !isScreen;
+    // Only the built-in camera track counts as the local camera. Custom tracks
+    // (and rmpVideo) belonging to the local participant must not be treated as a
+    // local cam feed, otherwise they'd always be considered playable/mirrored.
+    const isLocalCam = isLocal && type === 'video';
 
     const videoEl = useRef<HTMLVideoElement>(null);
     const videoRef = useMergedRef<HTMLVideoElement>(videoEl, ref);
+    const isMirroredRef = useRef(false);
 
     const videoState = useMediaTrack(sessionId, type);
     const videoTrack = videoState.persistentTrack;
@@ -95,6 +101,10 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
       // only apply mirror effect to user facing camera
       return isUsersFrontCamera;
     }, [automirror, isLocalCam, mirror, videoTrack]);
+
+    useEffect(() => {
+      isMirroredRef.current = isMirrored;
+    }, [isMirrored]);
 
     /**
      * Handle canplay & picture-in-picture events.
@@ -127,7 +137,7 @@ export const DailyVideo = forwardRef<HTMLVideoElement, Props>(
         video.style.transform = 'scale(1)';
       };
       const handleLeavePIP = () => {
-        video.style.transform = '';
+        video.style.transform = isMirroredRef.current ? 'scale(-1, 1)' : '';
         setTimeout(() => {
           if (video.paused) playVideo();
         }, 100);

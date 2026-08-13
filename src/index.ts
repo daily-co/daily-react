@@ -2,6 +2,12 @@ export { DailyAudio } from './components/DailyAudio';
 export { DailyAudioTrack } from './components/DailyAudioTrack';
 export { DailyVideo } from './components/DailyVideo';
 export { StatefulDevice } from './DailyDevices';
+export {
+  DialinSessionState,
+  DialinSessionStatus,
+  DialinState,
+} from './DailyDialin';
+export { DialOutSessionState, DialOutSessionStatus } from './DailyDialOut';
 export { LiveStreamingInstanceState } from './DailyLiveStreaming';
 export { ExtendedDailyParticipant } from './DailyParticipants';
 export { DailyProvider } from './DailyProvider';
@@ -20,6 +26,8 @@ export { useDaily } from './hooks/useDaily';
 export { useDailyError } from './hooks/useDailyError';
 export { useDailyEvent } from './hooks/useDailyEvent';
 export { useDevices } from './hooks/useDevices';
+export { useDialin } from './hooks/useDialin';
+export { useDialOut } from './hooks/useDialOut';
 export { useInputSettings } from './hooks/useInputSettings';
 export { useLiveStreaming } from './hooks/useLiveStreaming';
 export { useLiveStreamingInstances } from './hooks/useLiveStreamingInstances';
@@ -27,6 +35,7 @@ export { useLocalParticipant } from './hooks/useLocalParticipant';
 export { useLocalSessionId } from './hooks/useLocalSessionId';
 export { useMediaTrack } from './hooks/useMediaTrack';
 export { useMeetingSessionState } from './hooks/useMeetingSessionState';
+export { useMeetingSessionSummary } from './hooks/useMeetingSessionSummary';
 export { useMeetingState } from './hooks/useMeetingState';
 export { useNetwork } from './hooks/useNetwork';
 export { useParticipant } from './hooks/useParticipant';

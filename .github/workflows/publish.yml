@@ -1,0 +1,62 @@
+# Publishes @daily-co/daily-react to npm with provenance, via OIDC trusted
+# publishing, when a version bump lands on main.
+name: publish
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+jobs:
+  npm-publish:
+    name: npm-publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # create the release tag
+      id-token: write # OIDC trusted publishing + provenance
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> "${GITHUB_OUTPUT}"
+      - name: Check for version bump commit
+        id: version-check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" =~ (^|[[:space:]])Bump\ @daily-co/daily-react\ to\ ([0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*) ]]; then
+            echo "version=${BASH_REMATCH[2]}" >> "${GITHUB_OUTPUT}"
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Install deps and build (with cache)
+        if: steps.version-check.outputs.changed == 'true'
+        uses: bahmutov/npm-install@v1
+        with:
+          install-command: npm install --include=dev
+      # OIDC trusted publishing requires npm >= 11.5.1; Node 22 ships npm 10.
+      - name: Upgrade npm for OIDC trusted publishing
+        if: steps.version-check.outputs.changed == 'true'
+        run: npm install -g npm@latest
+      # No auth token: this repo is a configured trusted publisher for
+      # @daily-co/daily-react on npmjs.org, so npm authenticates via OIDC and
+      # attaches provenance automatically. prepublishOnly (clean + rollup build)
+      # produces dist/ before the tarball is packed.
+      - name: Publish to npm
+        if: steps.version-check.outputs.changed == 'true'
+        run: npm publish --provenance --access public
+      - name: Create tag
+        if: steps.version-check.outputs.changed == 'true'
+        run: |
+          TAG="daily-react-${{ steps.date.outputs.date }}-${{ steps.version-check.outputs.version }}"
+          if ! git rev-parse -q --verify "refs/tags/$TAG" > /dev/null 2>&1; then
+            git config user.name daily-co
+            git config user.email "daily-autobot@pluot.co"
+            git tag -a -m "$TAG" "$TAG"
+            git push origin "refs/tags/$TAG"
+          fi

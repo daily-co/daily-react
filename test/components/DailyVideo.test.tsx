@@ -227,6 +227,50 @@ describe('DailyVideo', () => {
       transform: 'scale(-1, 1)',
     });
   });
+  it('restores mirror transform after leaving picture-in-picture', () => {
+    jest.useFakeTimers();
+    const callObject = Daily.createCallObject();
+    const Wrapper = createWrapper(callObject);
+    const sessionId = faker.string.uuid();
+    const { container } = render(
+      <Wrapper>
+        <DailyVideo mirror sessionId={sessionId} type="video" />
+      </Wrapper>
+    );
+    const video = container.querySelector('video');
+    act(() => {
+      video?.dispatchEvent(new Event('enterpictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(1)' });
+    act(() => {
+      video?.dispatchEvent(new Event('leavepictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(-1, 1)' });
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
+  it('leaves transform empty after leaving picture-in-picture when not mirrored', () => {
+    jest.useFakeTimers();
+    const callObject = Daily.createCallObject();
+    const Wrapper = createWrapper(callObject);
+    const sessionId = faker.string.uuid();
+    const { container } = render(
+      <Wrapper>
+        <DailyVideo sessionId={sessionId} type="video" />
+      </Wrapper>
+    );
+    const video = container.querySelector('video');
+    act(() => {
+      video?.dispatchEvent(new Event('enterpictureinpicture'));
+    });
+    expect(video).toHaveStyle({ transform: 'scale(1)' });
+    act(() => {
+      video?.dispatchEvent(new Event('leavepictureinpicture'));
+    });
+    expect(video?.style.transform).toBe('');
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
   describe('with automirror enabled', () => {
     it('flips local video via CSS (no video track)', () => {
       const callObject = Daily.createCallObject();
@@ -390,6 +434,28 @@ describe('DailyVideo', () => {
           transform: 'scale(-1, 1)',
         });
       });
+    });
+  });
+  describe('with custom tracks', () => {
+    it("does not treat the local participant's own custom track as a local cam feed", () => {
+      const callObject = Daily.createCallObject();
+      const Wrapper = createWrapper(callObject);
+      const { container } = render(
+        <Wrapper>
+          <DailyVideo
+            automirror
+            sessionId={localSessionId}
+            type="customVideo"
+          />
+        </Wrapper>
+      );
+      const video = container.querySelector('video');
+      expect(video).toHaveAttribute('data-video-type', 'customVideo');
+      // A local custom track without a started track is not the local camera,
+      // so it must neither be forced playable...
+      expect(video).not.toHaveAttribute('data-playable');
+      // ...nor mirrored by automirror.
+      expect(video).not.toHaveStyle({ transform: 'scale(-1, 1)' });
     });
   });
 });

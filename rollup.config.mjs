@@ -36,6 +36,7 @@ const commonPlugins = [
 const externalDependencies = [
   '@daily-co/daily-js',
   'jotai',
+  'jotai-family',
   'react',
   'react-dom',
 ];
