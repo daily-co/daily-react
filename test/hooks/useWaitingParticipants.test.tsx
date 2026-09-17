@@ -262,6 +262,30 @@ describe('useWaitingParticipants', () => {
           });
         });
       });
+      it('rejects when updateWaitingParticipant rejects', async () => {
+        const daily = Daily.createCallObject();
+        const error = new Error(
+          'updateWaitingParticipant() must take an id of a waiting participant'
+        );
+        (daily.updateWaitingParticipant as jest.Mock).mockRejectedValueOnce(
+          error
+        );
+        const { result } = renderHook(() => useWaitingParticipants(), {
+          wrapper: createWrapper(daily),
+        });
+        await expect(result.current[method]('abcdef')).rejects.toBe(error);
+      });
+      it('rejects when updateWaitingParticipants rejects', async () => {
+        const daily = Daily.createCallObject();
+        const error = new Error('update failed');
+        (daily.updateWaitingParticipants as jest.Mock).mockRejectedValueOnce(
+          error
+        );
+        const { result } = renderHook(() => useWaitingParticipants(), {
+          wrapper: createWrapper(daily),
+        });
+        await expect(result.current[method]('*')).rejects.toBe(error);
+      });
       it('calls updateWaitingParticipants for "all" waiting participants', async () => {
         const daily = Daily.createCallObject();
         const { result } = renderHook(() => useWaitingParticipants(), {
