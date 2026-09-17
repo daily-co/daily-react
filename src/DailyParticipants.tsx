@@ -168,6 +168,9 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
       const ids = get(participantIdsState);
       ids.forEach((id) => participantState.remove(id));
       set(participantIdsState, []);
+      const waitingIds = get(waitingParticipantsState);
+      waitingIds.forEach((id) => waitingParticipantState.remove(id));
+      set(waitingParticipantsState, []);
     }, [])
   );
   useDailyEvent('call-instance-destroyed', handleCleanup, true);

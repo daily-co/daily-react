@@ -198,6 +198,42 @@ describe('useWaitingParticipants', () => {
     });
   });
 
+  it.each(['left-meeting', 'call-instance-destroyed'] as const)(
+    '%s clears waitingParticipants',
+    async (action) => {
+      const daily = Daily.createCallObject();
+      const { result } = renderHook(() => useWaitingParticipants(), {
+        wrapper: createWrapper(daily),
+      });
+      act(() => {
+        // @ts-ignore
+        daily.emit(
+          'waiting-participant-added',
+          mockEvent({
+            action: 'waiting-participant-added',
+            participant: {
+              awaitingAccess: {
+                level: 'full',
+              },
+              id: 'abcdef',
+              name: 'Test',
+            },
+          })
+        );
+      });
+      await waitFor(() => {
+        expect(result.current.waitingParticipants).toHaveLength(1);
+      });
+      act(() => {
+        // @ts-ignore
+        daily.emit(action, mockEvent({ action }));
+      });
+      await waitFor(() => {
+        expect(result.current.waitingParticipants).toHaveLength(0);
+      });
+    }
+  );
+
   describe.each`
     method           | grantRequestedAccess
     ${'denyAccess'}  | ${false}
