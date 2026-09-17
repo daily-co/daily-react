@@ -329,29 +329,39 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
       'waiting-participant-removed',
     ],
     useAtomCallback(
-      useCallback((_get, set, evts) => {
-        evts.forEach((ev) => {
-          switch (ev.action) {
-            case 'waiting-participant-added':
-              set(waitingParticipantsState, (wps) =>
-                wps.includes(ev.participant.id)
-                  ? wps
-                  : [...wps, ev.participant.id]
-              );
-              set(waitingParticipantState(ev.participant.id), ev.participant);
-              break;
-            case 'waiting-participant-updated':
-              set(waitingParticipantState(ev.participant.id), ev.participant);
-              break;
-            case 'waiting-participant-removed':
-              set(waitingParticipantsState, (wps) =>
-                wps.filter((wp) => wp !== ev.participant.id)
-              );
-              waitingParticipantState.remove(ev.participant.id);
-              break;
-          }
-        });
-      }, [])
+      useCallback(
+        (_get, set, evts) => {
+          /**
+           * Throttled events can still be flushed after handleCleanup ran on
+           * left-meeting. Don't let them repopulate the waiting participants.
+           */
+          const meetingState = daily?.meetingState();
+          if (meetingState === 'left-meeting' || meetingState === 'error')
+            return;
+          evts.forEach((ev) => {
+            switch (ev.action) {
+              case 'waiting-participant-added':
+                set(waitingParticipantsState, (wps) =>
+                  wps.includes(ev.participant.id)
+                    ? wps
+                    : [...wps, ev.participant.id]
+                );
+                set(waitingParticipantState(ev.participant.id), ev.participant);
+                break;
+              case 'waiting-participant-updated':
+                set(waitingParticipantState(ev.participant.id), ev.participant);
+                break;
+              case 'waiting-participant-removed':
+                set(waitingParticipantsState, (wps) =>
+                  wps.filter((wp) => wp !== ev.participant.id)
+                );
+                waitingParticipantState.remove(ev.participant.id);
+                break;
+            }
+          });
+        },
+        [daily]
+      )
     ),
     100,
     true

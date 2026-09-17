@@ -234,6 +234,44 @@ describe('useWaitingParticipants', () => {
     }
   );
 
+  it('does not re-add waiting participants from throttled events flushed after left-meeting', async () => {
+    const daily = Daily.createCallObject();
+    const { result } = renderHook(() => useWaitingParticipants(), {
+      wrapper: createWrapper(daily),
+    });
+    const emitAdded = (id: string) =>
+      // @ts-ignore
+      daily.emit(
+        'waiting-participant-added',
+        mockEvent({
+          action: 'waiting-participant-added',
+          participant: {
+            awaitingAccess: {
+              level: 'full',
+            },
+            id,
+            name: id,
+          },
+        })
+      );
+    act(() => {
+      // The first event is handled immediately, the second is throttled.
+      emitAdded('first');
+      emitAdded('second');
+    });
+    await waitFor(() => {
+      expect(result.current.waitingParticipants).toHaveLength(1);
+    });
+    act(() => {
+      (daily.meetingState as jest.Mock).mockReturnValue('left-meeting');
+      // @ts-ignore
+      daily.emit('left-meeting', mockEvent({ action: 'left-meeting' }));
+    });
+    // Wait past the throttle window, so the queued event has been flushed.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 200)));
+    expect(result.current.waitingParticipants).toHaveLength(0);
+  });
+
   describe.each`
     method           | grantRequestedAccess
     ${'denyAccess'}  | ${false}
