@@ -67,8 +67,9 @@ export const useThrottledDailyEvent = <T extends DailyEvent>(
       throttle(
         () => {
           if (throttledEvents.current.length === 0) return;
-          callback(throttledEvents.current);
-          throttledEvents.current.length = 0;
+          const events = throttledEvents.current;
+          throttledEvents.current = [];
+          callback(events);
         },
         throttleTimeout,
         {

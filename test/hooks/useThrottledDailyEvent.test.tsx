@@ -150,4 +150,76 @@ describe('useThrottledDailyEvent', () => {
     });
     jest.useRealTimers();
   });
+  it('passes an array to the callback that is not modified afterwards', async () => {
+    jest.useFakeTimers();
+    const daily = Daily.createCallObject();
+    const batches: DailyEventObjectAppMessage[][] = [];
+    const callback = jest.fn((evts: DailyEventObjectAppMessage[]) => {
+      batches.push(evts);
+    });
+    const delay = 100;
+    renderHook(
+      () => {
+        useThrottledDailyEvent('app-message', callback, delay);
+      },
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    const payload: DailyEventObjectAppMessage = mockEvent({
+      action: 'app-message',
+      data: {},
+      fromId: 'abcdef',
+    });
+    act(() => {
+      // @ts-ignore
+      daily.emit('app-message', payload);
+    });
+    act(() => {
+      jest.advanceTimersByTime(delay);
+    });
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(batches[0]).toEqual([payload]);
+    jest.useRealTimers();
+  });
+  it('delivers events that are emitted while the callback is running', async () => {
+    jest.useFakeTimers();
+    const daily = Daily.createCallObject();
+    const receivedEvents: DailyEventObjectAppMessage[] = [];
+    const first: DailyEventObjectAppMessage = mockEvent({
+      action: 'app-message',
+      data: { n: 1 },
+      fromId: 'abcdef',
+    });
+    const second: DailyEventObjectAppMessage = mockEvent({
+      action: 'app-message',
+      data: { n: 2 },
+      fromId: 'abcdef',
+    });
+    const delay = 100;
+    const callback = jest.fn((evts: DailyEventObjectAppMessage[]) => {
+      receivedEvents.push(...evts);
+      if (evts.includes(first)) {
+        // @ts-ignore
+        daily.emit('app-message', second);
+      }
+    });
+    renderHook(
+      () => {
+        useThrottledDailyEvent('app-message', callback, delay);
+      },
+      {
+        wrapper: createWrapper(daily),
+      }
+    );
+    act(() => {
+      // @ts-ignore
+      daily.emit('app-message', first);
+    });
+    act(() => {
+      jest.advanceTimersByTime(delay * 3);
+    });
+    expect(receivedEvents).toEqual([first, second]);
+    jest.useRealTimers();
+  });
 });
