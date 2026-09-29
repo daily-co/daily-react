@@ -184,139 +184,153 @@ export const DailyParticipants: React.FC<React.PropsWithChildren<unknown>> = ({
       'participant-left',
     ],
     useAtomCallback(
-      useCallback((get, set, evts) => {
-        if (!evts.length) return;
-        evts.forEach((ev) => {
-          switch (ev.action) {
-            case 'active-speaker-change': {
-              set(activeIdState, ev.activeSpeaker.peerId);
-              set(participantState(ev.activeSpeaker.peerId), (prev) => {
-                if (!prev) return null;
-                return {
-                  ...prev,
-                  last_active: new Date(),
-                };
-              });
-              break;
-            }
-            case 'participant-joined': {
-              // Update list of ids
-              set(participantIdsState, (prevIds) =>
-                prevIds.includes(ev.participant.session_id)
-                  ? prevIds
-                  : [...prevIds, ev.participant.session_id]
-              );
-              // Store entire object
-              set(participantState(ev.participant.session_id), ev.participant);
-
-              const paths = getParticipantPaths(ev.participant);
-              // Set list of property paths
-              set(
-                participantPropertyPathsState(ev.participant.session_id),
-                paths
-              );
-              // Set all property path values
-              paths.forEach((property) => {
-                const [value] = resolveParticipantPaths(
-                  ev.participant as ExtendedDailyParticipant,
-                  [property]
-                );
-                set(
-                  getParticipantPropertyAtom(
-                    ev.participant.session_id,
-                    property
-                  ),
-                  value
-                );
-              });
-              break;
-            }
-            case 'participant-updated': {
-              // Update entire object
-              set(participantState(ev.participant.session_id), ev.participant);
-              // Update local session_id
-              if (ev.participant.local) {
-                set(localIdState, ev.participant.session_id);
+      useCallback(
+        (get, set, evts) => {
+          if (!evts.length) return;
+          /**
+           * Throttled events can still be flushed after handleCleanup ran on
+           * left-meeting. Don't let them repopulate the participants.
+           */
+          if (daily?.meetingState() === 'left-meeting') return;
+          evts.forEach((ev) => {
+            switch (ev.action) {
+              case 'active-speaker-change': {
+                set(activeIdState, ev.activeSpeaker.peerId);
+                set(participantState(ev.activeSpeaker.peerId), (prev) => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    last_active: new Date(),
+                  };
+                });
+                break;
               }
+              case 'participant-joined': {
+                // Update list of ids
+                set(participantIdsState, (prevIds) =>
+                  prevIds.includes(ev.participant.session_id)
+                    ? prevIds
+                    : [...prevIds, ev.participant.session_id]
+                );
+                // Store entire object
+                set(
+                  participantState(ev.participant.session_id),
+                  ev.participant
+                );
 
-              const paths = getParticipantPaths(ev.participant);
-              const oldPaths = get(
-                participantPropertyPathsState(ev.participant.session_id)
-              );
-              const pathsChanged =
-                paths.length !== oldPaths.length ||
-                paths.some((path) => !oldPaths.includes(path));
-              // Set list of property paths
-              if (pathsChanged) {
+                const paths = getParticipantPaths(ev.participant);
+                // Set list of property paths
                 set(
                   participantPropertyPathsState(ev.participant.session_id),
                   paths
                 );
+                // Set all property path values
+                paths.forEach((property) => {
+                  const [value] = resolveParticipantPaths(
+                    ev.participant as ExtendedDailyParticipant,
+                    [property]
+                  );
+                  set(
+                    getParticipantPropertyAtom(
+                      ev.participant.session_id,
+                      property
+                    ),
+                    value
+                  );
+                });
+                break;
               }
-
-              // Create a Set of oldPaths for quick lookup
-              const oldPathSet = new Set(oldPaths);
-
-              // Resolve all path values in one call
-              const resolvedValues = resolveParticipantPaths(
-                ev.participant as ExtendedDailyParticipant,
-                paths
-              );
-
-              paths.forEach((property, idx) => {
-                const value = resolvedValues[idx];
-
-                // Remove property from oldPathSet to mark it as processed
-                oldPathSet.delete(property);
-
-                // Only update if the new value differs from the current one
+              case 'participant-updated': {
+                // Update entire object
                 set(
-                  getParticipantPropertyAtom(
-                    ev.participant.session_id,
-                    property
-                  ),
-                  (prev: any) => (customDeepEqual(prev, value) ? prev : value)
+                  participantState(ev.participant.session_id),
+                  ev.participant
                 );
-              });
+                // Update local session_id
+                if (ev.participant.local) {
+                  set(localIdState, ev.participant.session_id);
+                }
 
-              // Set any remaining paths in oldPathSet to null
-              oldPathSet.forEach((property) => {
-                set(
-                  getParticipantPropertyAtom(
-                    ev.participant.session_id,
-                    property
-                  ),
-                  null
+                const paths = getParticipantPaths(ev.participant);
+                const oldPaths = get(
+                  participantPropertyPathsState(ev.participant.session_id)
                 );
-              });
-              break;
-            }
-            case 'participant-left': {
-              // Remove from list of ids
-              set(participantIdsState, (prevIds) =>
-                prevIds.includes(ev.participant.session_id)
-                  ? prevIds.filter((id) => id !== ev.participant.session_id)
-                  : prevIds
-              );
-              // Remove entire object
-              participantState.remove(ev.participant.session_id);
+                const pathsChanged =
+                  paths.length !== oldPaths.length ||
+                  paths.some((path) => !oldPaths.includes(path));
+                // Set list of property paths
+                if (pathsChanged) {
+                  set(
+                    participantPropertyPathsState(ev.participant.session_id),
+                    paths
+                  );
+                }
 
-              const oldPaths = get(
-                participantPropertyPathsState(ev.participant.session_id)
-              );
-              // Remove property path values
-              oldPaths.forEach((property) => {
-                participantPropertyState.remove(
-                  getPropertyParam(ev.participant.session_id, property)
+                // Create a Set of oldPaths for quick lookup
+                const oldPathSet = new Set(oldPaths);
+
+                // Resolve all path values in one call
+                const resolvedValues = resolveParticipantPaths(
+                  ev.participant as ExtendedDailyParticipant,
+                  paths
                 );
-              });
-              // Remove all property paths
-              participantPropertyPathsState.remove(ev.participant.session_id);
-              break;
+
+                paths.forEach((property, idx) => {
+                  const value = resolvedValues[idx];
+
+                  // Remove property from oldPathSet to mark it as processed
+                  oldPathSet.delete(property);
+
+                  // Only update if the new value differs from the current one
+                  set(
+                    getParticipantPropertyAtom(
+                      ev.participant.session_id,
+                      property
+                    ),
+                    (prev: any) => (customDeepEqual(prev, value) ? prev : value)
+                  );
+                });
+
+                // Set any remaining paths in oldPathSet to null
+                oldPathSet.forEach((property) => {
+                  set(
+                    getParticipantPropertyAtom(
+                      ev.participant.session_id,
+                      property
+                    ),
+                    null
+                  );
+                });
+                break;
+              }
+              case 'participant-left': {
+                // Remove from list of ids
+                set(participantIdsState, (prevIds) =>
+                  prevIds.includes(ev.participant.session_id)
+                    ? prevIds.filter((id) => id !== ev.participant.session_id)
+                    : prevIds
+                );
+                // Remove entire object
+                participantState.remove(ev.participant.session_id);
+
+                const oldPaths = get(
+                  participantPropertyPathsState(ev.participant.session_id)
+                );
+                // Remove property path values
+                oldPaths.forEach((property) => {
+                  participantPropertyState.remove(
+                    getPropertyParam(ev.participant.session_id, property)
+                  );
+                });
+                // Remove all property paths
+                participantPropertyPathsState.remove(ev.participant.session_id);
+                break;
+              }
             }
-          }
-        });
-      }, [])
+          });
+        },
+        [daily]
+      )
     ),
     100,
     true

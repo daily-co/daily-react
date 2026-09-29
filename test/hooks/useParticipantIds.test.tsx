@@ -559,4 +559,33 @@ describe('useParticipantIds', () => {
       expect(result.current).toEqual([]);
     });
   });
+  it('does not re-add participants from throttled events flushed after left-meeting', async () => {
+    const daily = Daily.createCallObject();
+    const { result } = renderHook(() => useParticipantIds(), {
+      wrapper: createWrapper(daily),
+    });
+    act(() =>
+      emitJoinedMeeting(daily, {
+        local: {
+          local: true,
+          session_id: 'local',
+        },
+      })
+    );
+    act(() => {
+      // The first event is handled immediately, the second is throttled.
+      emitParticipantJoined(daily, { local: false, session_id: 'a' });
+      emitParticipantJoined(daily, { local: false, session_id: 'b' });
+    });
+    await waitFor(() => {
+      expect(result.current).toEqual(['local', 'a']);
+    });
+    act(() => {
+      (daily.meetingState as jest.Mock).mockReturnValue('left-meeting');
+      emitLeftMeeting(daily);
+    });
+    // Wait past the throttle window, so the queued event has been flushed.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 200)));
+    expect(result.current).toEqual([]);
+  });
 });
