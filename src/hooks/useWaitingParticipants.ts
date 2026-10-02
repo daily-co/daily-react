@@ -60,17 +60,21 @@ export const useWaitingParticipants = ({
     )
   );
 
+  /**
+   * Returns a promise that rejects if daily-js rejects the update, e.g. when
+   * the waiting participant is no longer waiting.
+   */
   const updateWaitingParticipantAccess = useCallback(
-    (id: '*' | string, grantRequestedAccess: boolean) => {
+    async (id: '*' | string, grantRequestedAccess: boolean) => {
       if (id === '*') {
-        daily?.updateWaitingParticipants({
+        await daily?.updateWaitingParticipants({
           '*': {
             grantRequestedAccess,
           },
         });
         return;
       }
-      daily?.updateWaitingParticipant(id, {
+      await daily?.updateWaitingParticipant(id, {
         grantRequestedAccess,
       });
     },
@@ -78,16 +82,12 @@ export const useWaitingParticipants = ({
   );
 
   const grantAccess = useCallback(
-    (id: '*' | string) => {
-      updateWaitingParticipantAccess(id, true);
-    },
+    (id: '*' | string) => updateWaitingParticipantAccess(id, true),
     [updateWaitingParticipantAccess]
   );
 
   const denyAccess = useCallback(
-    (id: '*' | string) => {
-      updateWaitingParticipantAccess(id, false);
-    },
+    (id: '*' | string) => updateWaitingParticipantAccess(id, false),
     [updateWaitingParticipantAccess]
   );
 

@@ -198,6 +198,80 @@ describe('useWaitingParticipants', () => {
     });
   });
 
+  it.each(['left-meeting', 'call-instance-destroyed'] as const)(
+    '%s clears waitingParticipants',
+    async (action) => {
+      const daily = Daily.createCallObject();
+      const { result } = renderHook(() => useWaitingParticipants(), {
+        wrapper: createWrapper(daily),
+      });
+      act(() => {
+        // @ts-ignore
+        daily.emit(
+          'waiting-participant-added',
+          mockEvent({
+            action: 'waiting-participant-added',
+            participant: {
+              awaitingAccess: {
+                level: 'full',
+              },
+              id: 'abcdef',
+              name: 'Test',
+            },
+          })
+        );
+      });
+      await waitFor(() => {
+        expect(result.current.waitingParticipants).toHaveLength(1);
+      });
+      act(() => {
+        // @ts-ignore
+        daily.emit(action, mockEvent({ action }));
+      });
+      await waitFor(() => {
+        expect(result.current.waitingParticipants).toHaveLength(0);
+      });
+    }
+  );
+
+  it('does not re-add waiting participants from throttled events flushed after left-meeting', async () => {
+    const daily = Daily.createCallObject();
+    const { result } = renderHook(() => useWaitingParticipants(), {
+      wrapper: createWrapper(daily),
+    });
+    const emitAdded = (id: string) =>
+      // @ts-ignore
+      daily.emit(
+        'waiting-participant-added',
+        mockEvent({
+          action: 'waiting-participant-added',
+          participant: {
+            awaitingAccess: {
+              level: 'full',
+            },
+            id,
+            name: id,
+          },
+        })
+      );
+    act(() => {
+      // The first event is handled immediately, the second is throttled.
+      emitAdded('first');
+      emitAdded('second');
+    });
+    await waitFor(() => {
+      expect(result.current.waitingParticipants).toHaveLength(1);
+    });
+    act(() => {
+      (daily.meetingState as jest.Mock).mockReturnValue('left-meeting');
+      // @ts-ignore
+      daily.emit('left-meeting', mockEvent({ action: 'left-meeting' }));
+    });
+    // Wait past the throttle window, so the queued event has been flushed.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 200)));
+    expect(result.current.waitingParticipants).toHaveLength(0);
+  });
+
   describe.each`
     method           | grantRequestedAccess
     ${'denyAccess'}  | ${false}
@@ -225,6 +299,30 @@ describe('useWaitingParticipants', () => {
             grantRequestedAccess,
           });
         });
+      });
+      it('rejects when updateWaitingParticipant rejects', async () => {
+        const daily = Daily.createCallObject();
+        const error = new Error(
+          'updateWaitingParticipant() must take an id of a waiting participant'
+        );
+        (daily.updateWaitingParticipant as jest.Mock).mockRejectedValueOnce(
+          error
+        );
+        const { result } = renderHook(() => useWaitingParticipants(), {
+          wrapper: createWrapper(daily),
+        });
+        await expect(result.current[method]('abcdef')).rejects.toBe(error);
+      });
+      it('rejects when updateWaitingParticipants rejects', async () => {
+        const daily = Daily.createCallObject();
+        const error = new Error('update failed');
+        (daily.updateWaitingParticipants as jest.Mock).mockRejectedValueOnce(
+          error
+        );
+        const { result } = renderHook(() => useWaitingParticipants(), {
+          wrapper: createWrapper(daily),
+        });
+        await expect(result.current[method]('*')).rejects.toBe(error);
       });
       it('calls updateWaitingParticipants for "all" waiting participants', async () => {
         const daily = Daily.createCallObject();
