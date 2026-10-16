@@ -16,6 +16,11 @@ module.exports = {
     '^react$': require.resolve('react'),
     '^react-dom$': require.resolve('react-dom'),
   },
+  // @faker-js/faker v10 is ESM-only; Jest 27 runs CJS, so transpile it.
+  transform: {
+    '/node_modules/@faker-js/faker/.+\\.js$': '<rootDir>/jest-esm-transformer.js',
+  },
+  transformIgnorePatterns: ['/node_modules/(?!@faker-js/faker/)'],
   collectCoverage: true,
   collectCoverageFrom: ['src/**/*{ts,tsx}'],
 };
