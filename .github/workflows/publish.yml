@@ -1,5 +1,6 @@
 # Publishes @daily-co/daily-react to npm with provenance, via OIDC trusted
-# publishing, when a version bump lands on main.
+# publishing, when a version bump lands on main. Run it manually to retry a
+# failed publish of the current package.json version.
 name: publish
 on:
   push:
@@ -7,6 +8,7 @@ on:
       - main
     paths:
       - package.json
+  workflow_dispatch:
 jobs:
   npm-publish:
     name: npm-publish
@@ -27,6 +29,11 @@ jobs:
       - name: Check for version bump commit
         id: version-check
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "version=$(jq -r .version < package.json)" >> "${GITHUB_OUTPUT}"
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
           COMMIT_MSG=$(git log -1 --pretty=%B)
           if [[ "$COMMIT_MSG" =~ (^|[[:space:]])Bump\ @daily-co/daily-react\ to\ ([0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*) ]]; then
             echo "version=${BASH_REMATCH[2]}" >> "${GITHUB_OUTPUT}"
@@ -34,11 +41,11 @@ jobs:
           else
             echo "changed=false" >> "${GITHUB_OUTPUT}"
           fi
-      - name: Install deps and build (with cache)
+      # Not bahmutov/npm-install: its cache key needs a package-lock.json, and
+      # this repo has none.
+      - name: Install deps and build
         if: steps.version-check.outputs.changed == 'true'
-        uses: bahmutov/npm-install@v1
-        with:
-          install-command: npm install --include=dev
+        run: npm install --include=dev
       # OIDC trusted publishing requires npm >= 11.5.1; Node 22 ships npm 10.
       - name: Upgrade npm for OIDC trusted publishing
         if: steps.version-check.outputs.changed == 'true'
