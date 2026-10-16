@@ -42,7 +42,7 @@ jobs:
             echo "changed=false" >> "${GITHUB_OUTPUT}"
           fi
       # Not bahmutov/npm-install: its cache key needs a package-lock.json, and
-      # this repo has none (pluot-core tracks daily-react in north-star/yarn.lock).
+      # this repo has none.
       - name: Install deps and build
         if: steps.version-check.outputs.changed == 'true'
         run: npm install --include=dev
