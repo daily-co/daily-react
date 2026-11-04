@@ -100,16 +100,19 @@ export const DailyDialin: React.FC<React.PropsWithChildren<unknown>> = ({
     'dialin-error',
     useAtomCallback(
       useCallback((_get, set, ev) => {
+        // start-failed errors carry no sessionId: nothing to record
+        const { sessionId } = ev;
+        if (!sessionId) return;
         set(dialinState, (prev) => ({
           ...prev,
           sessions: {
             ...prev.sessions,
-            [ev.sessionId]: {
-              ...prev.sessions[ev.sessionId],
-              sessionId: ev.sessionId,
+            [sessionId]: {
+              ...prev.sessions[sessionId],
+              sessionId,
               status: 'error',
-              provider: ev.provider ?? prev.sessions[ev.sessionId]?.provider,
-              sipCallId: ev.sipCallId ?? prev.sessions[ev.sessionId]?.sipCallId,
+              provider: ev.provider ?? prev.sessions[sessionId]?.provider,
+              sipCallId: ev.sipCallId ?? prev.sessions[sessionId]?.sipCallId,
               errorMsg: ev.errorMsg,
             },
           },
