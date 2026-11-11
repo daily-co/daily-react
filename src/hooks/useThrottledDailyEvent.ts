@@ -1,5 +1,5 @@
 import { DailyEvent, DailyEventObject } from '@daily-co/daily-js';
-import throttle from 'lodash.throttle';
+import throttle from 'lodash/throttle';
 import {
   useCallback,
   useContext,
